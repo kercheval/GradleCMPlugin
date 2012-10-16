@@ -1,0 +1,7 @@
+apply plugin: 'buildinfo'
+
+buildscript {
+	dependencies {
+		classpath fileTree(dir: '../../build/libs', include: '*.jar')
+	}
+}
