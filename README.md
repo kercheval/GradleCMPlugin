@@ -6,6 +6,10 @@ The sources here demonstrate the following
 
 - Creation of a gradle plugin using standard Java
 - Use of a property to distinguish between versions and build types
+- Obtains Git repository information about the build
+- Obtains build machine information and user info
+- Obtains Jenkins CI build system information
+
 
 ***
 
@@ -20,7 +24,7 @@ version number set the buildVersion property using the gradle command
 line (or IDE argument)
 
 ```
-gradle build -PbuildType=release
+gradle build -PbuildVersion=1.0.4
 ```
 
 To build a release version set the buildType property using the gradle
