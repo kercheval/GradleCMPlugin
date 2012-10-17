@@ -1,19 +1,25 @@
-package org.kercheval.gradle.about;
+package org.kercheval.gradle.util;
 
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import java.util.Properties;
+import java.io.IOException;
 
 public class JenkinsUtilTest {
     @Test
     public void test() {
         JenkinsUtil jenkinsUtil = new JenkinsUtil();
-        Properties props = jenkinsUtil.getJenkinsInfo();
+        SortedProperties props = jenkinsUtil.getJenkinsInfo();
 
-        PropertyUtil.storeSorted(props, System.out, "\nJenkins Info\n");
+        try {
+            props.store(System.out, "\nJenkins Info\n");
+        } catch (IOException e) {
+            fail();
+        }
+
         assertNotNull(props);
         assertTrue(props.size() > 0);
     }

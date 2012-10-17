@@ -1,10 +1,28 @@
 //
 // This build file displays and allows test of the build info plugin
 //
+// This build file should not be used as an example of how to use 
+// the plugin, it is only used for testing purposes.
+//
 apply plugin: 'buildinfo'
 
+description = 'Gradle CM Plugin test build file'
+
 buildscript {
+	repositories {
+	    mavenCentral()
+	}
+	
 	dependencies {
+		//
+		// Normally these two are derived from dependency POM (test only)
+		//
+		classpath gradleApi()
+		classpath 'org.eclipse.jgit:org.eclipse.jgit:2.1.0.201209190230-r'
+		
+		//
+		// Obtain from parent output location (normally get from repository)
+		//
 		classpath fileTree(dir: '../../build/libs', include: '*.jar')
 	}
 }

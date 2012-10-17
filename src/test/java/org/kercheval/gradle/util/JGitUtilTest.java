@@ -1,21 +1,26 @@
-package org.kercheval.gradle.about;
+package org.kercheval.gradle.util;
 
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
-
-import java.util.Properties;
+import java.io.IOException;
 
 public class JGitUtilTest {
     @Test
     public void test() {
         JGitUtil jgu = new JGitUtil(new File("."));
-        Properties props = jgu.getStatus();
+        SortedProperties props = jgu.getGitInfo();
 
-        PropertyUtil.storeSorted(props, System.out, "\nGit Info\n");
+        try {
+            props.store(System.out, "\nGit Info\n");
+        } catch (IOException e) {
+            fail();
+        }
+
         assertNotNull(props);
         assertTrue(props.size() > 0);
     }

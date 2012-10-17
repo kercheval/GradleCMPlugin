@@ -1,39 +1,43 @@
-package org.kercheval.gradle.about;
+package org.kercheval.gradle.util;
 
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
-import java.util.Properties;
-
-public class PropertyUtilTest {
+public class SortedPropertiesTest {
     @Test
     public void testAddProperty() {
-        Properties props = new Properties();
+        SortedProperties props = new SortedProperties();
 
-        PropertyUtil.addProperty(props, "test", null);
+        props.addProperty("test", null);
         assertTrue(props.size() == 1);
         assertEquals("", props.getProperty("test"));
-        PropertyUtil.addProperty(props, "test", "foo");
+        props.addProperty("test", "foo");
         assertTrue(props.size() == 1);
         assertEquals("foo", props.getProperty("test"));
     }
 
     @Test
     public void testStoreSorted() {
-        Properties props = new Properties();
+        SortedProperties props = new SortedProperties();
 
-        props.setProperty("1", "foo");
         props.setProperty("2", "bar");
-        props.setProperty("3", "baz");
+        props.setProperty("1", "foo");
         props.setProperty("4", "quux");
+        props.setProperty("3", "baz");
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        PropertyUtil.storeSorted(props, baos, "My Comment");
+        try {
+            props.store(baos, "My Comment");
+        } catch (IOException e) {
+            fail();
+        }
 
         String sortedString = baos.toString();
 
