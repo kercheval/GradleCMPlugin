@@ -8,7 +8,6 @@ import org.kercheval.gradle.util.GradleUtil;
 import org.kercheval.gradle.util.JGitUtil;
 import org.kercheval.gradle.util.JenkinsUtil;
 import org.kercheval.gradle.util.MachineUtil;
-import org.kercheval.gradle.util.SortedProperties;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -19,17 +18,52 @@ import java.util.Date;
 import java.util.Map;
 
 public class BuildInfoTask extends DefaultTask {
-    static String EOL = System.getProperty("line.separator");
-    SortedProperties machineProps;
+    static private String EOL = System.getProperty("line.separator");
 
-    public BuildInfoTask() {
+    //
+    // If true, the buildinfo file will be written automatically at
+    // the beginning of the task evaluation phase for the project.
+    //
+    private boolean autowrite = true;
 
-        //
-        // Get the machine info on task init
-        //
-        machineProps = new MachineUtil().getMachineInfo();
+    //
+    // This is the file name to use for info file.  The default value
+    // for this filename is buildinfo.properties
+    //
+    private String filename;
+
+    //
+    // This directory represents the path used for the file written.
+    // This value will default to ${buildDir}
+    //
+    private String filedir;
+
+    public boolean isAutowrite() {
+        return autowrite;
     }
 
+    public void setAutowrite(boolean autowrite) {
+        this.autowrite = autowrite;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
+    public String getFiledir() {
+        return filedir;
+    }
+
+    public void setFiledir(String filedir) {
+        this.filedir = filedir;
+    }
+
+    //
+    // TODO: Need to support autowrite by hooking into early task
     @TaskAction
     public void doTask() {
         Project project = this.getProject();
@@ -37,10 +71,28 @@ public class BuildInfoTask extends DefaultTask {
 
         try {
             File buildDirFile = (File) props.get("buildDir");
-            StringBuilder sb = new StringBuilder(buildDirFile.getCanonicalPath());
+            StringBuilder sb = new StringBuilder();
 
-            sb.append("/").append("/buildinfo.properties");
+            //
+            // Override path if appropriate and use our rich mkdir
+            // support to ensure the directory exists
+            //
+            if (getFiledir() != null) {
+                buildDirFile = new File(getFiledir());
+            }
+
+            sb.append(buildDirFile.getCanonicalPath());
             project.mkdir(buildDirFile);
+            sb.append("/");
+
+            //
+            // Override filename if appropriate
+            //
+            if (getFilename() != null) {
+                sb.append(getFilename());
+            } else {
+                sb.append("buildinfo.properties");
+            }
 
             BufferedWriter out = new BufferedWriter(new FileWriter(sb.toString()));
 
@@ -54,13 +106,13 @@ public class BuildInfoTask extends DefaultTask {
             out.write("#");
             out.write(EOL);
             out.write(EOL);
-            machineProps.store(out, "Machine Info");
+            new MachineUtil(project).getMachineInfo().store(out, "Machine Info");
             out.write(EOL);
             out.write(EOL);
             new GradleUtil(project).getGradleInfo().store(out, "Gradle Info");
             out.write(EOL);
             out.write(EOL);
-            new JGitUtil((File) props.get("rootDir")).getGitInfo().store(out, "Git Info");
+            new JGitUtil(project, (File) props.get("rootDir")).getGitInfo().store(out, "Git Info");
             out.write(EOL);
             out.write(EOL);
             new JenkinsUtil().getJenkinsInfo().store(out, "Jenkins Info");

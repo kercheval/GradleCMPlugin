@@ -1,5 +1,8 @@
 package org.kercheval.gradle.util;
 
+import org.gradle.api.Project;
+import org.gradle.testfixtures.ProjectBuilder;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
@@ -12,7 +15,8 @@ import java.io.IOException;
 public class JGitUtilTest {
     @Test
     public void test() {
-        JGitUtil jgu = new JGitUtil(new File("."));
+        Project project = ProjectBuilder.builder().build();
+        JGitUtil jgu = new JGitUtil(project, new File("."));
         SortedProperties props = jgu.getGitInfo();
 
         try {

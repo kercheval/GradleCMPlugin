@@ -1,11 +1,19 @@
 package org.kercheval.gradle.util;
 
+import org.gradle.api.Project;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import java.util.Date;
 
 public class MachineUtil {
+    Project project;
+
+    public MachineUtil(Project project) {
+        this.project = project;
+    }
+
     public SortedProperties getMachineInfo() {
         SortedProperties props = new SortedProperties();
         InetAddress addr;
@@ -16,8 +24,7 @@ public class MachineUtil {
             props.addProperty("machine.hostaddress", addr.getHostAddress());
             props.addProperty("machine.time", new Date().toString());
         } catch (UnknownHostException e) {
-
-            // TODO log exception
+            project.getLogger().error(e.getMessage());
         }
 
         props.addProperty("machine.username", System.getProperty("user.name"));

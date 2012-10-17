@@ -1,5 +1,8 @@
 package org.kercheval.gradle.util;
 
+import org.gradle.api.Project;
+import org.gradle.testfixtures.ProjectBuilder;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
@@ -11,7 +14,8 @@ import java.io.IOException;
 public class MachineUtilTest {
     @Test
     public void test() {
-        MachineUtil machineUtil = new MachineUtil();
+        Project project = ProjectBuilder.builder().build();
+        MachineUtil machineUtil = new MachineUtil(project);
         SortedProperties props = machineUtil.getMachineInfo();
 
         try {

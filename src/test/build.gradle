@@ -8,6 +8,12 @@ apply plugin: 'buildinfo'
 
 description = 'Gradle CM Plugin test build file'
 
+buildinfo {
+	autowrite = false
+	filename = "testinfo.properties"
+	filedir = "../../build"
+}
+
 buildscript {
 	repositories {
 	    mavenCentral()

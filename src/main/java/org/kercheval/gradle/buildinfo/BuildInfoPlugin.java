@@ -8,6 +8,10 @@ public class BuildInfoPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
+
+        //
+        // Create the actual task that will be executed
+        //
         project.getTasks().add(TASK_NAME, BuildInfoTask.class);
     }
 }

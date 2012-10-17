@@ -9,15 +9,18 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
 
+import org.gradle.api.Project;
+
 import java.io.File;
 import java.io.IOException;
 
-
 public class JGitUtil {
     private final File gitBaseDir;
+    Project project;
 
-    public JGitUtil(File gitBaseDir) {
+    public JGitUtil(Project project, File gitBaseDir) {
         this.gitBaseDir = gitBaseDir;
+        this.project = project;
     }
 
     public SortedProperties getGitInfo() {
@@ -51,15 +54,12 @@ public class JGitUtil {
                 props.addProperty("git.workspace.files.conflicting", status.getConflicting().toString());
                 props.addProperty("git.workspace.files.modified", status.getModified().toString());
             } catch (NoWorkTreeException e) {
-
-                // TODO: log exception here
+                project.getLogger().error(e.getMessage());
             } catch (GitAPIException e) {
-
-                // TODO: log exception here
+                project.getLogger().error(e.getMessage());
             }
         } catch (IOException e) {
-
-            // TODO: log exception here
+            project.getLogger().error(e.getMessage());
         } finally {
             if (null != repository) {
                 repository.close();
