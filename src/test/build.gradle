@@ -1,3 +1,6 @@
+//
+// This build file displays and allows test of the build info plugin
+//
 apply plugin: 'buildinfo'
 
 buildscript {
