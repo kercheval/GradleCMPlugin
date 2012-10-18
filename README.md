@@ -1,6 +1,8 @@
 #Gradle Build Plugin
 
-This plugin support gradle build information and environment settings.  
+This plugin supports gradle build information and environment settings.  
+
+## Summary
 
 The sources here demonstrate the following
 
@@ -13,13 +15,25 @@ The sources here demonstrate the following
 - Obtains Jenkins CI build system information
 - Obtains Gradle property information
 
-***
+##Usage
 
-<a rel="license" href="http://creativecommons.org/licenses/by/3.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by/3.0/88x31.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Gradle CM Plugins</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="https://github.com/kercheval" property="cc:attributionName" rel="cc:attributionURL">John Kercheval</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3.0/deed.en_US">Creative Commons Attribution 3.0 Unported License</a>.<br />Based on a work at <a xmlns:dct="http://purl.org/dc/terms/" href="https://github.com/kercheval/GradleCMPlugin" rel="dct:source">https://github.com/kercheval/GradleCMPlugin</a>.
+```
+TODO
+```
 
-***
+##Project Specifics
 
-## Setting Build Version and Build Type
+### Dependencies
+
+This project depends on the following currently:
+
+- The gradle API - This is a gradle plugin after all
+- JUNIT - There is some JUNIT validation for information sources and
+utility code
+- JGIT - The git information is acquired using the very well done JGit
+project code (used for the Eclipse project)
+
+### Setting Build Version and Build Type
 
 The build version and type is set in the gradle.properties file to
 default to 'snapshot.dev'.  This version is made of two parts: the
@@ -39,4 +53,8 @@ command line (or IDE arguments)
 ```
 gradle build -PbuildType=release
 ```
+
+##Licensing
+
+<a rel="license" href="http://creativecommons.org/licenses/by/3.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by/3.0/88x31.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Gradle CM Plugins</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="https://github.com/kercheval" property="cc:attributionName" rel="cc:attributionURL">John Kercheval</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3.0/deed.en_US">Creative Commons Attribution 3.0 Unported License</a>.<br />Based on a work at <a xmlns:dct="http://purl.org/dc/terms/" href="https://github.com/kercheval/GradleCMPlugin" rel="dct:source">https://github.com/kercheval/GradleCMPlugin</a>.
 
