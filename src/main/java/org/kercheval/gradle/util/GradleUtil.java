@@ -11,6 +11,11 @@ public class GradleUtil {
         this.project = project;
     }
 
+    //
+    // Only few gradle specific properties obtained here.  This should
+    // normally be called after the task graph has been generated to ensure
+    // the evaluation stage variable changes have been completed
+    //
     public SortedProperties getGradleInfo() {
         Map<String, ?> gradleProps = project.getProperties();
         SortedProperties props = new SortedProperties();

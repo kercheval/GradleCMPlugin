@@ -4,7 +4,9 @@ This plugin support gradle build information and environment settings.
 
 The sources here demonstrate the following
 
-- Creation of a gradle plugin and task using standard Java
+- Creation of a Gradle plugin and task using standard Java
+- Automatic task run based on gradle lifecycle.
+- Use of Gradle API for task customization and iteration
 - Use of a property to distinguish between versions and build types
 - Obtains Git repository information about the build
 - Obtains build machine information and user info

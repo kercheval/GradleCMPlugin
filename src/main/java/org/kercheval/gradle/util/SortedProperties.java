@@ -6,6 +6,10 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
+//
+//This is a simple helper class to ensure that enumerations of the properties
+//collected are simple alpha sort.  This is mainly for repeatability.
+//
 public class SortedProperties extends Properties {
     @Override
     public Set<Object> keySet() {

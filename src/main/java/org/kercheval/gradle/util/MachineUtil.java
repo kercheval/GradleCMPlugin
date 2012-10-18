@@ -14,6 +14,11 @@ public class MachineUtil {
         this.project = project;
     }
 
+    //
+    // Obtain the current machine and VM information.  The VM is that running
+    // Gradle, but is normally also the compilation VM.  This is not guaranteed,
+    // but appropriate for this use.
+    //
     public SortedProperties getMachineInfo() {
         SortedProperties props = new SortedProperties();
         InetAddress addr;

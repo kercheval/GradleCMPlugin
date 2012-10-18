@@ -12,6 +12,9 @@ task hello << {
 	println "Hello Task"
 }
 
+//
+// This illustrates how the plugin supported properties are set/modified
+//
 buildinfo {
 	autowrite = false
 	filename = "testinfo.properties"

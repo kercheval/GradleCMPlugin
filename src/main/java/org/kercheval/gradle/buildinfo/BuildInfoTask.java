@@ -85,6 +85,10 @@ public class BuildInfoTask extends DefaultTask {
 
     @TaskAction
     public void doTask() {
+
+        //
+        // Obtain the project properties
+        //
         Project project = this.getProject();
         Map<String, ?> props = project.getProperties();
 
@@ -115,6 +119,9 @@ public class BuildInfoTask extends DefaultTask {
 
             BufferedWriter out = new BufferedWriter(new FileWriter(sb.toString()));
 
+            //
+            // Write out the header
+            //
             out.write("#");
             out.write(EOL);
             out.write("# Build Info Created by ");
@@ -127,6 +134,11 @@ public class BuildInfoTask extends DefaultTask {
             out.write("# Tasks executing in this build");
             out.write(EOL);
 
+            //
+            // Include all the tasks that are to be executed in this build.
+            // These are scheduled tasks, there is no guarantee that the tasks
+            // will actually be run or will have succeeded if run
+            //
             for (Task task : project.getGradle().getTaskGraph().getAllTasks()) {
                 out.write("#   ");
                 out.write(task.getPath());
@@ -138,6 +150,10 @@ public class BuildInfoTask extends DefaultTask {
             out.write("#");
             out.write(EOL);
             out.write(EOL);
+
+            //
+            // Grab properties from our various information sources
+            //
             new MachineUtil(project).getMachineInfo().store(out, "Machine Info");
             out.write(EOL);
             out.write(EOL);

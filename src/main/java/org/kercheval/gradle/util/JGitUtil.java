@@ -23,6 +23,11 @@ public class JGitUtil {
         this.project = project;
     }
 
+    //
+    // The info supplied here relies on the JGit library to interact with the
+    // repository.  Get the environment, the latest branch commit, the origin
+    // and the current file status for the workspace.
+    //
     public SortedProperties getGitInfo() {
         SortedProperties props = new SortedProperties();
         Repository repository = null;

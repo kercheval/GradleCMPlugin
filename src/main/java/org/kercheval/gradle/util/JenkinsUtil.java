@@ -1,7 +1,14 @@
 package org.kercheval.gradle.util;
 
-
 public class JenkinsUtil {
+
+    //
+    // The properties here are all found in the environment.  Hudson supplies
+    // many of these variables as well, but the master and slave URLs will not
+    // be filled out (JENKINS in the name of these specific variables).
+    //
+    // Recommendation---  Move to Jenkins and bail on Hudson.
+    //
     public SortedProperties getJenkinsInfo() {
         SortedProperties props = new SortedProperties();
 
