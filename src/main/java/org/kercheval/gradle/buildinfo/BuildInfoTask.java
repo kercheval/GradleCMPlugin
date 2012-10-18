@@ -2,6 +2,9 @@ package org.kercheval.gradle.buildinfo;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
+import org.gradle.api.execution.TaskExecutionGraph;
+import org.gradle.api.execution.TaskExecutionGraphListener;
 import org.gradle.api.tasks.TaskAction;
 
 import org.kercheval.gradle.util.GradleUtil;
@@ -38,6 +41,24 @@ public class BuildInfoTask extends DefaultTask {
     //
     private String filedir;
 
+    public BuildInfoTask() {
+
+        //
+        // Add a listener to automatically write the build info file as soon
+        // as the task graph is completed.  This ensures that all tasks have
+        // completed their configuration phase and all variable updates have
+        // been completed for the purposes of this plugin.
+        //
+        getProject().getGradle().getTaskGraph().addTaskExecutionGraphListener(new TaskExecutionGraphListener() {
+            @Override
+            public void graphPopulated(TaskExecutionGraph graph) {
+                if (isAutowrite()) {
+                    doTask();
+                }
+            }
+        });
+    }
+
     public boolean isAutowrite() {
         return autowrite;
     }
@@ -62,8 +83,6 @@ public class BuildInfoTask extends DefaultTask {
         this.filedir = filedir;
     }
 
-    //
-    // TODO: Need to support autowrite by hooking into early task
     @TaskAction
     public void doTask() {
         Project project = this.getProject();
@@ -102,6 +121,19 @@ public class BuildInfoTask extends DefaultTask {
             out.write(getName());
             out.write(" on ");
             out.write(new Date().toString());
+            out.write(EOL);
+            out.write("#");
+            out.write(EOL);
+            out.write("# Tasks executing in this build");
+            out.write(EOL);
+
+            for (Task task : project.getGradle().getTaskGraph().getAllTasks()) {
+                out.write("#   ");
+                out.write(task.getPath());
+                out.write(EOL);
+            }
+
+            out.write("#");
             out.write(EOL);
             out.write("#");
             out.write(EOL);

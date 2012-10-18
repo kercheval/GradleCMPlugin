@@ -8,6 +8,10 @@ apply plugin: 'buildinfo'
 
 description = 'Gradle CM Plugin test build file'
 
+task hello << {
+	println "Hello Task"
+}
+
 buildinfo {
 	autowrite = false
 	filename = "testinfo.properties"
