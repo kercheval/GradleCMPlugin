@@ -52,6 +52,29 @@ public class BuildInfoTask extends DefaultTask {
         getProject().getGradle().getTaskGraph().addTaskExecutionGraphListener(new TaskExecutionGraphListener() {
             @Override
             public void graphPopulated(TaskExecutionGraph graph) {
+                Project project = getProject();
+                Map<String, ?> props = project.getProperties();
+
+                if (getFiledir() == null) {
+
+                    //
+                    // filedir was not set in gradle file, so set to default value
+                    //
+                    try {
+                        setFiledir(((File) props.get("buildDir")).getCanonicalPath());
+                    } catch (IOException e) {
+                        project.getLogger().error(e.getMessage());
+                    }
+                }
+
+                if (getFilename() == null) {
+
+                    //
+                    // Set default filename
+                    //
+                    setFilename("buildinfo.properties");
+                }
+
                 if (isAutowrite()) {
                     doTask();
                 }
@@ -93,29 +116,22 @@ public class BuildInfoTask extends DefaultTask {
         Map<String, ?> props = project.getProperties();
 
         try {
-            File buildDirFile = (File) props.get("buildDir");
+
+            //
+            // Use mkdir support to ensure the directory exists
+            //
+            File buildDirFile = new File(getFiledir());
+
+            project.mkdir(buildDirFile);
+
+            //
+            // Create the file spec for our file writer
+            //
             StringBuilder sb = new StringBuilder();
 
-            //
-            // Override path if appropriate and use our rich mkdir
-            // support to ensure the directory exists
-            //
-            if (getFiledir() != null) {
-                buildDirFile = new File(getFiledir());
-            }
-
             sb.append(buildDirFile.getCanonicalPath());
-            project.mkdir(buildDirFile);
             sb.append("/");
-
-            //
-            // Override filename if appropriate
-            //
-            if (getFilename() != null) {
-                sb.append(getFilename());
-            } else {
-                sb.append("buildinfo.properties");
-            }
+            sb.append(getFilename());
 
             BufferedWriter out = new BufferedWriter(new FileWriter(sb.toString()));
 
