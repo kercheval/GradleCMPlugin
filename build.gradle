@@ -1,21 +1,38 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: 'maven'
 
-def buildDate = new Date().format("yyyyMMddHHmm")
+//
+// Build date is a part of all release versions.  Use the standard maven 
+// time stamp format.
+//
+def buildDate = new Date().format("yyyyMMdd.HHmmss")
 
-if (buildType != "release") {
-	version = "${buildVersion}.${buildType}"
-} else {
-	version = "${buildVersion}.${buildDate}"
-}
-group = 'org.kercheval'
+//
+// Here we use the build type in the version (could be SNAPSHOT, dev, qa, etc)
+// if it is not release.  This will deploy a single binary in snapshot form to 
+// the repository.  For release, we have unique versioning based on the current
+// build date (in maven timestamp format).
+//
+def versionSuffix = buildType
+if (buildType == "release") {
+	versionSuffix = new Date().format("yyyyMMdd.HHmmss")
+} 
+version = "${buildVersion}-${versionSuffix}"
 
+//
+// Manifest specific properties.  This would be done for the War/Ear target if 
+// those plugins were also being used.
+//
 jar {
     manifest {
         attributes 'Implementation-Title': 'Gradle Build CM Plugin', 'Implementation-Version': version
     }
 }
 
+//
+// Build dependency section
+//
 repositories {
     mavenCentral()
 }
@@ -25,3 +42,38 @@ dependencies {
 	compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '2.1.0.201209190230-r'
     testCompile group: 'junit', name: 'junit', version: '4.+'
 }
+
+//
+// The publish group for the repository
+//
+group = 'org.kercheval'
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+	    //
+	    // Note this cute little bit of indirection.  The upload target will place the repository 
+	    // files into a local github repository that is at the same level as the root of this 
+	    // project.  I have cloned my maven repository into that location so that these line up
+	    // correctly.  This allows me to validate the release binaries and commit them as a 
+	    // seperate step.  If I had nexus deployed and was using CI for this project, this repository
+	    // reference would be pointing directly at that instead.
+	    //
+	    repository(url: "file://${rootDir}/../mvn-repo/releases")
+	    //
+	    // Note that this repository will be used ONLY if the buildType
+	    // in gradle.properties is set to 'SNAPSHOT'
+	    //
+	    snapshotRepository(url: "file://${rootDir}/../mvn-repo/snapshots") 
+	    pom.project {
+		licenses {
+		    license {
+			name 'Creative Commons Attribution 3.0 Unported License'
+			url 'http://creativecommons.org/licenses/by/3.0/deed.en_US'
+		    }
+		}
+	    }
+        }
+    }
+}
+
