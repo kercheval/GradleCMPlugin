@@ -5,20 +5,27 @@
 // the plugin, it is only used for testing purposes.
 //
 apply plugin: 'buildinfo'
+apply plugin: 'war'
 
 description = 'Gradle CM Plugin test build file'
 
-task hello << {
-	println "Hello Task"
+task helloZip(type: Zip) {
+	classifier = 'hello'
+	from "." include "build.gradle" into "hellodir"
 }
 
 //
 // This illustrates how the plugin supported properties are set/modified
 //
 buildinfo {
-	autowrite = false
+	//
+	// If autowrite is turned off, you must place the buildinfo task as 
+	// a dependency in any task you wish to use the buildinfo file
+	//
+	autowrite = true
 	filename = "testinfo.properties"
 	filedir = "../../build"
+	taskmap = [helloZip: "testdir", jar: "META-INF"];
 }
 
 buildscript {

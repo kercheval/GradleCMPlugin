@@ -5,6 +5,7 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.execution.TaskExecutionGraph;
 import org.gradle.api.execution.TaskExecutionGraphListener;
+import org.gradle.api.tasks.AbstractCopyTask;
 import org.gradle.api.tasks.TaskAction;
 
 import org.kercheval.gradle.util.GradleUtil;
@@ -18,6 +19,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 public class BuildInfoTask extends DefaultTask {
@@ -41,6 +43,12 @@ public class BuildInfoTask extends DefaultTask {
     //
     private String filedir;
 
+    //
+    // This is the map of tasks/locations that will copy elements added so
+    // that the build info file will be added into the output.
+    //
+    private Map<String, String> taskmap;
+
     public BuildInfoTask() {
 
         //
@@ -54,7 +62,11 @@ public class BuildInfoTask extends DefaultTask {
             public void graphPopulated(TaskExecutionGraph graph) {
                 Project project = getProject();
                 Map<String, ?> props = project.getProperties();
+                boolean validateMap = true;
 
+                //
+                // Set variable defaults
+                //
                 if (getFiledir() == null) {
 
                     //
@@ -75,11 +87,83 @@ public class BuildInfoTask extends DefaultTask {
                     setFilename("buildinfo.properties");
                 }
 
+                if (getTaskmap() == null) {
+
+                    //
+                    // set the default taskMap
+                    //
+                    taskmap = new HashMap<String, String>();
+                    taskmap.put("jar", "META-INF");
+                    taskmap.put("war", "META-INF");
+                    taskmap.put("ear", "META-INF");
+
+                    //
+                    // Don't validate the default map
+                    //
+                    validateMap = false;
+                }
+
+                //
+                // Run our task and insert into tasks if autowrite
+                //
                 if (isAutowrite()) {
                     doTask();
+
+                    Map<String, Task> taskMap = new HashMap<String, Task>();
+
+                    for (Task task : graph.getAllTasks()) {
+                        taskMap.put(task.getName(), task);
+                    }
+
+                    for (String taskname : taskmap.keySet()) {
+                        Task task = taskMap.get(taskname);
+
+                        if (null != task) {
+
+                            //
+                            // The task must implement AbstractCopyTask in order
+                            // to automatically insert.
+                            //
+                            if (task instanceof AbstractCopyTask) {
+
+                                //
+                                // Add a copy spec into the task.
+                                //
+                                // TODO: This does not quite work since it modifies the into for all files already in the copyspec
+                                project.getLogger().info("buildinfo: copy spec being added to task: " + task.getPath());
+                                ((AbstractCopyTask) task).from(getFiledir()).into(taskmap.get(taskname)).include(
+                                    getFilename());
+                            } else {
+
+                                //
+                                // Not supported task!
+                                //
+                                project.getLogger().error(
+                                    "buildinfo: task defined in taskmap must implement AbstractCopyTask: "
+                                    + task.getPath());
+                            }
+                        } else {
+                            if (validateMap) {
+
+                                //
+                                // Report tasks which don't exist (if not using default)
+                                //
+                                project.getLogger().error("buildinfo: task defined in taskmap does not exist: "
+                                                          + taskname);
+                            }
+                        }
+                    }
                 }
             }
         });
+    }
+
+    public Map<String, String> getTaskmap() {
+        return taskmap;
+    }
+
+    public void setTaskmap(Map<String, String> taskLocation) {
+        this.taskmap = taskLocation;
     }
 
     public boolean isAutowrite() {

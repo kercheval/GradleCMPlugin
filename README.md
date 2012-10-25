@@ -19,6 +19,8 @@ The sources here demonstrate the following
 
 ```
 TODO
+- Add custom properties that will go into buildinfo.properties
+- Add documentation and examples for autowrite and copy task extension usage
 ```
 
 ##Project Specifics
