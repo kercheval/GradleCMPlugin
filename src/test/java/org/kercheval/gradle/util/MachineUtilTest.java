@@ -14,13 +14,13 @@ import java.io.IOException;
 public class MachineUtilTest {
     @Test
     public void test() {
-        Project project = ProjectBuilder.builder().build();
-        MachineUtil machineUtil = new MachineUtil(project);
-        SortedProperties props = machineUtil.getMachineInfo();
+        final Project project = ProjectBuilder.builder().build();
+        final MachineUtil machineUtil = new MachineUtil(project);
+        final SortedProperties props = machineUtil.getMachineInfo();
 
         try {
             props.store(System.out, "\nMachine Info\n");
-        } catch (IOException e) {
+        } catch (final IOException e) {
             fail();
         }
 

@@ -18,7 +18,7 @@ public class JGitUtil {
     private final File gitBaseDir;
     Project project;
 
-    public JGitUtil(Project project, File gitBaseDir) {
+    public JGitUtil(final Project project, final File gitBaseDir) {
         this.gitBaseDir = gitBaseDir;
         this.project = project;
     }
@@ -29,7 +29,7 @@ public class JGitUtil {
     // and the current file status for the workspace.
     //
     public SortedProperties getGitInfo() {
-        SortedProperties props = new SortedProperties();
+        final SortedProperties props = new SortedProperties();
         Repository repository = null;
 
         try {
@@ -37,18 +37,18 @@ public class JGitUtil {
             props.addProperty("git.basedir", repository.getDirectory().getCanonicalPath());
             props.addProperty("git.branch", repository.getBranch());
 
-            ObjectId head = repository.resolve("HEAD");
+            final ObjectId head = repository.resolve("HEAD");
 
             props.addProperty("git.last.commit", head.getName());
 
-            Config config = repository.getConfig();
+            final Config config = repository.getConfig();
 
             props.addProperty("git.user.name", config.getString("user", null, "name"));
             props.addProperty("git.user.email", config.getString("user", null, "email"));
             props.addProperty("git.remote.origin", config.getString("remote", "origin", "url"));
 
             try {
-                Status status = new Git(repository).status().call();
+                final Status status = new Git(repository).status().call();
 
                 props.addProperty("git.workspace.clean", Boolean.toString(status.isClean()));
                 props.addProperty("git.workspace.files.added", status.getAdded().toString());
@@ -58,12 +58,12 @@ public class JGitUtil {
                 props.addProperty("git.workspace.files.untracked", status.getUntracked().toString());
                 props.addProperty("git.workspace.files.conflicting", status.getConflicting().toString());
                 props.addProperty("git.workspace.files.modified", status.getModified().toString());
-            } catch (NoWorkTreeException e) {
+            } catch (final NoWorkTreeException e) {
                 project.getLogger().error(e.getMessage());
-            } catch (GitAPIException e) {
+            } catch (final GitAPIException e) {
                 project.getLogger().error(e.getMessage());
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             project.getLogger().error(e.getMessage());
         } finally {
             if (null != repository) {

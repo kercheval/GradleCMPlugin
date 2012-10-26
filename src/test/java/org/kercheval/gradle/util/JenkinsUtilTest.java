@@ -11,12 +11,12 @@ import java.io.IOException;
 public class JenkinsUtilTest {
     @Test
     public void test() {
-        JenkinsUtil jenkinsUtil = new JenkinsUtil();
-        SortedProperties props = jenkinsUtil.getJenkinsInfo();
+        final JenkinsUtil jenkinsUtil = new JenkinsUtil();
+        final SortedProperties props = jenkinsUtil.getJenkinsInfo();
 
         try {
             props.store(System.out, "\nJenkins Info\n");
-        } catch (IOException e) {
+        } catch (final IOException e) {
             fail();
         }
 

@@ -11,7 +11,7 @@ description = 'Gradle CM Plugin test build file'
 
 task helloZip(type: Zip) {
 	classifier = 'hello'
-	from "." include "build.gradle" into "hellodir"
+	from "." include "build.gradle"
 }
 
 //
@@ -25,7 +25,7 @@ buildinfo {
 	autowrite = true
 	filename = "testinfo.properties"
 	filedir = "../../build"
-	taskmap = [helloZip: "testdir", jar: "META-INF"];
+	taskmap = [helloZip: "testingdir", jar: "META-INF"];
 }
 
 buildscript {

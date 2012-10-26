@@ -10,7 +10,7 @@ public class JenkinsUtil {
     // Recommendation---  Move to Jenkins and bail on Hudson.
     //
     public SortedProperties getJenkinsInfo() {
-        SortedProperties props = new SortedProperties();
+        final SortedProperties props = new SortedProperties();
 
         props.addProperty("jenkins.isbuiltby", new Boolean(System.getenv("JENKINS_URL") != null).toString());
         props.addProperty("jenkins.buildnumber", System.getenv("BUILD_NUMBER"));

@@ -14,13 +14,13 @@ import java.io.IOException;
 public class GradleUtilTest {
     @Test
     public void test() {
-        Project project = ProjectBuilder.builder().build();
-        GradleUtil gradleUtil = new GradleUtil(project);
-        SortedProperties props = gradleUtil.getGradleInfo();
+        final Project project = ProjectBuilder.builder().build();
+        final GradleUtil gradleUtil = new GradleUtil(project);
+        final SortedProperties props = gradleUtil.getGradleInfo();
 
         try {
             props.store(System.out, "\nGradle Info\n");
-        } catch (IOException e) {
+        } catch (final IOException e) {
             fail();
         }
 

@@ -21,6 +21,8 @@ The sources here demonstrate the following
 TODO
 - Add custom properties that will go into buildinfo.properties
 - Add documentation and examples for autowrite and copy task extension usage
+
+- Can auto target any copy task including copy, sync, tar, zip, jar, war, ear
 ```
 
 ##Project Specifics

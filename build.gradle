@@ -60,6 +60,7 @@ uploadArchives {
 	    // reference would be pointing directly at that instead.
 	    //
 	    repository(url: "file://${rootDir}/../mvn-repo/releases")
+		
 	    //
 	    // Note that this repository will be used ONLY if the buildType
 	    // in gradle.properties is set to 'SNAPSHOT'

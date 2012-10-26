@@ -1,10 +1,13 @@
 package org.kercheval.gradle.buildinfo;
 
+import groovy.lang.Closure;
+
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.execution.TaskExecutionGraph;
 import org.gradle.api.execution.TaskExecutionGraphListener;
+import org.gradle.api.file.CopySpec;
 import org.gradle.api.tasks.AbstractCopyTask;
 import org.gradle.api.tasks.TaskAction;
 
@@ -59,9 +62,9 @@ public class BuildInfoTask extends DefaultTask {
         //
         getProject().getGradle().getTaskGraph().addTaskExecutionGraphListener(new TaskExecutionGraphListener() {
             @Override
-            public void graphPopulated(TaskExecutionGraph graph) {
-                Project project = getProject();
-                Map<String, ?> props = project.getProperties();
+            public void graphPopulated(final TaskExecutionGraph graph) {
+                final Project project = getProject();
+                final Map<String, ?> props = project.getProperties();
                 boolean validateMap = true;
 
                 //
@@ -74,7 +77,7 @@ public class BuildInfoTask extends DefaultTask {
                     //
                     try {
                         setFiledir(((File) props.get("buildDir")).getCanonicalPath());
-                    } catch (IOException e) {
+                    } catch (final IOException e) {
                         project.getLogger().error(e.getMessage());
                     }
                 }
@@ -109,14 +112,14 @@ public class BuildInfoTask extends DefaultTask {
                 if (isAutowrite()) {
                     doTask();
 
-                    Map<String, Task> taskMap = new HashMap<String, Task>();
+                    final Map<String, Task> tasknameMap = new HashMap<String, Task>();
 
-                    for (Task task : graph.getAllTasks()) {
-                        taskMap.put(task.getName(), task);
+                    for (final Task task : graph.getAllTasks()) {
+                        tasknameMap.put(task.getName(), task);
                     }
 
-                    for (String taskname : taskmap.keySet()) {
-                        Task task = taskMap.get(taskname);
+                    for (final String taskname : taskmap.keySet()) {
+                        final Task task = tasknameMap.get(taskname);
 
                         if (null != task) {
 
@@ -127,12 +130,29 @@ public class BuildInfoTask extends DefaultTask {
                             if (task instanceof AbstractCopyTask) {
 
                                 //
-                                // Add a copy spec into the task.
+                                // Add a copy spec into the task using a closure
                                 //
-                                // TODO: This does not quite work since it modifies the into for all files already in the copyspec
                                 project.getLogger().info("buildinfo: copy spec being added to task: " + task.getPath());
-                                ((AbstractCopyTask) task).from(getFiledir()).into(taskmap.get(taskname)).include(
-                                    getFilename());
+                                ((AbstractCopyTask) task).from(getFiledir(), new Closure<CopySpec>(this, this) {
+
+                                    //
+                                    // Groovy closure creation in Java is a bit odd since you
+                                    // need to know the magic.  doCall must be defined and the parameter
+                                    // being passed is done via reflection.  This allows pretty clean
+                                    // interaction.
+                                    //
+                                    @SuppressWarnings("unused")
+                                    public CopySpec doCall(final CopySpec copySpec) {
+
+                                        //
+                                        // This closure is being sent a child copy spec, add
+                                        // in the from and include parameters for the child spec
+                                        //
+                                        copySpec.into(taskmap.get(taskname)).include(getFilename());
+
+                                        return copySpec;
+                                    }
+                                });
                             } else {
 
                                 //
@@ -162,7 +182,7 @@ public class BuildInfoTask extends DefaultTask {
         return taskmap;
     }
 
-    public void setTaskmap(Map<String, String> taskLocation) {
+    public void setTaskmap(final Map<String, String> taskLocation) {
         this.taskmap = taskLocation;
     }
 
@@ -170,7 +190,7 @@ public class BuildInfoTask extends DefaultTask {
         return autowrite;
     }
 
-    public void setAutowrite(boolean autowrite) {
+    public void setAutowrite(final boolean autowrite) {
         this.autowrite = autowrite;
     }
 
@@ -178,7 +198,7 @@ public class BuildInfoTask extends DefaultTask {
         return filename;
     }
 
-    public void setFilename(String filename) {
+    public void setFilename(final String filename) {
         this.filename = filename;
     }
 
@@ -186,7 +206,7 @@ public class BuildInfoTask extends DefaultTask {
         return filedir;
     }
 
-    public void setFiledir(String filedir) {
+    public void setFiledir(final String filedir) {
         this.filedir = filedir;
     }
 
@@ -196,28 +216,28 @@ public class BuildInfoTask extends DefaultTask {
         //
         // Obtain the project properties
         //
-        Project project = this.getProject();
-        Map<String, ?> props = project.getProperties();
+        final Project project = this.getProject();
+        final Map<String, ?> props = project.getProperties();
 
         try {
 
             //
             // Use mkdir support to ensure the directory exists
             //
-            File buildDirFile = new File(getFiledir());
+            final File buildDirFile = new File(getFiledir());
 
             project.mkdir(buildDirFile);
 
             //
             // Create the file spec for our file writer
             //
-            StringBuilder sb = new StringBuilder();
+            final StringBuilder sb = new StringBuilder();
 
             sb.append(buildDirFile.getCanonicalPath());
             sb.append("/");
             sb.append(getFilename());
 
-            BufferedWriter out = new BufferedWriter(new FileWriter(sb.toString()));
+            final BufferedWriter out = new BufferedWriter(new FileWriter(sb.toString()));
 
             //
             // Write out the header
@@ -239,7 +259,7 @@ public class BuildInfoTask extends DefaultTask {
             // These are scheduled tasks, there is no guarantee that the tasks
             // will actually be run or will have succeeded if run
             //
-            for (Task task : project.getGradle().getTaskGraph().getAllTasks()) {
+            for (final Task task : project.getGradle().getTaskGraph().getAllTasks()) {
                 out.write("#   ");
                 out.write(task.getPath());
                 out.write(EOL);
@@ -265,7 +285,7 @@ public class BuildInfoTask extends DefaultTask {
             out.write(EOL);
             new JenkinsUtil().getJenkinsInfo().store(out, "Jenkins Info");
             out.close();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             project.getLogger().error(e.getMessage());
         }
     }

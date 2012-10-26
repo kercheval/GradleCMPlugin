@@ -10,7 +10,7 @@ import java.util.Date;
 public class MachineUtil {
     Project project;
 
-    public MachineUtil(Project project) {
+    public MachineUtil(final Project project) {
         this.project = project;
     }
 
@@ -20,7 +20,7 @@ public class MachineUtil {
     // but appropriate for this use.
     //
     public SortedProperties getMachineInfo() {
-        SortedProperties props = new SortedProperties();
+        final SortedProperties props = new SortedProperties();
         InetAddress addr;
 
         try {
@@ -28,7 +28,7 @@ public class MachineUtil {
             props.addProperty("machine.hostname", addr.getHostName());
             props.addProperty("machine.hostaddress", addr.getHostAddress());
             props.addProperty("machine.time", new Date().toString());
-        } catch (UnknownHostException e) {
+        } catch (final UnknownHostException e) {
             project.getLogger().error(e.getMessage());
         }
 

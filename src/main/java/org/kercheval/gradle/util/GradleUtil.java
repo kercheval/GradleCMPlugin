@@ -7,7 +7,7 @@ import java.util.Map;
 public class GradleUtil {
     Project project;
 
-    public GradleUtil(Project project) {
+    public GradleUtil(final Project project) {
         this.project = project;
     }
 
@@ -17,8 +17,8 @@ public class GradleUtil {
     // the evaluation stage variable changes have been completed
     //
     public SortedProperties getGradleInfo() {
-        Map<String, ?> gradleProps = project.getProperties();
-        SortedProperties props = new SortedProperties();
+        final Map<String, ?> gradleProps = project.getProperties();
+        final SortedProperties props = new SortedProperties();
 
         props.addProperty("gradle.buildfile", gradleProps.get("buildFile"));
         props.addProperty("gradle.rootdir", gradleProps.get("rootDir"));

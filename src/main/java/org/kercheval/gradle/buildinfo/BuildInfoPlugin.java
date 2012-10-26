@@ -7,7 +7,7 @@ public class BuildInfoPlugin implements Plugin<Project> {
     static final String TASK_NAME = "buildinfo";
 
     @Override
-    public void apply(Project project) {
+    public void apply(final Project project) {
 
         //
         // Create the actual task that will be executed

@@ -12,7 +12,7 @@ import java.io.IOException;
 public class SortedPropertiesTest {
     @Test
     public void testAddProperty() {
-        SortedProperties props = new SortedProperties();
+        final SortedProperties props = new SortedProperties();
 
         props.addProperty("test", null);
         assertTrue(props.size() == 1);
@@ -24,22 +24,22 @@ public class SortedPropertiesTest {
 
     @Test
     public void testStoreSorted() {
-        SortedProperties props = new SortedProperties();
+        final SortedProperties props = new SortedProperties();
 
         props.setProperty("2", "bar");
         props.setProperty("1", "foo");
         props.setProperty("4", "quux");
         props.setProperty("3", "baz");
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         try {
             props.store(baos, "My Comment");
-        } catch (IOException e) {
+        } catch (final IOException e) {
             fail();
         }
 
-        String sortedString = baos.toString();
+        final String sortedString = baos.toString();
 
         System.out.println(sortedString);
         assertTrue(sortedString.indexOf("1=foo") < sortedString.indexOf("2=bar"));

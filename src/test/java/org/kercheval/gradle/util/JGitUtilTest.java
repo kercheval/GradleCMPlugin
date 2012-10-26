@@ -15,13 +15,13 @@ import java.io.IOException;
 public class JGitUtilTest {
     @Test
     public void test() {
-        Project project = ProjectBuilder.builder().build();
-        JGitUtil jgu = new JGitUtil(project, new File("."));
-        SortedProperties props = jgu.getGitInfo();
+        final Project project = ProjectBuilder.builder().build();
+        final JGitUtil jgu = new JGitUtil(project, new File("."));
+        final SortedProperties props = jgu.getGitInfo();
 
         try {
             props.store(System.out, "\nGit Info\n");
-        } catch (IOException e) {
+        } catch (final IOException e) {
             fail();
         }
 

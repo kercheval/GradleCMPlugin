@@ -21,7 +21,7 @@ public class SortedProperties extends Properties {
         return Collections.enumeration(new TreeSet<Object>(super.keySet()));
     }
 
-    public void addProperty(String key, Object value) {
+    public void addProperty(final String key, final Object value) {
         String insertValue = "";
 
         if (null != value) {
