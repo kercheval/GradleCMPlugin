@@ -6,22 +6,26 @@ This plugin supports gradle build information and environment settings.
 
 The sources here demonstrate the following
 
-- Creation of a Gradle plugin and task using standard Java
-- Automatic task run based on gradle lifecycle.
-- Use of Gradle API for task customization and iteration
+- Creation of Gradle plugins and tasks using standard Java
+- Automatic task run based on the gradle lifecycle.
+- Use of the Gradle API for task customization and iteration
+- Use of the Gradle API for hooking existing tasks 
+- Use of java based closure implementation to extend gradle tasks
 - Use of a property to distinguish between versions and build types
+
+##Usage
+
+### buildinfo plugin
+
 - Obtains Git repository information about the build
 - Obtains build machine information and user info
 - Obtains Jenkins CI build system information
 - Obtains Gradle property information
 
-##Usage
-
 ```
 TODO
 - Add custom properties that will go into buildinfo.properties
 - Add documentation and examples for autowrite and copy task extension usage
-
 - Can auto target any copy task including copy, sync, tar, zip, jar, war, ear
 ```
 

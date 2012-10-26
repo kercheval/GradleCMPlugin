@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class BuildInfoTask extends DefaultTask {
     static private String EOL = System.getProperty("line.separator");
@@ -51,6 +52,11 @@ public class BuildInfoTask extends DefaultTask {
     // that the build info file will be added into the output.
     //
     private Map<String, String> taskmap;
+
+    //
+    // This map represents custom information should be placed in the file written
+    //
+    private Map<String, String> custominfo;
 
     public BuildInfoTask() {
 
@@ -178,12 +184,20 @@ public class BuildInfoTask extends DefaultTask {
         });
     }
 
+    public Map<String, String> getCustominfo() {
+        return custominfo;
+    }
+
+    public void setCustominfo(final Map<String, String> custominfo) {
+        this.custominfo = custominfo;
+    }
+
     public Map<String, String> getTaskmap() {
         return taskmap;
     }
 
-    public void setTaskmap(final Map<String, String> taskLocation) {
-        this.taskmap = taskLocation;
+    public void setTaskmap(final Map<String, String> taskmap) {
+        this.taskmap = taskmap;
     }
 
     public boolean isAutowrite() {
@@ -270,6 +284,30 @@ public class BuildInfoTask extends DefaultTask {
             out.write("#");
             out.write(EOL);
             out.write(EOL);
+
+            //
+            // If custom info is specified in the gradle build file, go ahead and place that
+            // in the info file at the beginning
+            //
+            if (getCustominfo() != null) {
+                out.write("#");
+                out.write(EOL);
+                out.write("# Custom build info specified in gradle build file");
+                out.write(EOL);
+                out.write("#");
+                out.write(EOL);
+
+                for (final Entry<String, String> entry : getCustominfo().entrySet()) {
+                    out.write("custom.info.");
+                    out.write(entry.getKey());
+                    out.write("=");
+                    out.write(entry.getValue());
+                    out.write(EOL);
+                }
+
+                out.write(EOL);
+                out.write(EOL);
+            }
 
             //
             // Grab properties from our various information sources

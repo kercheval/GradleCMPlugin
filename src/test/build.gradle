@@ -25,7 +25,8 @@ buildinfo {
 	autowrite = true
 	filename = "testinfo.properties"
 	filedir = "../../build"
-	taskmap = [helloZip: "testingdir", jar: "META-INF"];
+	taskmap = [helloZip: "testingdir", jar: "META-INF"]
+	custominfo = ["foo": "bar", "baz": "quux"]
 }
 
 buildscript {
