@@ -9,11 +9,6 @@ apply plugin: 'war'
 
 description = 'Gradle CM Plugin test build file'
 
-task helloZip(type: Zip) {
-	classifier = 'hello'
-	from "." include "build.gradle"
-}
-
 //
 // This illustrates how the plugin supported properties are set/modified
 //
@@ -28,6 +23,25 @@ buildinfo {
 	filedir = "../../build"
 	taskmap = [helloZip: "testingdir", jar: "META-INF"]
 	custominfo = ["foo": "bar", "baz": "quux", "special": mySpecialVar]
+}
+
+task helloZip(type: Zip) {
+	classifier = 'hello'
+	from "." include "build.gradle"
+}
+
+task myZip (type: Zip) {
+	classifier = 'myZip'
+	from(".") {
+		include "build.gradle" into "filedir"
+	}
+
+	//
+	// Add buildinfo
+	//
+	from (buildinfo.filedir) {
+		include buildinfo.filename into 'infodir'
+	} 
 }
 
 buildscript {

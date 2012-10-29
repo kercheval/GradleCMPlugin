@@ -4,6 +4,11 @@ This plugin supports gradle build information and environment settings.
 
 ## Summary
 
+This project is a set of plugins intended to support standard
+configuration management practices that are not necessarily well
+supported in gradle.  I intend for this source code base to be
+instructional as well as useful.
+
 The sources here demonstrate the following
 
 - Creation of Gradle plugins and tasks using standard Java
@@ -15,19 +20,158 @@ The sources here demonstrate the following
 
 ##Usage
 
-### buildinfo plugin
+###buildinfo plugin
+
+####Summary
+
+The buildinfo plugin supports the creation of a file (in standard Java
+properties format) that shows environment and build information
+present at the time a build takes place.  The primary information
+gathered is displayed below.
 
 - Obtains Git repository information about the build
 - Obtains build machine information and user info
 - Obtains Jenkins CI build system information
 - Obtains Gradle property information
 
+In addition to the information above, the buildinfo configuration
+block can be used to add custom information to the build file.
+
+####Quick Start
+
+Add a buildscript section for the plugin dependency in your build
+gradle file.  Note that the example below will take the most recent
+released plugin jar file available.
+
 ```
-TODO
-- Add custom properties that will go into buildinfo.properties
-- Add documentation and examples for autowrite and copy task extension usage
-- Can auto target any copy task including copy, sync, tar, zip, jar, war, ear
+buildscript {
+    repositories {
+	mavenRepo url: 'http://kercheval.org/mvn-repo/releases'
+    }
+    dependencies {
+	classpath 'org.kercheval:GradleCMPlugin:+'
+    }
+}
 ```
+
+Add an apply line to your gradle build file.
+
+```
+apply plugin: 'buildinfo'
+```
+
+This will cause a file called buildinfo.properties to be placed within
+your ${buildDir} directory and will automatically insert the
+buildinfo.properties file into all generated jar, war and ear files.
+
+####Variables
+
+By default, the plugin will create the information file in the default
+build directory, name the file buildinfo.properties and insert this
+file into the META-INF directory of all created JAR/WAR/EAR files
+created in the build.  All of these behaviors are modifiable by
+setting custom variables in your gradle build file in the 'buildinfo'
+task configuration.  
+
+```
+buildinfo {
+	filename = "projectinfo.properties"
+	filedir = "${buildDir}/info"
+}
+```
+
+The variables supported are described below.
+
+<table>
+	<th>
+		<td>Variable</td>
+		<td>Description</td>
+	</td>
+	<tr>
+		<td>filename</td>
+		<td>
+Default: **buildinfo.properties**
+		</td>
+	</tr>
+	<tr>
+		<td>filedir</td>
+		<td>
+Default: **${buildDir}
+		</td>
+	</tr>
+	<tr>
+		<td>custominfo</td>
+		<td>
+Default: **no default info defined**
+		</td>
+	</tr>
+	<tr>
+		<td>taskmap</td>
+		<td>
+Default: **[jar: "META-INF", war: "META-INF", ear: "META-INF"]**
+
+Must be of type AbstractCopyTask (such as copy, sync, tar, zip, jar,
+war, ear) to use auto task map.
+
+Warning messages will be displayed if you attempt to specify an invalid task
+in the taskmap.
+		</td>
+	</tr>
+	<tr>
+		<td>autowrite</td>
+		<td>
+Default: **true**
+
+Setting autowrite to false will disable auto insertion using a task
+map and the taskmap variable value will be ignored.
+		</td>
+	</tr>
+</table>
+
+####Examples
+
+
+To add the build info file into other files (such as a zip, sync or
+other location), you can add your target to the buildinfo taskmap
+variable or just do a standard copy as follows.
+
+```
+task myZip (type: Zip) {
+	classifier = 'myZip'
+	from(".") {
+		include "build.gradle" into "filedir"
+	}
+
+	//
+	// Add buildinfo
+	//
+	from (buildinfo.filedir) {
+		include buildinfo.filename into 'infodir'
+	} 
+}
+```
+
+To automatically add build info into a zip file in the directory
+'testindir' you can add the specific task to the task map (overriding
+the defaults)
+
+```
+buildinfo {
+	taskmap = [helloZip: "testingdir"]
+	custominfo = ["foo": "bar", "baz": "quux", "special": mySpecialVar]
+}
+
+task helloZip(type: Zip) {
+	classifier = 'hello'
+	from "." include "build.gradle"
+}
+```
+
+####Lifecycle Considerations
+
+- task graph completion for task insertion
+- buildinfo variable usage only after definition or use during task
+itself
 
 ##Project Specifics
 

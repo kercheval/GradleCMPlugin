@@ -176,8 +176,8 @@ public class BuildInfoTask extends DefaultTask {
                                 //
                                 // Report tasks which don't exist (if not using default)
                                 //
-                                project.getLogger().error("buildinfo: task defined in taskmap does not exist: "
-                                                          + taskname);
+                                project.getLogger().info("buildinfo: task defined in taskmap does not exist: "
+                                                         + taskname);
                             }
                         }
                     }
