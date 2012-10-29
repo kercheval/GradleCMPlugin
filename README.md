@@ -82,11 +82,11 @@ buildinfo {
 
 The variables supported are described below.
 
-<table>
-	<th>
-		<td>Variable</td>
-		<td>Description</td>
-	</td>
+<table style="border-width: 1px">
+	<tr>
+		<th>Variable</td>
+		<th>Description</td>
+	</tr>
 	<tr>
 		<td>filename</td>
 		<td>
