@@ -10,9 +10,10 @@ def buildDate = new Date().format("yyyyMMdd.HHmmss")
 
 //
 // Here we use the build type in the version (could be SNAPSHOT, dev, qa, etc)
-// if it is not release.  This will deploy a single binary in snapshot form to 
+// If it is not release, this will deploy a single binary in snapshot form to 
 // the repository.  For release, we have unique versioning based on the current
-// build date (in maven timestamp format).
+// build date (in maven timestamp format).  The default buildType and buildVersion
+// are a part of gradle.properties.
 //
 def versionSuffix = buildType
 if (buildType == "release") {

@@ -15,6 +15,7 @@ import org.kercheval.gradle.util.GradleUtil;
 import org.kercheval.gradle.util.JGitUtil;
 import org.kercheval.gradle.util.JenkinsUtil;
 import org.kercheval.gradle.util.MachineUtil;
+import org.kercheval.gradle.util.SortedProperties;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -25,6 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 public class BuildInfoTask extends DefaultTask {
     static private String EOL = System.getProperty("line.separator");
@@ -56,7 +58,7 @@ public class BuildInfoTask extends DefaultTask {
     //
     // This map represents custom information should be placed in the file written
     //
-    private Map<String, String> custominfo;
+    private Map<String, Object> custominfo;
 
     public BuildInfoTask() {
 
@@ -184,11 +186,11 @@ public class BuildInfoTask extends DefaultTask {
         });
     }
 
-    public Map<String, String> getCustominfo() {
+    public Map<String, Object> getCustominfo() {
         return custominfo;
     }
 
-    public void setCustominfo(final Map<String, String> custominfo) {
+    public void setCustominfo(final Map<String, Object> custominfo) {
         this.custominfo = custominfo;
     }
 
@@ -290,21 +292,13 @@ public class BuildInfoTask extends DefaultTask {
             // in the info file at the beginning
             //
             if (getCustominfo() != null) {
-                out.write("#");
-                out.write(EOL);
-                out.write("# Custom build info specified in gradle build file");
-                out.write(EOL);
-                out.write("#");
-                out.write(EOL);
+                final Properties customProps = new SortedProperties();
 
-                for (final Entry<String, String> entry : getCustominfo().entrySet()) {
-                    out.write("custom.info.");
-                    out.write(entry.getKey());
-                    out.write("=");
-                    out.write(entry.getValue());
-                    out.write(EOL);
+                for (final Entry<String, Object> entry : getCustominfo().entrySet()) {
+                    customProps.put("custom.info." + entry.getKey().toString(), entry.getValue().toString());
                 }
 
+                customProps.store(out, "Custom build info specified in gradle build file");
                 out.write(EOL);
                 out.write(EOL);
             }

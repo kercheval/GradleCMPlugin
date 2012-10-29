@@ -17,6 +17,7 @@ task helloZip(type: Zip) {
 //
 // This illustrates how the plugin supported properties are set/modified
 //
+def mySpecialVar = "Special Variable: Test"
 buildinfo {
 	//
 	// If autowrite is turned off, you must place the buildinfo task as 
@@ -26,7 +27,7 @@ buildinfo {
 	filename = "testinfo.properties"
 	filedir = "../../build"
 	taskmap = [helloZip: "testingdir", jar: "META-INF"]
-	custominfo = ["foo": "bar", "baz": "quux"]
+	custominfo = ["foo": "bar", "baz": "quux", "special": mySpecialVar]
 }
 
 buildscript {
