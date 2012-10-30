@@ -18,11 +18,9 @@ The sources here demonstrate the following
 - Use of java based closure implementation to extend gradle tasks
 - Use of a property to distinguish between versions and build types
 
-##Usage
+##Usage for buildinfo Plugin
 
-###buildinfo plugin
-
-####Summary
+###Summary
 
 The buildinfo plugin supports the creation of a file (in standard Java
 properties format) that shows environment and build information
@@ -37,7 +35,7 @@ gathered is displayed below.
 In addition to the information above, the buildinfo configuration
 block can be used to add custom information to the build file.
 
-####Quick Start
+###Quick Start
 
 Add a buildscript section for the plugin dependency in your build
 gradle file.  Note that the example below will take the most recent
@@ -45,12 +43,12 @@ released plugin jar file available.
 
 ```
 buildscript {
-    repositories {
-	mavenRepo url: 'http://kercheval.org/mvn-repo/releases'
-    }
-    dependencies {
-	classpath 'org.kercheval:GradleCMPlugin:+'
-    }
+	repositories {
+		mavenRepo url: 'http://kercheval.org/mvn-repo/releases'
+	}
+	dependencies {
+		classpath 'org.kercheval:GradleCMPlugin:+'
+	}
 }
 ```
 
@@ -64,23 +62,14 @@ This will cause a file called buildinfo.properties to be placed within
 your ${buildDir} directory and will automatically insert the
 buildinfo.properties file into all generated jar, war and ear files.
 
-####Variables
+###Variables
 
 By default, the plugin will create the information file in the default
 build directory, name the file buildinfo.properties and insert this
 file into the META-INF directory of all created JAR/WAR/EAR files
 created in the build.  All of these behaviors are modifiable by
 setting custom variables in your gradle build file in the 'buildinfo'
-task configuration as illustrated below.
-
-```
-buildinfo {
-	filename = "projectinfo.properties"
-	filedir = "${buildDir}/info"
-}
-```
-
-The variables supported are described below.
+task configuration as illustrated in the examples below.
 
 <table style="border: 1px solid black;">
 	<tr>
@@ -137,9 +126,18 @@ Default: <strong>[jar: "META-INF", war: "META-INF", ear: "META-INF"]</strong>
 </p>
 <p>
 The taskmap variable holds a map of targets and the directory in the
-copy target that the build info file will be copied.  If the info
+copy target that the build info file will be copied into.  If the info
 file should be at the root of the copy target, use an empty string as
 the target directory.
+</p>
+<p>
+Note: when creating a taskmap variable, you are overriding the
+default values.  If you intend to simply add another task, you will
+need to supply the default values for jar/war/ear targets in your
+taskmap.  This behavior ensures you can override all the default
+behaviors.  Note that if you just want the info file built
+automatically but no task modification at all, you can set the
+taskmap to an empty map and no tasks will be modified.
 </p>
 <p>
 The tasks specified must be of derived from the task type
@@ -169,17 +167,42 @@ be done explicitly (see examples).
 Note that setting this variable true will disable auto generation
 of the properties file.  The buildinfo target will need to be
 explicitly run or added as a dependency before the property file can
-be uses in a task.
+be used in a task.
+</p>
+<p>
+This variable will typically not be used, unless you have a specific
+need for the info file but do not want to move the file after
+generation.  Normally, if you just want the file placed elsewhere and
+do not want it included in artifacts, set the filedir/filename
+variable to your desired location and filename and set the taskmap to
+an empty map (see example below).
 </p>
 		</td>
 	</tr>
 </table>
 
-####Examples
+###Examples
+
+To automatically add build info into a zip file in the directory
+'testingdir' you can add the specific task to the task map (overriding
+the defaults)
+
+```
+buildinfo {
+	taskmap = [helloZip: "testingdir"]
+}
+
+task helloZip(type: Zip) {
+	classifier = 'hello'
+	from "." include "build.gradle"
+}
+```
 
 To add the build info file into other files (such as a zip, sync or
 other location), you can add your target to the buildinfo taskmap
-variable or just do a standard copy as follows.
+variable or just do a standard copy as follows.  This is the approach
+you would take for tasks that are not derived somehow from a
+copy/archive task.
 
 ```
 task myZip (type: Zip) {
@@ -197,26 +220,44 @@ task myZip (type: Zip) {
 }
 ```
 
-To automatically add build info into a zip file in the directory
-'testindir' you can add the specific task to the task map (overriding
-the defaults)
+To add some custom data to your build info file, add the custom info
+map variable to the buildinfo configuration section.  Remember the map
+values can be any object at all and the value will be derived from
+the default toString() behavior of the object.
 
 ```
 buildinfo {
-	taskmap = [helloZip: "testingdir"]
-	custominfo = ["foo": "bar", "baz": "quux", "special": mySpecialVar]
-}
-
-task helloZip(type: Zip) {
-	classifier = 'hello'
-	from "." include "build.gradle"
+	custominfo = [
+		"release": releaseType, 
+		"version": "${version}.${versionSuffix}", 
+		"special": mySpecialVar
+	]
 }
 ```
 
-####Lifecycle Considerations
+To prevent automatic injection into any tasks, assign an empty map to
+the taskmap.
+
+```
+buildinfo {
+	taskmap = [:]
+}
+```
+
+To customize the location and name of the build info file use the
+filedir and filename variables
+
+```
+buildinfo {
+	filename = "projectinfo.properties"
+	filedir = "${buildDir}/info"
+}
+```
+
+###Lifecycle Considerations
 
 This plugin hooks task graph completion (which occurs right after the
-configuration phase of a gradle run ).  At that time, default values
+configuration phase of a gradle run).  At that time, default values
 are assigned if not already set.  If the variable autowrite is true,
 then and the build info file is created and task hooking is completed
 to copy the info file into specified (or default) tasks.
@@ -234,11 +275,14 @@ complete and the task graph creation has been completed.
 be assigned prior to the declaration of the buildinfo block.
 
 - Any modification of the buildinfo variables will be ignored once the
-configuration phase has been completed unless the autowrite variable
-is set to false and the creation of the build information file has
-been delayed.
+configuration phase has been completed and the buildinfo file has been
+created.  You can call the buildinfo target directly to recreate the
+build info file with new information, but this should be done prior to
+any tasks being run which will use the info file for insertion into
+artifacts (jar/war/ear/etc) or the risk of inconsistent build
+information is present.
 
-####Information sources
+###Information sources
 
 Git - This plugin uses the library JGit to obtain git information.
 Among other things, this plugin logs the most recent commit
