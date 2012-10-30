@@ -82,7 +82,7 @@ buildinfo {
 
 The variables supported are described below.
 
-<table style="border: 1px solid black">
+<table style="border: 1px solid black;">
 	<tr>
 		<th>Variable</td>
 		<th>Description</td>
@@ -90,25 +90,25 @@ The variables supported are described below.
 	<tr>
 		<td>filename</td>
 		<td>
-Default: **buildinfo.properties**
+Default: <strong>buildinfo.properties</strong>
 		</td>
 	</tr>
 	<tr>
 		<td>filedir</td>
 		<td>
-Default: **${buildDir}
+Default: <strong>${buildDir}
 		</td>
 	</tr>
 	<tr>
 		<td>custominfo</td>
 		<td>
-Default: **no default info defined**
+Default: <strong>no default info defined</strong>
 		</td>
 	</tr>
 	<tr>
 		<td>taskmap</td>
 		<td>
-Default: **[jar: "META-INF", war: "META-INF", ear: "META-INF"]**
+Default: <strong>[jar: "META-INF", war: "META-INF", ear: "META-INF"]</strong>
 
 Must be of type AbstractCopyTask (such as copy, sync, tar, zip, jar,
 war, ear) to use auto task map.
@@ -120,7 +120,7 @@ in the taskmap.
 	<tr>
 		<td>autowrite</td>
 		<td>
-Default: **true**
+Default: <strong>true</strong>
 
 Setting autowrite to false will disable auto insertion using a task
 map and the taskmap variable value will be ignored.
