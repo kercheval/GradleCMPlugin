@@ -71,7 +71,7 @@ build directory, name the file buildinfo.properties and insert this
 file into the META-INF directory of all created JAR/WAR/EAR files
 created in the build.  All of these behaviors are modifiable by
 setting custom variables in your gradle build file in the 'buildinfo'
-task configuration.  
+task configuration as illustrated below.
 
 ```
 buildinfo {
@@ -90,46 +90,92 @@ The variables supported are described below.
 	<tr>
 		<td>filename</td>
 		<td>
+<p>
 Default: <strong>buildinfo.properties</strong>
+</p>
+<p>
+The filename variable determines the name of the file (without path)
+of the properties file created.  The filename can be any valid name
+and extension for your target systems.  
+</p>
 		</td>
 	</tr>
 	<tr>
 		<td>filedir</td>
 		<td>
+<p>
 Default: <strong>${buildDir}
+</p>
+<p>
+The filedir variable determines the path to the build info properties
+file that is generated.  The default is the build directory for
+gradle, but this can be any path at all in the file system.
+</p>
 		</td>
 	</tr>
 	<tr>
 		<td>custominfo</td>
 		<td>
+<p>
 Default: <strong>no default info defined</strong>
+</p>
+<p>
+The custominfo variable allows the specification of arbitrary
+properties that will be placed in the build info file.  This map
+specifies a name and an object (mapped via the normal string
+representation).  All properties in this variable will be output to
+the build properties file with a prefix of "custom.info.".  See
+examples below for standard usage.
+</p>
 		</td>
 	</tr>
 	<tr>
 		<td>taskmap</td>
 		<td>
+<p>
 Default: <strong>[jar: "META-INF", war: "META-INF", ear: "META-INF"]</strong>
-
-Must be of type AbstractCopyTask (such as copy, sync, tar, zip, jar,
-war, ear) to use auto task map.
-
-Warning messages will be displayed if you attempt to specify an invalid task
-in the taskmap.
+</p>
+<p>
+The taskmap variable holds a map of targets and the directory in the
+copy target that the build info file will be copied.  If the info
+file should be at the root of the copy target, use an empty string as
+the target directory.
+</p>
+<p>
+The tasks specified must be of derived from the task type
+AbstractCopyTask (such as copy, sync, tar, zip, jar, war, ear).  Tasks
+that are not found will be ignored from this list, though an info
+(--info) message will be logged that a task was not found.
+</p>
+<p>
+Warning messages will be displayed if you attempt to specify an
+invalid task (invalid type) in the taskmap.
+</p>
 		</td>
 	</tr>
 	<tr>
 		<td>autowrite</td>
 		<td>
+<p>
 Default: <strong>true</strong>
-
+</p>
+<p>
 Setting autowrite to false will disable auto insertion using a task
-map and the taskmap variable value will be ignored.
+map and the taskmap variable value will be ignored completely if
+specified.  All artifact insertion if the build info file will need to
+be done explicitly (see examples).
+</p>
+<p>
+Note that setting this variable true will disable auto generation
+of the properties file.  The buildinfo target will need to be
+explicitly run or added as a dependency before the property file can
+be uses in a task.
+</p>
 		</td>
 	</tr>
 </table>
 
 ####Examples
-
 
 To add the build info file into other files (such as a zip, sync or
 other location), you can add your target to the buildinfo taskmap
@@ -169,15 +215,56 @@ task helloZip(type: Zip) {
 
 ####Lifecycle Considerations
 
-- task graph completion for task insertion
-- buildinfo variable usage only after definition or use during task
-itself
+This plugin hooks task graph completion (which occurs right after the
+configuration phase of a gradle run ).  At that time, default values
+are assigned if not already set.  If the variable autowrite is true,
+then and the build info file is created and task hooking is completed
+to copy the info file into specified (or default) tasks.
+
+This timing has several specific implications.
+
+- If you are using buildinfo variables in any of your tasks, you need
+to ensure the references are done during the execution phase in a task
+or that the configuration of your task is accomplished *after* the
+configuration of the buildinfo task.  Default assignment of the
+buildinfo variables are not done until the configuration phase is
+complete and the task graph creation has been completed.
+
+- Any gradle variables used within the buildinfo configuration block must
+be assigned prior to the declaration of the buildinfo block.
+
+- Any modification of the buildinfo variables will be ignored once the
+configuration phase has been completed unless the autowrite variable
+is set to false and the creation of the build information file has
+been delayed.
+
+####Information sources
+
+Git - This plugin uses the library JGit to obtain git information.
+Among other things, this plugin logs the most recent commit
+information and the current status (showing modified/delete/added
+files).  Development builds can utilize this information to determine
+change information for specific artifacts.
+
+Machine - Machine characteristics including username, machine name, IP
+address, java vm info and OS info are gathered.
+
+Jenkins - Several key Jenkins variables are stored to shows build id,
+url, machine and other important information is stored.
+
+Gradle - Source build file, location and description information is
+stored in the information file.
+
+Custom - Any information at all can be specified as a name/value
+property set in the gradle build file for important information in
+your environment.  New information sources are simple to add in this
+plugin if you have an interest in contributing.
 
 ##Project Specifics
 
 ### Dependencies
 
-This project depends on the following currently:
+This project depends on the following tools currently:
 
 - The gradle API - This is a gradle plugin after all
 - JUNIT - There is some JUNIT validation for information sources and
@@ -205,6 +292,13 @@ command line (or IDE arguments)
 ```
 gradle build -PbuildType=release
 ```
+
+##Contributing
+
+I have explicitly built this plugin set for my local technology stack.
+Do you like this plugin and just need a new information source, or
+have a useful plugin to contribute that surrounds configuration
+managment?  I welcome any contributions and pull requests.
 
 ##Licensing
 
