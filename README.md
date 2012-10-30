@@ -1,8 +1,6 @@
-#Gradle Build Plugin
+#Gradle Configuration Management Build Support Plugin
 
-This plugin supports gradle build information and environment settings.  
-
-## Summary
+## Project Summary
 
 This project is a set of plugins intended to support standard
 configuration management practices that are not necessarily well
@@ -18,14 +16,14 @@ The sources here demonstrate the following
 - Use of java based closure implementation to extend gradle tasks
 - Use of a property to distinguish between versions and build types
 
-##Usage for buildinfo Plugin
+##Build Info Plugin
 
 ###Summary
 
 The buildinfo plugin supports the creation of a file (in standard Java
 properties format) that shows environment and build information
 present at the time a build takes place.  The primary information
-gathered is displayed below.
+gathered includes:
 
 - Obtains Git repository information about the build
 - Obtains build machine information and user info
@@ -140,14 +138,15 @@ automatically but no task modification at all, you can set the
 taskmap to an empty map and no tasks will be modified.
 </p>
 <p>
-The tasks specified must be of derived from the task type
-AbstractCopyTask (such as copy, sync, tar, zip, jar, war, ear).  Tasks
+The tasks specified must be derived from the task type
+AbstractCopyTask.  This includes almost all archive and copy style
+tasks in gradle (such as copy, sync, tar, zip, jar, war, ear).  Tasks
 that are not found will be ignored from this list, though an info
 (--info) message will be logged that a task was not found.
 </p>
 <p>
 Warning messages will be displayed if you attempt to specify an
-invalid task (invalid type) in the taskmap.
+invalid task (a task of an invalid type) in the taskmap.
 </p>
 		</td>
 	</tr>
@@ -164,13 +163,13 @@ specified.  All artifact insertion if the build info file will need to
 be done explicitly (see examples).
 </p>
 <p>
-Note that setting this variable true will disable auto generation
+Note that setting this variable true will also disable auto generation
 of the properties file.  The buildinfo target will need to be
 explicitly run or added as a dependency before the property file can
 be used in a task.
 </p>
 <p>
-This variable will typically not be used, unless you have a specific
+This variable will typically not be used unless you have a specific
 need for the info file but do not want to move the file after
 generation.  Normally, if you just want the file placed elsewhere and
 do not want it included in artifacts, set the filedir/filename
