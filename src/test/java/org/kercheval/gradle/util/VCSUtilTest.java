@@ -12,15 +12,15 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.IOException;
 
-public class JGitUtilTest {
+public class VCSUtilTest {
     @Test
     public void test() {
         final Project project = ProjectBuilder.builder().build();
-        final JGitUtil jgu = new JGitUtil(project, new File("."));
-        final SortedProperties props = jgu.getGitInfo();
+        final VCSUtil vcsUtil = new VCSUtil(project, new File("."));
+        final SortedProperties props = vcsUtil.getVCSInfo();
 
         try {
-            props.store(System.out, "\nGit Info\n");
+            props.store(System.out, "\nVCS Info\n");
         } catch (final IOException e) {
             fail();
         }

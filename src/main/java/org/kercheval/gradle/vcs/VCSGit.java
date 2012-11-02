@@ -1,4 +1,4 @@
-package org.kercheval.gradle.util;
+package org.kercheval.gradle.vcs;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
@@ -9,31 +9,37 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
 
-import org.gradle.api.Project;
+import org.gradle.api.logging.Logger;
+
+import org.kercheval.gradle.util.SortedProperties;
 
 import java.io.File;
 import java.io.IOException;
 
-public class JGitUtil {
-    private final File gitBaseDir;
-    Project project;
+public class VCSGit implements VCSAccess {
+    private final File srcRootDir;
+    private final Logger logger;
 
-    public JGitUtil(final Project project, final File gitBaseDir) {
-        this.gitBaseDir = gitBaseDir;
-        this.project = project;
+    public VCSGit(final File srcRootDir, final Logger logger) {
+        this.srcRootDir = srcRootDir;
+        this.logger = logger;
     }
 
-    //
-    // The info supplied here relies on the JGit library to interact with the
-    // repository.  Get the environment, the latest branch commit, the origin
-    // and the current file status for the workspace.
-    //
-    public SortedProperties getGitInfo() {
+    public File getSrcRootDir() {
+        return srcRootDir;
+    }
+
+    public Logger getLogger() {
+        return logger;
+    }
+
+    @Override
+    public SortedProperties getVCSInfo() {
         final SortedProperties props = new SortedProperties();
         Repository repository = null;
 
         try {
-            repository = new RepositoryBuilder().readEnvironment().findGitDir(gitBaseDir).build();
+            repository = new RepositoryBuilder().readEnvironment().findGitDir(getSrcRootDir()).build();
             props.addProperty("git.basedir", repository.getDirectory().getCanonicalPath());
             props.addProperty("git.branch", repository.getBranch());
 
@@ -59,12 +65,12 @@ public class JGitUtil {
                 props.addProperty("git.workspace.files.conflicting", status.getConflicting().toString());
                 props.addProperty("git.workspace.files.modified", status.getModified().toString());
             } catch (final NoWorkTreeException e) {
-                project.getLogger().error(e.getMessage());
+                getLogger().error(e.getMessage());
             } catch (final GitAPIException e) {
-                project.getLogger().error(e.getMessage());
+                getLogger().error(e.getMessage());
             }
         } catch (final IOException e) {
-            project.getLogger().error(e.getMessage());
+            getLogger().error(e.getMessage());
         } finally {
             if (null != repository) {
                 repository.close();
@@ -72,5 +78,10 @@ public class JGitUtil {
         }
 
         return props;
+    }
+
+    @Override
+    public VCSType getVCSType() {
+        return VCSAccess.VCSType.GIT;
     }
 }

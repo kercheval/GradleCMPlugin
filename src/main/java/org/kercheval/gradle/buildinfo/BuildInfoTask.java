@@ -12,7 +12,7 @@ import org.gradle.api.tasks.AbstractCopyTask;
 import org.gradle.api.tasks.TaskAction;
 
 import org.kercheval.gradle.util.GradleUtil;
-import org.kercheval.gradle.util.JGitUtil;
+import org.kercheval.gradle.util.VCSUtil;
 import org.kercheval.gradle.util.JenkinsUtil;
 import org.kercheval.gradle.util.MachineUtil;
 import org.kercheval.gradle.util.SortedProperties;
@@ -312,7 +312,7 @@ public class BuildInfoTask extends DefaultTask {
             new GradleUtil(project).getGradleInfo().store(out, "Gradle Info");
             out.write(EOL);
             out.write(EOL);
-            new JGitUtil(project, (File) props.get("rootDir")).getGitInfo().store(out, "Git Info");
+            new VCSUtil(project, (File) props.get("rootDir")).getVCSInfo().store(out, "Git Info");
             out.write(EOL);
             out.write(EOL);
             new JenkinsUtil().getJenkinsInfo().store(out, "Jenkins Info");

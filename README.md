@@ -1,4 +1,4 @@
-#Gradle Configuration Management Build Support Plugin
+#Gradle Configuration Management Build Support
 
 ## Project Summary
 
