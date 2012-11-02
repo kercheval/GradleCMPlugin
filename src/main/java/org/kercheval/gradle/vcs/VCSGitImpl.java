@@ -16,11 +16,14 @@ import org.kercheval.gradle.util.SortedProperties;
 import java.io.File;
 import java.io.IOException;
 
-public class VCSGit implements VCSAccess {
+//
+// This class implements the VCSAccess interface for GIT.
+//
+public class VCSGitImpl implements IVCSAccess {
     private final File srcRootDir;
     private final Logger logger;
 
-    public VCSGit(final File srcRootDir, final Logger logger) {
+    public VCSGitImpl(final File srcRootDir, final Logger logger) {
         this.srcRootDir = srcRootDir;
         this.logger = logger;
     }
@@ -82,6 +85,6 @@ public class VCSGit implements VCSAccess {
 
     @Override
     public VCSType getVCSType() {
-        return VCSAccess.VCSType.GIT;
+        return IVCSAccess.VCSType.GIT;
     }
 }

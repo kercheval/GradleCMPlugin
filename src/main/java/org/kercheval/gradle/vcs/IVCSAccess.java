@@ -3,12 +3,12 @@ package org.kercheval.gradle.vcs;
 import org.kercheval.gradle.util.SortedProperties;
 
 //
-//This interface supports the specific types of operation required by
-//programmatic access to the VCS system in use.
+// This interface supports the specific types of operation required by
+// programmatic access to the VCS system in use.
 //
-//NOTE:  GIT is the only supported system at the moment.
+// NOTE:  GIT is the only supported system at the moment.
 //
-public interface VCSAccess {
+public interface IVCSAccess {
     public enum VCSType { GIT }
 
     //
