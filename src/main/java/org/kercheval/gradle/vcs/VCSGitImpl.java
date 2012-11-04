@@ -112,6 +112,11 @@ public class VCSGitImpl implements IVCSAccess {
 
     @Override
     public List<VCSTag> getAllTags() {
+        return getTags(".*");
+    }
+
+    @Override
+    public List<VCSTag> getTags(final String regexFilter) {
         final List<VCSTag> rVal = new ArrayList<VCSTag>();
         Repository repository = null;
 
@@ -121,23 +126,25 @@ public class VCSGitImpl implements IVCSAccess {
             final Map<String, Ref> tags = repository.getTags();
 
             for (final String name : tags.keySet()) {
-                final Ref ref = tags.get(name);
-                final RevWalk revWalk = new RevWalk(repository);
+                if (name.matches(regexFilter)) {
+                    final Ref ref = tags.get(name);
+                    final RevWalk revWalk = new RevWalk(repository);
 
-                try {
-                    final RevTag revTag = revWalk.parseTag(ref.getObjectId());
+                    try {
+                        final RevTag revTag = revWalk.parseTag(ref.getObjectId());
 
-                    if (null != revTag) {
-                        final PersonIdent ident = revTag.getTaggerIdent();
+                        if (null != revTag) {
+                            final PersonIdent ident = revTag.getTaggerIdent();
 
-                        if (null != ident) {
-                            rVal.add(new VCSTag(revTag.getTagName(), revTag.getName(), revTag.getFullMessage(),
-                                                ident.getName(), ident.getEmailAddress(), ident.getWhen()));
+                            if (null != ident) {
+                                rVal.add(new VCSTag(revTag.getTagName(), revTag.getName(), revTag.getFullMessage(),
+                                                    ident.getName(), ident.getEmailAddress(), ident.getWhen()));
+                            }
                         }
-                    }
-                } finally {
-                    if (null != revWalk) {
-                        revWalk.dispose();
+                    } finally {
+                        if (null != revWalk) {
+                            revWalk.dispose();
+                        }
                     }
                 }
             }

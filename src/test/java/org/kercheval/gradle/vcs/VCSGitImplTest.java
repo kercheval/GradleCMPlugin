@@ -36,12 +36,14 @@ public class VCSGitImplTest {
     @Test
     public void testGetTags() {
         final VCSGitImpl git = (VCSGitImpl) VCSGitImpl.getInstance(new File("."), null);
-        final List<VCSTag> tagList = git.getAllTags();
+        List<VCSTag> tagList = git.getAllTags();
 
         for (final VCSTag tag : tagList) {
             System.out.println(tag);
         }
 
-        Assert.assertFalse(tagList.isEmpty());
+        Assert.assertTrue(tagList.size() > 1);
+        tagList = git.getTags("^JUNIT_Tag_Filter$");
+        Assert.assertTrue(tagList.size() == 1);
     }
 }

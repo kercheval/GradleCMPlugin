@@ -28,4 +28,6 @@ public interface IVCSAccess {
     // Get tags from repository.
     //
     public List<VCSTag> getAllTags();
+
+    public List<VCSTag> getTags(String regexFilter);
 }
