@@ -30,7 +30,9 @@ import java.util.Map.Entry;
 import java.util.Properties;
 
 public class BuildInfoTask extends DefaultTask {
-    static private String EOL = System.getProperty("line.separator");
+    public static final String DEFAULT_BUILDINFO_PROPERTIES = "buildinfo.properties";
+
+	static private String EOL = System.getProperty("line.separator");
 
     //
     // If true, the buildinfo file will be written automatically at
@@ -174,7 +176,7 @@ public class BuildInfoTask extends DefaultTask {
             //
             // Set default filename
             //
-            setFilename("buildinfo.properties");
+            setFilename(DEFAULT_BUILDINFO_PROPERTIES);
         }
 
         if (getTaskmap() == null) {
