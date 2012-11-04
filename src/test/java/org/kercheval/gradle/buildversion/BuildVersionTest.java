@@ -21,8 +21,22 @@ public class BuildVersionTest {
         Assert.assertEquals(BuildVersion.DEFAULT_PATTERN, verify.getPattern());
     }
 
-    // @Test
-    // public void testCandidatePattern
+    @Test
+    public void testCandidatePattern() throws ParseException {
+        BuildVersion verify = new BuildVersion(null, "\\d+.\\d+-\\d+.\\d+", "4.5-20121101.123456");
+
+        Assert.assertNotNull(verify.toString());
+        verify = new BuildVersion(BuildVersion.DEFAULT_PATTERN + "Postfix", "\\d+.\\d+-\\d+.\\d+Postfix",
+                                  "4.5-20121101.123456Postfix");
+        Assert.assertNotNull(verify.toString());
+
+        try {
+            verify = new BuildVersion(null, "\\d+.\\d+-\\d+.\\d+Postfix", "4.5-20121101.123456Postfix");
+        } catch (final IllegalStateException e) {
+            Assert.assertTrue(e.getMessage().contains("does not match candidate pattern"));
+        }
+    }
+
     @Test
     public void testValidatePattern() {
 

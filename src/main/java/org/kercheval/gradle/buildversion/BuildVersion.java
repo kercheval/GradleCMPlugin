@@ -403,9 +403,6 @@ public class BuildVersion {
         //
         candidatePatternStr.append(buildPattern.substring(lastIndex));
 
-        // TODO  Remove
-        System.out.println(candidatePatternStr.toString());
-
         return candidatePatternStr.toString();
     }
 
