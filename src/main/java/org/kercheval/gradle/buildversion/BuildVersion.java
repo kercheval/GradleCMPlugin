@@ -1,5 +1,6 @@
 package org.kercheval.gradle.buildversion;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import java.util.Date;
@@ -58,7 +59,7 @@ public class BuildVersion {
         }
 
         init(0, 0, 0, null);
-        parsePattern(candidate);
+        parseCandidate(candidate);
     }
 
     public BuildVersion(final String pattern, final int major, final int minor, final int build, final Date buildDate) {
@@ -199,15 +200,159 @@ public class BuildVersion {
         this.useBuild = useBuild;
     }
 
-    private void parsePattern(final String candidate) {
+    private void parseCandidate(final String candidate) {
+        if (null != candidate) {
 
-        // TODO Auto-generated method stub
-        //
-        // Note that the build date can only be derived if the 'date' portion of the
-        // pattern is set.  The derived date if that date pattern is not present will be
-        // 'now'.  If the time pattern variable is not present, the date will be midnight
-        // of the date in the candidate.
-        //
+            //
+            // These values are extracted during parse and pulled together to make a
+            // valid date at the end of the parse.
+            //
+            String dateStr = "";
+            String timeStr = "";
+
+            //
+            // Note that the build date can only be derived if the 'date' portion of the
+            // pattern is set.  The derived date if that date pattern is not present will be
+            // 'now'.  If the time pattern variable is not present, the date will be midnight
+            // of the date in the candidate.
+            //
+            final String parsePattern = getPattern();
+
+            //
+            // The pattern is known valid, just fill in the blanks
+            //
+            int patternIndex = 0;
+            int candidateIndex = getNextNumberIndex(candidate, 0);
+
+            while (patternIndex >= 0) {
+
+                //
+                // Find the next pattern block to validate
+                //
+                patternIndex = parsePattern.indexOf("%", patternIndex);
+
+                int nextPatternIndex = patternIndex + 3;
+                int nextCandidateIndex = candidateIndex;
+                int nextInt = 0;
+
+                if (patternIndex >= 0) {
+                    final char nextChar = parsePattern.charAt(patternIndex + 1);
+
+                    switch (nextChar) {
+                    case '%' :
+
+                        //
+                        // backup the index one since this is only 2 characters consumed
+                        //
+                        nextPatternIndex -= 1;
+
+                        break;
+
+                    case 'M' :
+                        nextCandidateIndex = getNextNonNumberIndex(candidate, candidateIndex);
+
+                        if (candidateIndex != nextCandidateIndex) {
+                            nextInt = Integer.valueOf(candidate.substring(candidateIndex, nextCandidateIndex));
+                        }
+
+                        setMajor(nextInt);
+
+                        break;
+
+                    case 'm' :
+                        nextCandidateIndex = getNextNonNumberIndex(candidate, candidateIndex);
+
+                        if (candidateIndex != nextCandidateIndex) {
+                            nextInt = Integer.valueOf(candidate.substring(candidateIndex, nextCandidateIndex));
+                        }
+
+                        setMinor(nextInt);
+
+                        break;
+
+                    case 'b' :
+                        nextCandidateIndex = getNextNonNumberIndex(candidate, candidateIndex);
+
+                        if (candidateIndex != nextCandidateIndex) {
+                            nextInt = Integer.valueOf(candidate.substring(candidateIndex, nextCandidateIndex));
+                        }
+
+                        setBuild(nextInt);
+
+                        break;
+
+                    case 'd' :
+                        nextCandidateIndex = getNextNonNumberIndex(candidate, candidateIndex);
+
+                        if (candidateIndex != nextCandidateIndex) {
+                            dateStr = candidate.substring(candidateIndex, nextCandidateIndex);
+                        }
+
+                        break;
+
+                    case 't' :
+                        nextCandidateIndex = getNextNonNumberIndex(candidate, candidateIndex);
+
+                        if (candidateIndex != nextCandidateIndex) {
+                            timeStr = candidate.substring(candidateIndex, nextCandidateIndex);
+                        }
+
+                        break;
+
+                    default :
+
+                        //
+                        // This state is not possible if the validate method works.  Not testable
+                        // without breaking private contract
+                        //
+                        throw new IllegalStateException("Invalid pattern detected '" + getPattern() + "' at index: "
+                                                        + patternIndex);
+                    }
+
+                    patternIndex = nextPatternIndex;
+                    candidateIndex = getNextNumberIndex(candidate, nextCandidateIndex);
+                }
+            }
+
+            //
+            // Last step is to formulate the date if possible
+            //
+            if (dateStr.length() > 0) {
+                final SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT_PATTERN + "."
+                                                       + TIME_FORMAT_PATTERN);
+
+                formatter.setLenient(true);
+
+                try {
+                    setBuildDate(formatter.parse(dateStr + "." + timeStr));
+                } catch (final ParseException e) {
+
+                    //
+                    // We got a bogus date out of our candidate string.  Ignore it...
+                    //
+                }
+            }
+        }
+    }
+
+    private int getNextNumberIndex(final String candidate, final int startIndex) {
+        int currentIndex = startIndex;
+
+        while ((currentIndex < candidate.length()) &&!Character.isDigit(candidate.charAt(currentIndex))) {
+            currentIndex++;
+        }
+
+        return currentIndex;
+    }
+
+    private int getNextNonNumberIndex(final String candidate, final int startIndex) {
+        int currentIndex = startIndex;
+
+        while ((currentIndex < candidate.length()) && Character.isDigit(candidate.charAt(currentIndex))) {
+            currentIndex++;
+        }
+
+        return currentIndex;
     }
 
     public String getPattern() {

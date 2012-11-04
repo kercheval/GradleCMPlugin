@@ -239,4 +239,46 @@ public class BuildVersionTest {
 
         return rVal;
     }
+
+    @Test
+    public void testParseCandidate() {
+        final BuildVersion versionNow = new BuildVersion(null, 0, 0, 0, null);
+        BuildVersion verify = new BuildVersion(BuildVersion.DEFAULT_PATTERN, versionNow.toString());
+
+        Assert.assertEquals(versionNow.toString(), verify.toString());
+        verify = new BuildVersion("%M%.%m%.%b%-%d%.%t%", "9.3.456-20121101.123456");
+        Assert.assertSame(9, verify.getMajor());
+        Assert.assertSame(3, verify.getMinor());
+        Assert.assertEquals(456, verify.getBuild());
+        Assert.assertEquals("1351798496000", Long.valueOf(verify.getBuildDate().getTime()).toString());
+        verify = new BuildVersion("%M%.%m%.%b%-%d%.%t%", "Prefix98.34.1456-2012111.123456Postfix");
+        Assert.assertSame(98, verify.getMajor());
+        Assert.assertSame(34, verify.getMinor());
+        Assert.assertEquals(1456, verify.getBuild());
+        Assert.assertEquals("1351798496000", Long.valueOf(verify.getBuildDate().getTime()).toString());
+        verify = new BuildVersion("%%%M%.%m%.%b%-%d%.%t%%%", "Prefix98.34.1456-2012111.123456Postfix");
+        Assert.assertSame(98, verify.getMajor());
+        Assert.assertSame(34, verify.getMinor());
+        Assert.assertEquals(1456, verify.getBuild());
+        Assert.assertEquals("1351798496000", Long.valueOf(verify.getBuildDate().getTime()).toString());
+        verify = new BuildVersion("%d%.%%%M%.%m%.%b%-%t%%%", "2012111.Prefix98.34.1456-123456Postfix");
+        Assert.assertSame(98, verify.getMajor());
+        Assert.assertSame(34, verify.getMinor());
+        Assert.assertEquals(1456, verify.getBuild());
+        Assert.assertEquals("1351798496000", Long.valueOf(verify.getBuildDate().getTime()).toString());
+        verify = new BuildVersion("%d%.%%.%m%.%b%-%t%%%%M%", "2012111.Prefix.34.1456-123456Postfix98");
+        Assert.assertSame(98, verify.getMajor());
+        Assert.assertSame(34, verify.getMinor());
+        Assert.assertEquals(1456, verify.getBuild());
+        Assert.assertEquals("1351798496000", Long.valueOf(verify.getBuildDate().getTime()).toString());
+        verify = new BuildVersion("%d%.%%.%m%.%b%-%t%%%%M%", "2012111.Prefix.34.1456-123456Postfix");
+        Assert.assertSame(0, verify.getMajor());
+        Assert.assertSame(34, verify.getMinor());
+        Assert.assertEquals(1456, verify.getBuild());
+        Assert.assertEquals("1351798496000", Long.valueOf(verify.getBuildDate().getTime()).toString());
+        verify = new BuildVersion("%d%.%%.%m%.%M%-%t%%%%b%", "2012111.Prefix.34.1456-123456Postfix");
+        Assert.assertEquals(1456, verify.getMajor());
+        Assert.assertSame(34, verify.getMinor());
+        Assert.assertSame(0, verify.getBuild());
+    }
 }
