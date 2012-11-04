@@ -24,6 +24,7 @@ import java.io.IOException;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -72,47 +73,7 @@ public class BuildInfoTask extends DefaultTask {
             @Override
             public void graphPopulated(final TaskExecutionGraph graph) {
                 final Project project = getProject();
-                final Map<String, ?> props = project.getProperties();
-                boolean validateMap = true;
-
-                //
-                // Set variable defaults
-                //
-                if (getFiledir() == null) {
-
-                    //
-                    // filedir was not set in gradle file, so set to default value
-                    //
-                    try {
-                        setFiledir(((File) props.get("buildDir")).getCanonicalPath());
-                    } catch (final IOException e) {
-                        project.getLogger().error(e.getMessage());
-                    }
-                }
-
-                if (getFilename() == null) {
-
-                    //
-                    // Set default filename
-                    //
-                    setFilename("buildinfo.properties");
-                }
-
-                if (getTaskmap() == null) {
-
-                    //
-                    // set the default taskMap
-                    //
-                    taskmap = new HashMap<String, String>();
-                    taskmap.put("jar", "META-INF");
-                    taskmap.put("war", "META-INF");
-                    taskmap.put("ear", "META-INF");
-
-                    //
-                    // Don't validate the default map
-                    //
-                    validateMap = false;
-                }
+                final boolean validateMap = setDefaultVariables(project);
 
                 //
                 // Run our task and insert into tasks if autowrite
@@ -184,6 +145,55 @@ public class BuildInfoTask extends DefaultTask {
                 }
             }
         });
+    }
+
+    //
+    // Set default variables if they have not been already specified
+    //
+    protected boolean setDefaultVariables(final Project project) {
+        final Map<String, ?> props = project.getProperties();
+        boolean validateMap = true;
+
+        //
+        // Set variable defaults
+        //
+        if (getFiledir() == null) {
+
+            //
+            // filedir was not set in gradle file, so set to default value
+            //
+            try {
+                setFiledir(((File) props.get("buildDir")).getCanonicalPath());
+            } catch (final IOException e) {
+                project.getLogger().error(e.getMessage());
+            }
+        }
+
+        if (getFilename() == null) {
+
+            //
+            // Set default filename
+            //
+            setFilename("buildinfo.properties");
+        }
+
+        if (getTaskmap() == null) {
+
+            //
+            // set the default taskMap
+            //
+            taskmap = new HashMap<String, String>();
+            taskmap.put("jar", "META-INF");
+            taskmap.put("war", "META-INF");
+            taskmap.put("ear", "META-INF");
+
+            //
+            // Don't validate the default map
+            //
+            validateMap = false;
+        }
+
+        return validateMap;
     }
 
     public Map<String, Object> getCustominfo() {
@@ -267,24 +277,33 @@ public class BuildInfoTask extends DefaultTask {
             out.write(EOL);
             out.write("#");
             out.write(EOL);
-            out.write("# Tasks executing in this build");
-            out.write(EOL);
 
-            //
-            // Include all the tasks that are to be executed in this build.
-            // These are scheduled tasks, there is no guarantee that the tasks
-            // will actually be run or will have succeeded if run
-            //
-            for (final Task task : project.getGradle().getTaskGraph().getAllTasks()) {
-                out.write("#   ");
-                out.write(task.getPath());
+            try {
+                final List<Task> taskList = project.getGradle().getTaskGraph().getAllTasks();
+
+                out.write("# Tasks executing in this build");
                 out.write(EOL);
+
+                //
+                // Include all the tasks that are to be executed in this build.
+                // These are scheduled tasks, there is no guarantee that the tasks
+                // will actually be run or will have succeeded if run
+                //
+                for (final Task task : taskList) {
+                    out.write("#   ");
+                    out.write(task.getPath());
+                    out.write(EOL);
+                }
+
+                out.write("#");
+                out.write(EOL);
+                out.write("#");
+                out.write(EOL);
+            } catch (final IllegalStateException e) {
+
+                // Ignore if doTask called prior to task graph ready
             }
 
-            out.write("#");
-            out.write(EOL);
-            out.write("#");
-            out.write(EOL);
             out.write(EOL);
 
             //

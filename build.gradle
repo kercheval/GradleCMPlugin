@@ -46,6 +46,19 @@ dependencies {
 }
 
 //
+// Use bootstrap versions of CM plugin 
+//
+buildscript {
+	repositories {
+		mavenCentral()
+		mavenRepo url: 'http://kercheval.org/mvn-repo/releases'
+	}
+	dependencies {
+		classpath 'org.kercheval:GradleCMPlugin:+'
+	}
+}
+
+//
 // The publish group for the repository
 //
 group = 'org.kercheval'
@@ -78,18 +91,5 @@ uploadArchives {
 		    }
         }
     }
-	
-	//
-	// Use bootstrap versions of CM plugin 
-	//
-	buildscript {
-		repositories {
-			mavenCentral()
-			mavenRepo url: 'http://kercheval.org/mvn-repo/releases'
-		}
-		dependencies {
-			classpath 'org.kercheval:GradleCMPlugin:+'
-		}
-	}
 }
 
