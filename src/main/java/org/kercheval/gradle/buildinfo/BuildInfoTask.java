@@ -31,8 +31,7 @@ import java.util.Properties;
 
 public class BuildInfoTask extends DefaultTask {
     public static final String DEFAULT_BUILDINFO_PROPERTIES = "buildinfo.properties";
-
-	static private String EOL = System.getProperty("line.separator");
+    static private String EOL = System.getProperty("line.separator");
 
     //
     // If true, the buildinfo file will be written automatically at
@@ -71,10 +70,11 @@ public class BuildInfoTask extends DefaultTask {
         // completed their configuration phase and all variable updates have
         // been completed for the purposes of this plugin.
         //
-        getProject().getGradle().getTaskGraph().addTaskExecutionGraphListener(new TaskExecutionGraphListener() {
+        final Project project = getProject();
+
+        project.getGradle().getTaskGraph().addTaskExecutionGraphListener(new TaskExecutionGraphListener() {
             @Override
             public void graphPopulated(final TaskExecutionGraph graph) {
-                final Project project = getProject();
                 final boolean validateMap = setDefaultVariables(project);
 
                 //
@@ -334,7 +334,7 @@ public class BuildInfoTask extends DefaultTask {
             out.write(EOL);
             out.write(EOL);
             VCSAccessFactory.getCurrentVCS((File) props.get("rootDir"), project.getLogger()).getInfo().store(out,
-                                           "Git Info");
+                                           "VCS Info");
             out.write(EOL);
             out.write(EOL);
             new JenkinsUtil().getJenkinsInfo().store(out, "Jenkins Info");

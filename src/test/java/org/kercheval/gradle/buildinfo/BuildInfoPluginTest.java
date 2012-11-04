@@ -39,7 +39,7 @@ public class BuildInfoPluginTest {
     }
 
     private BuildInfoTask getTask(final Project project) {
-        project.apply(new Closure<BuildInfoPlugin>(project, project) {
+        project.apply(new Closure<DefaultObjectConfigurationAction>(project, project) {
             @SuppressWarnings("unused")
             public Object doCall(final DefaultObjectConfigurationAction pluginAction) {
                 pluginAction.plugin("buildinfo");
