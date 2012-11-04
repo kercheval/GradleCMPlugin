@@ -1,6 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
+apply plugin: 'buildinfo'
 
 //
 // Build date is a part of all release versions.  Use the standard maven 
@@ -52,30 +53,43 @@ group = 'org.kercheval'
 uploadArchives {
     repositories {
         mavenDeployer {
-	    //
-	    // Note this cute little bit of indirection.  The upload target will place the repository 
-	    // files into a local github repository that is at the same level as the root of this 
-	    // project.  I have cloned my maven repository into that location so that these line up
-	    // correctly.  This allows me to validate the release binaries and commit them as a 
-	    // seperate step.  If I had nexus deployed and was using CI for this project, this repository
-	    // reference would be pointing directly at that instead.
-	    //
-	    repository(url: "file://${rootDir}/../mvn-repo/releases")
-		
-	    //
-	    // Note that this repository will be used ONLY if the buildType
-	    // in gradle.properties is set to 'SNAPSHOT'
-	    //
-	    snapshotRepository(url: "file://${rootDir}/../mvn-repo/snapshots") 
-	    pom.project {
-		licenses {
-		    license {
-			name 'Creative Commons Attribution 3.0 Unported License'
-			url 'http://creativecommons.org/licenses/by/3.0/deed.en_US'
+		    //
+		    // Note this cute little bit of indirection.  The upload target will place the repository 
+		    // files into a local github repository that is at the same level as the root of this 
+		    // project.  I have cloned my maven repository into that location so that these line up
+		    // correctly.  This allows me to validate the release binaries and commit them as a 
+		    // seperate step.  If I had nexus deployed and was using CI for this project, this repository
+		    // reference would be pointing directly at that instead.
+		    //
+		    repository(url: "file://${rootDir}/../mvn-repo/releases")
+			
+		    //
+		    // Note that this repository will be used ONLY if the buildType
+		    // in gradle.properties is set to 'SNAPSHOT'
+		    //
+		    snapshotRepository(url: "file://${rootDir}/../mvn-repo/snapshots") 
+		    pom.project {
+				licenses {
+				    license {
+						name 'Creative Commons Attribution 3.0 Unported License'
+						url 'http://creativecommons.org/licenses/by/3.0/deed.en_US'
+				    }
+				}
 		    }
-		}
-	    }
         }
     }
+	
+	//
+	// Use bootstrap versions of CM plugin 
+	//
+	buildscript {
+		repositories {
+			mavenCentral()
+			mavenRepo url: 'http://kercheval.org/mvn-repo/releases'
+		}
+		dependencies {
+			classpath 'org.kercheval:GradleCMPlugin:+'
+		}
+	}
 }
 

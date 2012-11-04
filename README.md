@@ -42,6 +42,7 @@ released plugin jar file available.
 ```
 buildscript {
 	repositories {
+		mavenCentral()
 		mavenRepo url: 'http://kercheval.org/mvn-repo/releases'
 	}
 	dependencies {
