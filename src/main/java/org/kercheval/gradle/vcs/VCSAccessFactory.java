@@ -13,6 +13,6 @@ import java.io.File;
 //
 public class VCSAccessFactory {
     public static IVCSAccess getCurrentVCS(final File srcRootDir, final Logger logger) {
-        return new VCSGitImpl(srcRootDir, logger);
+        return VCSGitImpl.getInstance(srcRootDir, logger);
     }
 }

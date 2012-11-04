@@ -1,0 +1,242 @@
+package org.kercheval.gradle.buildversion;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import static org.junit.Assert.fail;
+
+import java.util.Date;
+
+public class BuildVersionTest {
+    @Test
+    public void testPatternSet() {
+        BuildVersion verify = new BuildVersion("%d%", "20121110");
+
+        Assert.assertEquals("%d%", verify.getPattern());
+        verify = new BuildVersion(null, "20121110");
+        Assert.assertEquals(BuildVersion.DEFAULT_PATTERN, verify.getPattern());
+        verify = new BuildVersion(null, null);
+        Assert.assertEquals(BuildVersion.DEFAULT_PATTERN, verify.getPattern());
+    }
+
+    @Test
+    public void testValidatePattern() {
+
+        //
+        // Test valid patterns
+        //
+        testValidPattern(null);
+        testValidPattern("");
+        testValidPattern("%d%.%t%%%");
+        testValidPattern("%d%%%%t%");
+
+        //
+        // Test duplicate usage
+        //
+        testDuplicateVariablePattern('M');
+        testDuplicateVariablePattern('m');
+        testDuplicateVariablePattern('b');
+        testDuplicateVariablePattern('d');
+        testDuplicateVariablePattern('t');
+
+        //
+        // Test invalid patterns
+        //
+        testInvalidPattern(" ", "whitespace not allowed");
+        testInvalidPattern("%", "unbalanced %");
+        testInvalidPattern("%d", "unbalanced %");
+        testInvalidPattern("%d%%", "unbalanced %");
+        testInvalidPattern("%%d%", "unbalanced %");
+        testInvalidPattern("%t%%%d%", "unbalanced %");
+        testInvalidPattern("%w%", "invalid variable reference");
+        testInvalidPattern("%tw%", "invalid variable reference");
+        testInvalidPattern("%t%%w%", "invalid variable reference");
+        testInvalidPattern("%w%%t%", "invalid variable reference");
+        testInvalidPattern("%d%%w%%t%", "invalid variable reference");
+    }
+
+    @Test
+    public void testBooleanPatternUsage() {
+
+        //
+        // Test boolean results
+        //
+        BuildVersion verify = testValidPattern(BuildVersion.DEFAULT_PATTERN);
+
+        Assert.assertTrue(verify.useMajor());
+        Assert.assertTrue(verify.useMinor());
+        Assert.assertFalse(verify.useBuild());
+        verify = testValidPattern("v%M%.%m%.%b%-%d%.%t%");
+        Assert.assertTrue(verify.useMajor());
+        Assert.assertTrue(verify.useMinor());
+        Assert.assertTrue(verify.useBuild());
+        verify = testValidPattern("%d%.%t%");
+        Assert.assertFalse(verify.useMajor());
+        Assert.assertFalse(verify.useMinor());
+        Assert.assertFalse(verify.useBuild());
+    }
+
+    @Test
+    public void testDefaultDate() {
+        BuildVersion verify = new BuildVersion("", 0, 0, 0, null);
+
+        Assert.assertNotNull(verify.getBuildDate());
+
+        final Date now = new Date();
+
+        verify = new BuildVersion("", 0, 0, 0, now);
+        Assert.assertSame(now, verify.getBuildDate());
+    }
+
+    @Test
+    public void testVersionUpdate() {
+        final BuildVersion verify = new BuildVersion("", 0, 0, 0, null);
+
+        verify.setMajor(3);
+        Assert.assertSame(3, verify.getMajor());
+        verify.incrementMajor();
+        Assert.assertSame(3, verify.getMajor());
+        verify.setMinor(30);
+        Assert.assertSame(30, verify.getMinor());
+        verify.incrementMinor();
+        Assert.assertSame(30, verify.getMinor());
+        verify.setBuild(23);
+        Assert.assertSame(23, verify.getBuild());
+        verify.incrementBuild();
+        Assert.assertSame(23, verify.getBuild());
+
+        final Date now = new Date();
+
+        Assert.assertNotSame(now, verify.getBuildDate());
+        verify.setBuildDate(now);
+        Assert.assertSame(now, verify.getBuildDate());
+    }
+
+    @Test
+    public void testToString() {
+        BuildVersion verify = new BuildVersion(null, 0, 0, 0, new Date(0));
+
+        Assert.assertEquals("0.0-19691231.160000", verify.toString());
+        verify = new BuildVersion("%d%%t%", 0, 0, 0, new Date(0));
+        Assert.assertEquals("19691231160000", verify.toString());
+        verify = new BuildVersion("Prefix%d%infix%t%postfix", 0, 0, 0, new Date(0));
+        Assert.assertEquals("Prefix19691231infix160000postfix", verify.toString());
+        verify = new BuildVersion("%d%%b%%t%", 0, 0, 0, new Date(0));
+        Assert.assertEquals("196912310160000", verify.toString());
+        verify = new BuildVersion("%%%d%%%%t%%%", 0, 0, 0, new Date(0));
+        Assert.assertEquals("%19691231%160000%", verify.toString());
+        verify = new BuildVersion("ThisIsATest", 0, 0, 0, new Date(0));
+        Assert.assertEquals("ThisIsATest", verify.toString());
+    }
+
+    @Test
+    public void testIncrementLogic() {
+        BuildVersion verify = testValidPattern(BuildVersion.DEFAULT_PATTERN);
+
+        Assert.assertSame(0, verify.getMajor());
+        Assert.assertSame(0, verify.getMinor());
+        Assert.assertSame(0, verify.getBuild());
+
+        Date buildDate = verify.getBuildDate();
+
+        Assert.assertNotNull(buildDate);
+        verify.incrementVersion();
+        Assert.assertSame(0, verify.getMajor());
+        Assert.assertSame(1, verify.getMinor());
+        Assert.assertSame(0, verify.getBuild());
+        Assert.assertNotNull(verify.getBuildDate());
+        Assert.assertNotSame(buildDate, verify.getBuildDate());
+        buildDate = verify.getBuildDate();
+        verify.incrementMajor();
+        Assert.assertSame(1, verify.getMajor());
+        verify.incrementMinor();
+        Assert.assertSame(2, verify.getMinor());
+        verify.incrementBuild();
+        Assert.assertSame(0, verify.getBuild());
+        Assert.assertNotSame(buildDate, verify.getBuildDate());
+        verify = testValidPattern("v%M%.%m%.%b%-%d%.%t%");
+        buildDate = verify.getBuildDate();
+        Assert.assertNotNull(buildDate);
+        verify.incrementVersion();
+        Assert.assertSame(0, verify.getMajor());
+        Assert.assertSame(0, verify.getMinor());
+        Assert.assertSame(1, verify.getBuild());
+        Assert.assertNotNull(verify.getBuildDate());
+        Assert.assertNotSame(buildDate, verify.getBuildDate());
+        buildDate = verify.getBuildDate();
+        verify.incrementMajor();
+        Assert.assertSame(1, verify.getMajor());
+        verify.incrementMinor();
+        Assert.assertSame(1, verify.getMinor());
+        verify.incrementBuild();
+        Assert.assertSame(2, verify.getBuild());
+        Assert.assertNotSame(buildDate, verify.getBuildDate());
+        verify = testValidPattern("v%M%-%d%.%t%");
+        buildDate = verify.getBuildDate();
+        Assert.assertNotNull(buildDate);
+        verify.incrementVersion();
+        Assert.assertSame(1, verify.getMajor());
+        Assert.assertSame(0, verify.getMinor());
+        Assert.assertSame(0, verify.getBuild());
+        Assert.assertNotNull(verify.getBuildDate());
+        Assert.assertNotSame(buildDate, verify.getBuildDate());
+        buildDate = verify.getBuildDate();
+        verify.incrementMajor();
+        Assert.assertSame(2, verify.getMajor());
+        verify.incrementMinor();
+        Assert.assertSame(0, verify.getMinor());
+        verify.incrementBuild();
+        Assert.assertSame(0, verify.getBuild());
+        Assert.assertNotSame(buildDate, verify.getBuildDate());
+        verify = testValidPattern("%d%.%t%");
+        buildDate = verify.getBuildDate();
+        Assert.assertNotNull(buildDate);
+        verify.incrementVersion();
+        Assert.assertSame(0, verify.getMajor());
+        Assert.assertSame(0, verify.getMinor());
+        Assert.assertSame(0, verify.getBuild());
+        Assert.assertNotNull(verify.getBuildDate());
+        Assert.assertNotSame(buildDate, verify.getBuildDate());
+        buildDate = verify.getBuildDate();
+        verify.incrementMajor();
+        Assert.assertSame(0, verify.getMajor());
+        verify.incrementMinor();
+        Assert.assertSame(0, verify.getMinor());
+        verify.incrementBuild();
+        Assert.assertSame(0, verify.getBuild());
+        Assert.assertNotSame(buildDate, verify.getBuildDate());
+    }
+
+    private void testDuplicateVariablePattern(final char c) {
+        testInvalidPattern("%" + c + "%%" + c + "%", "used more than once");
+        testInvalidPattern("foo%" + c + "%%" + c + "%", "used more than once");
+        testInvalidPattern("%" + c + "%bar%" + c + "%", "used more than once");
+        testInvalidPattern("%" + c + "%%" + c + "%baz", "used more than once");
+        testInvalidPattern("foo%" + c + "%bar%" + c + "%baz", "used more than once");
+        testInvalidPattern("%" + c + "%foo%" + c + "%bar%" + c + "%", "used more than once");
+        testInvalidPattern("%" + c + "%%d%%" + c + "%", "used more than once");
+        testInvalidPattern("%" + c + "%%t%%" + c + "%", "used more than once");
+    }
+
+    private void testInvalidPattern(final String pattern, final String exceptionContains) {
+        try {
+            final BuildVersion buildVersion = new BuildVersion(pattern, 0, 0, 0, null);
+
+            fail("Invalid pattern was not caught: " + buildVersion.toString());
+        } catch (final IllegalArgumentException e) {
+            Assert.assertTrue(e.getMessage().contains(exceptionContains));
+        }
+    }
+
+    private BuildVersion testValidPattern(final String pattern) {
+        BuildVersion rVal = null;
+
+        try {
+            rVal = new BuildVersion(pattern, 0, 0, 0, null);
+        } catch (final IllegalArgumentException e) {
+            fail("Valid pattern was rejected: " + e.getMessage());
+        }
+
+        return rVal;
+    }
+}

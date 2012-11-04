@@ -2,6 +2,8 @@ package org.kercheval.gradle.vcs;
 
 import org.kercheval.gradle.util.SortedProperties;
 
+import java.util.List;
+
 //
 // This interface supports the specific types of operation required by
 // programmatic access to the VCS system in use.
@@ -9,16 +11,21 @@ import org.kercheval.gradle.util.SortedProperties;
 // NOTE:  GIT is the only supported system at the moment.
 //
 public interface IVCSAccess {
-    public enum VCSType { GIT }
+    public enum Type { GIT }
 
     //
     // Get the current VCSType.
     //
-    public VCSType getVCSType();
+    public Type getType();
 
     //
     // Obtain 'interesting' information about the current VCS usage
     // and return that as property information.
     //
-    public SortedProperties getVCSInfo();
+    public SortedProperties getInfo();
+
+    //
+    // Get tags from repository.
+    //
+    public List<VCSTag> getAllTags();
 }
