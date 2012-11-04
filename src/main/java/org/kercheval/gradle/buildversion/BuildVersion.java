@@ -51,7 +51,7 @@ public class BuildVersion {
     //
     // Create a default version
     //
-    public BuildVersion(final String pattern, final String candidate) {
+    public BuildVersion(final String pattern, final String candidate) throws ParseException {
         if (null != pattern) {
             this.pattern = pattern;
         } else {
@@ -84,6 +84,112 @@ public class BuildVersion {
         }
 
         validatePattern();
+    }
+
+    private void setUseMajor(final boolean useMajor) {
+        this.useMajor = useMajor;
+    }
+
+    private void setUseMinor(final boolean useMinor) {
+        this.useMinor = useMinor;
+    }
+
+    private void setUseBuild(final boolean useBuild) {
+        this.useBuild = useBuild;
+    }
+
+    public String getPattern() {
+        return pattern;
+    }
+
+    public int getMajor() {
+        return major;
+    }
+
+    public void setMajor(final int major) {
+        this.major = major;
+    }
+
+    public int getMinor() {
+        return minor;
+    }
+
+    public void setMinor(final int minor) {
+        this.minor = minor;
+    }
+
+    public int getBuild() {
+        return build;
+    }
+
+    public void setBuild(final int build) {
+        this.build = build;
+    }
+
+    public Date getBuildDate() {
+        return buildDate;
+    }
+
+    public void setBuildDate(final Date buildDate) {
+        this.buildDate = buildDate;
+    }
+
+    public boolean useMajor() {
+        return this.useMajor;
+    }
+
+    public boolean useMinor() {
+        return this.useMinor;
+    }
+
+    public boolean useBuild() {
+        return this.useBuild;
+    }
+
+    //
+    // This method increments the build version in the most 'natural' way.
+    // The build number is considered the most volatile, followed by the minor
+    // version and finally followed by the major version.  The date is always updated
+    // as a result of the increment of the build version.
+    //
+    public void incrementVersion() {
+        if (useBuild()) {
+            incrementBuild();
+        } else if (useMinor()) {
+            incrementMinor();
+        } else if (useMajor()) {
+            incrementMajor();
+        } else {
+            updateDate();
+        }
+    }
+
+    public void incrementBuild() {
+        if (useBuild()) {
+            build++;
+        }
+
+        updateDate();
+    }
+
+    public void incrementMinor() {
+        if (useMinor()) {
+            minor++;
+        }
+
+        updateDate();
+    }
+
+    public void incrementMajor() {
+        if (useMajor()) {
+            major++;
+        }
+
+        updateDate();
+    }
+
+    public void updateDate() {
+        setBuildDate(new Date());
     }
 
     private void validatePattern() {
@@ -188,19 +294,7 @@ public class BuildVersion {
         }
     }
 
-    private void setUseMajor(final boolean useMajor) {
-        this.useMajor = useMajor;
-    }
-
-    private void setUseMinor(final boolean useMinor) {
-        this.useMinor = useMinor;
-    }
-
-    private void setUseBuild(final boolean useBuild) {
-        this.useBuild = useBuild;
-    }
-
-    private void parseCandidate(final String candidate) {
+    private void parseCandidate(final String candidate) throws ParseException {
         if (null != candidate) {
 
             //
@@ -233,7 +327,6 @@ public class BuildVersion {
 
                 int nextPatternIndex = patternIndex + 3;
                 int nextCandidateIndex = candidateIndex;
-                int nextInt = 0;
 
                 if (patternIndex >= 0) {
                     final char nextChar = parsePattern.charAt(patternIndex + 1);
@@ -252,10 +345,11 @@ public class BuildVersion {
                         nextCandidateIndex = getNextNonNumberIndex(candidate, candidateIndex);
 
                         if (candidateIndex != nextCandidateIndex) {
-                            nextInt = Integer.valueOf(candidate.substring(candidateIndex, nextCandidateIndex));
+                            setMajor(Integer.valueOf(candidate.substring(candidateIndex, nextCandidateIndex)));
+                        } else {
+                            throw new ParseException("Unable to match %M% for pattern '" + parsePattern + "'",
+                                                     patternIndex);
                         }
-
-                        setMajor(nextInt);
 
                         break;
 
@@ -263,10 +357,11 @@ public class BuildVersion {
                         nextCandidateIndex = getNextNonNumberIndex(candidate, candidateIndex);
 
                         if (candidateIndex != nextCandidateIndex) {
-                            nextInt = Integer.valueOf(candidate.substring(candidateIndex, nextCandidateIndex));
+                            setMinor(Integer.valueOf(candidate.substring(candidateIndex, nextCandidateIndex)));
+                        } else {
+                            throw new ParseException("Unable to match %m% for pattern '" + parsePattern + "'",
+                                                     patternIndex);
                         }
-
-                        setMinor(nextInt);
 
                         break;
 
@@ -274,10 +369,11 @@ public class BuildVersion {
                         nextCandidateIndex = getNextNonNumberIndex(candidate, candidateIndex);
 
                         if (candidateIndex != nextCandidateIndex) {
-                            nextInt = Integer.valueOf(candidate.substring(candidateIndex, nextCandidateIndex));
+                            setBuild(Integer.valueOf(candidate.substring(candidateIndex, nextCandidateIndex)));
+                        } else {
+                            throw new ParseException("Unable to match %b% for pattern '" + parsePattern + "'",
+                                                     patternIndex);
                         }
-
-                        setBuild(nextInt);
 
                         break;
 
@@ -286,6 +382,9 @@ public class BuildVersion {
 
                         if (candidateIndex != nextCandidateIndex) {
                             dateStr = candidate.substring(candidateIndex, nextCandidateIndex);
+                        } else {
+                            throw new ParseException("Unable to match %d% for pattern '" + parsePattern + "'",
+                                                     patternIndex);
                         }
 
                         break;
@@ -295,6 +394,9 @@ public class BuildVersion {
 
                         if (candidateIndex != nextCandidateIndex) {
                             timeStr = candidate.substring(candidateIndex, nextCandidateIndex);
+                        } else {
+                            throw new ParseException("Unable to match %t% for pattern '" + parsePattern + "'",
+                                                     patternIndex);
                         }
 
                         break;
@@ -318,18 +420,22 @@ public class BuildVersion {
             // Last step is to formulate the date if possible
             //
             if (dateStr.length() > 0) {
-                final SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT_PATTERN + "."
-                                                       + TIME_FORMAT_PATTERN);
+                String format = DATE_FORMAT_PATTERN;
+                String toParse = dateStr;
+
+                if (timeStr.length() > 0) {
+                    format = DATE_FORMAT_PATTERN + "." + TIME_FORMAT_PATTERN;
+                    toParse = dateStr + "." + timeStr;
+                }
+
+                final SimpleDateFormat formatter = new SimpleDateFormat(format);
 
                 formatter.setLenient(true);
 
                 try {
-                    setBuildDate(formatter.parse(dateStr + "." + timeStr));
+                    setBuildDate(formatter.parse(toParse));
                 } catch (final ParseException e) {
-
-                    //
-                    // We got a bogus date out of our candidate string.  Ignore it...
-                    //
+                    throw new ParseException("Unable to match date for pattern '" + parsePattern + "'", 0);
                 }
             }
         }
@@ -353,100 +459,6 @@ public class BuildVersion {
         }
 
         return currentIndex;
-    }
-
-    public String getPattern() {
-        return pattern;
-    }
-
-    public int getMajor() {
-        return major;
-    }
-
-    public void setMajor(final int major) {
-        this.major = major;
-    }
-
-    public int getMinor() {
-        return minor;
-    }
-
-    public void setMinor(final int minor) {
-        this.minor = minor;
-    }
-
-    public int getBuild() {
-        return build;
-    }
-
-    public void setBuild(final int build) {
-        this.build = build;
-    }
-
-    public Date getBuildDate() {
-        return buildDate;
-    }
-
-    public void setBuildDate(final Date buildDate) {
-        this.buildDate = buildDate;
-    }
-
-    public boolean useMajor() {
-        return this.useMajor;
-    }
-
-    public boolean useMinor() {
-        return this.useMinor;
-    }
-
-    public boolean useBuild() {
-        return this.useBuild;
-    }
-
-    //
-    // This method increments the build version in the most 'natural' way.
-    // The build number is considered the most volatile, followed by the minor
-    // version and finally followed by the major version.  The date is always updated
-    // as a result of the increment of the build version.
-    //
-    public void incrementVersion() {
-        if (useBuild()) {
-            incrementBuild();
-        } else if (useMinor()) {
-            incrementMinor();
-        } else if (useMajor()) {
-            incrementMajor();
-        } else {
-            updateDate();
-        }
-    }
-
-    public void incrementBuild() {
-        if (useBuild()) {
-            build++;
-        }
-
-        updateDate();
-    }
-
-    public void incrementMinor() {
-        if (useMinor()) {
-            minor++;
-        }
-
-        updateDate();
-    }
-
-    public void incrementMajor() {
-        if (useMajor()) {
-            major++;
-        }
-
-        updateDate();
-    }
-
-    public void updateDate() {
-        setBuildDate(new Date());
     }
 
     @Override

@@ -5,15 +5,17 @@ import org.junit.Test;
 
 import static org.junit.Assert.fail;
 
+import java.text.ParseException;
+
 import java.util.Date;
 
 public class BuildVersionTest {
     @Test
-    public void testPatternSet() {
+    public void testPatternSet() throws ParseException {
         BuildVersion verify = new BuildVersion("%d%", "20121110");
 
         Assert.assertEquals("%d%", verify.getPattern());
-        verify = new BuildVersion(null, "20121110");
+        verify = new BuildVersion(null, "3.4-20121110.123456");
         Assert.assertEquals(BuildVersion.DEFAULT_PATTERN, verify.getPattern());
         verify = new BuildVersion(null, null);
         Assert.assertEquals(BuildVersion.DEFAULT_PATTERN, verify.getPattern());
@@ -241,7 +243,7 @@ public class BuildVersionTest {
     }
 
     @Test
-    public void testParseCandidate() {
+    public void testParseCandidate() throws ParseException {
         final BuildVersion versionNow = new BuildVersion(null, 0, 0, 0, null);
         BuildVersion verify = new BuildVersion(BuildVersion.DEFAULT_PATTERN, versionNow.toString());
 
@@ -251,6 +253,10 @@ public class BuildVersionTest {
         Assert.assertSame(3, verify.getMinor());
         Assert.assertEquals(456, verify.getBuild());
         Assert.assertEquals("1351798496000", Long.valueOf(verify.getBuildDate().getTime()).toString());
+        verify = new BuildVersion("%M%.%m%.%b%", "9.3.456");
+        Assert.assertSame(9, verify.getMajor());
+        Assert.assertSame(3, verify.getMinor());
+        Assert.assertEquals(456, verify.getBuild());
         verify = new BuildVersion("%M%.%m%.%b%-%d%.%t%", "Prefix98.34.1456-2012111.123456Postfix");
         Assert.assertSame(98, verify.getMajor());
         Assert.assertSame(34, verify.getMinor());
@@ -271,14 +277,53 @@ public class BuildVersionTest {
         Assert.assertSame(34, verify.getMinor());
         Assert.assertEquals(1456, verify.getBuild());
         Assert.assertEquals("1351798496000", Long.valueOf(verify.getBuildDate().getTime()).toString());
-        verify = new BuildVersion("%d%.%%.%m%.%b%-%t%%%%M%", "2012111.Prefix.34.1456-123456Postfix");
-        Assert.assertSame(0, verify.getMajor());
-        Assert.assertSame(34, verify.getMinor());
-        Assert.assertEquals(1456, verify.getBuild());
-        Assert.assertEquals("1351798496000", Long.valueOf(verify.getBuildDate().getTime()).toString());
-        verify = new BuildVersion("%d%.%%.%m%.%M%-%t%%%%b%", "2012111.Prefix.34.1456-123456Postfix");
-        Assert.assertEquals(1456, verify.getMajor());
-        Assert.assertSame(34, verify.getMinor());
-        Assert.assertSame(0, verify.getBuild());
+
+        try {
+            verify = new BuildVersion("%d%.%%.%m%.%b%-%t%%%%M%", "2012111.Prefix.34.1456-123456Postfix");
+            fail("ParseException expected");
+        } catch (final ParseException e) {
+
+            // Expected
+        }
+
+        try {
+            verify = new BuildVersion("%d%.%%.%m%.%M%-%t%%%%b%", "2012111.Prefix.34.1456-123456Postfix");
+            fail("ParseException expected");
+        } catch (final ParseException e) {
+
+            // Expected
+        }
+
+        try {
+            verify = new BuildVersion("%d%.%%.%b%.%M%-%t%%%%m%", "2012111.Prefix.34.1456-123456Postfix");
+            fail("ParseException expected");
+        } catch (final ParseException e) {
+
+            // Expected
+        }
+
+        try {
+            verify = new BuildVersion("%d%.%%.%b%.%M%-%m%%%%t%", "2012111.Prefix.34.1456-123456Postfix");
+            fail("ParseException expected");
+        } catch (final ParseException e) {
+
+            // Expected
+        }
+
+        try {
+            verify = new BuildVersion("%m%.%%.%b%.%M%-%t%%%%d%", "2012111.Prefix.34.1456-123456Postfix");
+            fail("ParseException expected");
+        } catch (final ParseException e) {
+
+            // Expected
+        }
+
+        try {
+            verify = new BuildVersion("%M%.%m%.%b%-%d%.%t%", "9.3.456-121101.123456");
+            fail("ParseException expected");
+        } catch (final ParseException e) {
+
+            // Expected
+        }
     }
 }
