@@ -49,31 +49,34 @@ public class BuildVersion {
     private final String pattern;
 
     //
+    // The candidate pattern is used to verify candidate strings and is used
+    // to verify toString output.  This pattern is auto-generated if a specific
+    // pattern is not supplied (based on output pattern).
+    //
+    private final String candidatePattern;
+
+    //
     // Create a default version
     //
     public BuildVersion(final String pattern, final String candidate) throws ParseException {
-        if (null != pattern) {
-            this.pattern = pattern;
-        } else {
-            this.pattern = DEFAULT_PATTERN;
-        }
+        this(pattern, null, candidate);
+    }
 
-        init(0, 0, 0, null);
+    public BuildVersion(final String pattern, final String candidatePattern, final String candidate)
+            throws ParseException {
+        this.pattern = init(pattern, 0, 0, 0, null);
+        this.candidatePattern = initCandidatePattern(candidatePattern);
         parseCandidate(candidate);
     }
 
     public BuildVersion(final String pattern, final int major, final int minor, final int build, final Date buildDate) {
-        if (null != pattern) {
-            this.pattern = pattern;
-        } else {
-            this.pattern = DEFAULT_PATTERN;
-        }
-
-        init(major, minor, build, buildDate);
+        this.pattern = init(pattern, major, minor, build, buildDate);
+        this.candidatePattern = initCandidatePattern(null);
     }
 
     @SuppressWarnings("hiding")
-    private void init(final int major, final int minor, final int build, final Date buildDate) {
+    private String init(String validatePattern, final int major, final int minor, final int build,
+                        final Date buildDate) {
         this.major = major;
         this.minor = minor;
         this.build = build;
@@ -83,7 +86,22 @@ public class BuildVersion {
             this.buildDate = new Date();
         }
 
-        validatePattern();
+        if (null == validatePattern) {
+            validatePattern = DEFAULT_PATTERN;
+        }
+
+        return validatePattern(validatePattern);
+    }
+
+    @SuppressWarnings("hiding")
+    private String initCandidatePattern(final String candidatePattern) {
+        String rVal = candidatePattern;
+
+        if (null == candidatePattern) {
+            rVal = generateCandidatePattern(getPattern());
+        }
+
+        return rVal;
     }
 
     private void setUseMajor(final boolean useMajor) {
@@ -100,6 +118,10 @@ public class BuildVersion {
 
     public String getPattern() {
         return pattern;
+    }
+
+    public String getCandidatePattern() {
+        return candidatePattern;
     }
 
     public int getMajor() {
@@ -192,8 +214,21 @@ public class BuildVersion {
         setBuildDate(new Date());
     }
 
-    private void validatePattern() {
-        final String validatePattern = getPattern();
+    @Override
+    public String toString() {
+        final String versionString = generateVersionString();
+
+        if (!versionString.matches(getCandidatePattern())) {
+            throw new IllegalStateException("Version string generated '" + versionString + "' from pattern '"
+                                            + getPattern() + "' does not match candidate pattern '"
+                                            + getCandidatePattern()
+                                            + "'.  Output and candidate patterns must be consistent");
+        }
+
+        return versionString;
+    }
+
+    private String validatePattern(final String validatePattern) {
 
         //
         // Ensure the pattern contains no whitespace
@@ -292,6 +327,86 @@ public class BuildVersion {
                 }
             }
         }
+
+        return validatePattern;
+    }
+
+    private static String generateCandidatePattern(String buildPattern) {
+        final StringBuilder candidatePatternStr = new StringBuilder();
+
+        //
+        // Escape all regex meta characters while adding in the pattern variables
+        //
+        buildPattern = buildPattern.replaceAll("([\\\\*+\\[\\](){}\\$.?\\^|])", "\\\\$1");
+
+        //
+        // The pattern is known valid, just fill in the blanks
+        //
+        int index = 0;
+        int lastIndex = index;
+
+        while (index >= 0) {
+
+            //
+            // Find the next pattern block to validate
+            //
+            index = buildPattern.indexOf("%", index);
+
+            int nextIndex = index + 3;
+
+            if (index >= 0) {
+
+                //
+                // Place the block from the last match to the current into the string
+                //
+                candidatePatternStr.append(buildPattern.substring(lastIndex, index));
+
+                final char nextChar = buildPattern.charAt(index + 1);
+
+                switch (nextChar) {
+                case '%' :
+                    candidatePatternStr.append("%");
+
+                    //
+                    // Backup the index one since this is only 2 characters consumed
+                    //
+                    nextIndex -= 1;
+
+                    break;
+
+                case 'M' :
+                case 'm' :
+                case 'b' :
+                case 'd' :
+                case 't' :
+                    candidatePatternStr.append("\\d+");
+
+                    break;
+
+                default :
+
+                    //
+                    // This state is not possible if the validate method works.  Not testable
+                    // without breaking private contract
+                    //
+                    throw new IllegalStateException("Invalid pattern detected '" + buildPattern + "' at index: "
+                                                    + index);
+                }
+
+                index = nextIndex;
+                lastIndex = index;
+            }
+        }
+
+        //
+        // Tack on the postfix (if any)
+        //
+        candidatePatternStr.append(buildPattern.substring(lastIndex));
+
+        // TODO  Remove
+        System.out.println(candidatePatternStr.toString());
+
+        return candidatePatternStr.toString();
     }
 
     private void parseCandidate(final String candidate) throws ParseException {
@@ -461,8 +576,7 @@ public class BuildVersion {
         return currentIndex;
     }
 
-    @Override
-    public String toString() {
+    private String generateVersionString() {
         final StringBuilder versionStr = new StringBuilder();
         final String buildPattern = getPattern();
 

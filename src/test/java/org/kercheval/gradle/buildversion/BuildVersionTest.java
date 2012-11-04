@@ -21,6 +21,8 @@ public class BuildVersionTest {
         Assert.assertEquals(BuildVersion.DEFAULT_PATTERN, verify.getPattern());
     }
 
+    // @Test
+    // public void testCandidatePattern
     @Test
     public void testValidatePattern() {
 
@@ -31,6 +33,13 @@ public class BuildVersionTest {
         testValidPattern("");
         testValidPattern("%d%.%t%%%");
         testValidPattern("%d%%%%t%");
+        testValidPattern("Prefix%d%Infix%%Infix%t%Postfix");
+        testValidPattern("Pre....fix%d%Infix%%Infix%t%Postfix");
+        testValidPattern("Prefix%d%Infix%%Inf\\wix%t%Postfix");
+        testValidPattern("Prefix%d%Infix%%Infix%t%P\\d+ostfix");
+        testValidPattern("Prefix%d%Infix%%Infix%t%P\\d*ostfix");
+        testValidPattern("Prefix%d%Infix%%Infix%t%P\\d?ostfix");
+        testValidPattern("Pre....fix%d%Inf\\wix%%Infix%t%P\\d+ostfix");
 
         //
         // Test duplicate usage
@@ -235,6 +244,7 @@ public class BuildVersionTest {
 
         try {
             rVal = new BuildVersion(pattern, 0, 0, 0, null);
+            System.out.println("Pattern '" + pattern + "' produced '" + rVal + "'");
         } catch (final IllegalArgumentException e) {
             fail("Valid pattern was rejected: " + e.getMessage());
         }
@@ -277,49 +287,18 @@ public class BuildVersionTest {
         Assert.assertSame(34, verify.getMinor());
         Assert.assertEquals(1456, verify.getBuild());
         Assert.assertEquals("1351798496000", Long.valueOf(verify.getBuildDate().getTime()).toString());
+        testParseFailure("%d%.%%.%m%.%b%-%t%%%%M%", "2012111.Prefix.34.1456-123456Postfix");
+        testParseFailure("%d%.%%.%m%.%M%-%t%%%%b%", "2012111.Prefix.34.1456-123456Postfix");
+        testParseFailure("%d%.%%.%b%.%M%-%t%%%%m%", "2012111.Prefix.34.1456-123456Postfix");
+        testParseFailure("%d%.%%.%b%.%M%-%m%%%%t%", "2012111.Prefix.34.1456-123456Postfix");
+        testParseFailure("%m%.%%.%b%.%M%-%t%%%%d%", "2012111.Prefix.34.1456-123456Postfix");
+        testParseFailure("%M%.%m%.%b%-%d%.%t%", "9.3.456-121101.123456");
+    }
 
+    @SuppressWarnings("unused")
+    void testParseFailure(final String pattern, final String candidate) {
         try {
-            verify = new BuildVersion("%d%.%%.%m%.%b%-%t%%%%M%", "2012111.Prefix.34.1456-123456Postfix");
-            fail("ParseException expected");
-        } catch (final ParseException e) {
-
-            // Expected
-        }
-
-        try {
-            verify = new BuildVersion("%d%.%%.%m%.%M%-%t%%%%b%", "2012111.Prefix.34.1456-123456Postfix");
-            fail("ParseException expected");
-        } catch (final ParseException e) {
-
-            // Expected
-        }
-
-        try {
-            verify = new BuildVersion("%d%.%%.%b%.%M%-%t%%%%m%", "2012111.Prefix.34.1456-123456Postfix");
-            fail("ParseException expected");
-        } catch (final ParseException e) {
-
-            // Expected
-        }
-
-        try {
-            verify = new BuildVersion("%d%.%%.%b%.%M%-%m%%%%t%", "2012111.Prefix.34.1456-123456Postfix");
-            fail("ParseException expected");
-        } catch (final ParseException e) {
-
-            // Expected
-        }
-
-        try {
-            verify = new BuildVersion("%m%.%%.%b%.%M%-%t%%%%d%", "2012111.Prefix.34.1456-123456Postfix");
-            fail("ParseException expected");
-        } catch (final ParseException e) {
-
-            // Expected
-        }
-
-        try {
-            verify = new BuildVersion("%M%.%m%.%b%-%d%.%t%", "9.3.456-121101.123456");
+            new BuildVersion(pattern, candidate);
             fail("ParseException expected");
         } catch (final ParseException e) {
 
