@@ -191,4 +191,38 @@ public class VCSGitImpl implements IVCSAccess {
             }
         }
     }
+
+    @Override
+    public VCSStatus getStatus() throws VCSException {
+        final VCSStatus rVal = new VCSStatus();
+        Repository repository = null;
+
+        try {
+            repository = new RepositoryBuilder().readEnvironment().findGitDir(getSrcRootDir()).build();
+
+            try {
+                final Status status = new Git(repository).status().call();
+
+                rVal.setAdded(status.getAdded());
+                rVal.setChanged(status.getChanged());
+                rVal.setMissing(status.getMissing());
+                rVal.setRemoved(status.getRemoved());
+                rVal.setUntracked(status.getUntracked());
+                rVal.setConflicting(status.getConflicting());
+                rVal.setModified(status.getModified());
+            } catch (final NoWorkTreeException e) {
+                throw new VCSException("Unable to determine repository status", e);
+            } catch (final GitAPIException e) {
+                throw new VCSException("Unable to determine repository status", e);
+            }
+        } catch (final IOException e) {
+            throw new VCSException("Unable to find repository at: " + getSrcRootDir(), e);
+        } finally {
+            if (null != repository) {
+                repository.close();
+            }
+        }
+
+        return rVal;
+    }
 }

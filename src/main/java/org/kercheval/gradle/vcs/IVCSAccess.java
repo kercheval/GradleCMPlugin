@@ -35,4 +35,9 @@ public interface IVCSAccess {
     // Write a tag into the repository
     //
     public void setTag(VCSTag tag) throws VCSException;
+
+    //
+    // Return the current status of the VCS system (all workspace changes)
+    //
+    public VCSStatus getStatus() throws VCSException;
 }

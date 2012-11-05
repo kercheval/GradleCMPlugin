@@ -7,6 +7,7 @@ import org.gradle.api.tasks.TaskExecutionException;
 import org.kercheval.gradle.vcs.IVCSAccess;
 import org.kercheval.gradle.vcs.VCSAccessFactory;
 import org.kercheval.gradle.vcs.VCSException;
+import org.kercheval.gradle.vcs.VCSStatus;
 import org.kercheval.gradle.vcs.VCSTag;
 
 import java.io.File;
@@ -21,8 +22,24 @@ public class BuildVersionTagTask extends DefaultTask {
     //
     private String comment = "Tag created by " + this.getName();
 
+    //
+    // if onlyifclean is true, then tags are only written to the VCS system
+    // if the workspace is clean (no files checked out or modified).  This
+    // will prevent tagging based on old commits or build releases that are not
+    // replicable.
+    //
+    private boolean onlyifclean = true;
+
     public BuildVersionTagTask() {
         this.dependsOn(":" + BuildVersionPlugin.MAIN_TASK_NAME);
+    }
+
+    public boolean isOnlyifclean() {
+        return onlyifclean;
+    }
+
+    public void setOnlyifclean(final boolean onlyifclean) {
+        this.onlyifclean = onlyifclean;
     }
 
     public String getComment() {
@@ -39,6 +56,27 @@ public class BuildVersionTagTask extends DefaultTask {
             final Map<String, ?> props = getProject().getProperties();
             final IVCSAccess vcs = VCSAccessFactory.getCurrentVCS((File) props.get("rootDir"),
                                        getProject().getLogger());
+
+            if (isOnlyifclean()) {
+
+                //
+                // Tags should be written only if the workspace is clean.
+                //
+                VCSStatus status;
+
+                try {
+                    status = vcs.getStatus();
+                } catch (final VCSException e) {
+                    throw new TaskExecutionException(this, e);
+                }
+
+                if (!status.isClean()) {
+                    throw new TaskExecutionException(
+                        this,
+                        new IllegalStateException(
+                            "The current workspace is not clean.  Please ensure you have committed all outstanding work."));
+                }
+            }
 
             //
             // Write a tag into VCS using the current project version
