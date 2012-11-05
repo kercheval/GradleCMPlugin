@@ -7,9 +7,15 @@ configuration management practices that are not necessarily well
 supported in gradle.  
 
 [Build Info Plugin](#build-info-plugin)
-- [Quick Start](#quick-start)
+- [Quick Start](#build-info-quick-start)
 - [Variables](#variables)
 - [Examples](#examples)
+
+[Build Version Plugin](#build-version-plugin)
+- [Quick Start](#quick-start-1)
+- [Tasks](#tasks)
+- [Variables](#variables-1)
+- [Examples](#examples-1)
 
 I intend for this source code base to be instructional as well as
 useful.
@@ -19,9 +25,9 @@ The sources here demonstrate the following
 - Creation of Gradle plugins and tasks using standard Java
 - Automatic task run based on the gradle lifecycle.
 - Use of the Gradle API for task customization and iteration
-- Use of the Gradle API for hooking existing tasks 
+- Use of the Gradle API for hooking existing tasks
 - Use of java based closure implementation to extend gradle tasks
-- Use of a property to distinguish between versions and build types
+- Use of JGit to obtain VCS status and to read and set tags
 
 ##Build Info Plugin
 
@@ -40,7 +46,7 @@ gathered includes:
 In addition to the information above, the buildinfo configuration
 block can be used to add custom information to the build file.
 
-###Quick Start
+###Quick Start [build-info-quick-start]
 
 Add a buildscript section for the plugin dependency in your build
 gradle file.  Note that the example below will take the most recent
@@ -188,7 +194,6 @@ an empty map (see example below).
 	</tr>
 </table>
 
-###Examples
 ###Examples
 
 To automatically add build info into a zip file in the directory
