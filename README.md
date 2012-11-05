@@ -1,5 +1,7 @@
 #Gradle Configuration Management Build Support
 
+[Summary](#summary)
+
 ## Project Summary
 
 This project is a set of plugins intended to support standard
