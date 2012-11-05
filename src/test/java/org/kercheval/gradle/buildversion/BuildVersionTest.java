@@ -268,7 +268,7 @@ public class BuildVersionTest {
 
     @Test
     public void testParseCandidate() throws ParseException {
-        final BuildVersion versionNow = new BuildVersion(null, 0, 0, 0, null);
+        final BuildVersion versionNow = new BuildVersion(BuildVersion.DEFAULT_PATTERN);
         BuildVersion verify = new BuildVersion(BuildVersion.DEFAULT_PATTERN, versionNow.toString());
 
         Assert.assertEquals(versionNow.toString(), verify.toString());

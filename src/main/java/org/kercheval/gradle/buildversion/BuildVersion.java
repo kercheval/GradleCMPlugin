@@ -58,6 +58,10 @@ public class BuildVersion {
     //
     // Create a default version
     //
+    public BuildVersion(final String pattern) throws ParseException {
+        this(pattern, null, null);
+    }
+
     public BuildVersion(final String pattern, final String candidate) throws ParseException {
         this(pattern, null, candidate);
     }
