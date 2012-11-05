@@ -49,11 +49,11 @@ public class BuildVersion {
     private final String pattern;
 
     //
-    // The candidate pattern is used to verify candidate strings and is used
+    // The validate pattern is used to verify candidate strings and is used
     // to verify toString output.  This pattern is auto-generated if a specific
     // pattern is not supplied (based on output pattern).
     //
-    private final String candidatePattern;
+    private final String validatePattern;
 
     //
     // Create a default version
@@ -62,16 +62,16 @@ public class BuildVersion {
         this(pattern, null, candidate);
     }
 
-    public BuildVersion(final String pattern, final String candidatePattern, final String candidate)
+    public BuildVersion(final String pattern, final String validatePattern, final String candidate)
             throws ParseException {
         this.pattern = init(pattern, 0, 0, 0, null);
-        this.candidatePattern = initCandidatePattern(candidatePattern);
+        this.validatePattern = initValidatePattern(validatePattern);
         parseCandidate(candidate);
     }
 
     public BuildVersion(final String pattern, final int major, final int minor, final int build, final Date buildDate) {
         this.pattern = init(pattern, major, minor, build, buildDate);
-        this.candidatePattern = initCandidatePattern(null);
+        this.validatePattern = initValidatePattern(null);
     }
 
     @SuppressWarnings("hiding")
@@ -90,15 +90,15 @@ public class BuildVersion {
             validatePattern = DEFAULT_PATTERN;
         }
 
-        return validatePattern(validatePattern);
+        return checkPattern(validatePattern);
     }
 
     @SuppressWarnings("hiding")
-    private String initCandidatePattern(final String candidatePattern) {
-        String rVal = candidatePattern;
+    private String initValidatePattern(final String validatePattern) {
+        String rVal = validatePattern;
 
-        if (null == candidatePattern) {
-            rVal = generateCandidatePattern(getPattern());
+        if (null == validatePattern) {
+            rVal = generateValidatePattern(getPattern());
         }
 
         return rVal;
@@ -120,8 +120,8 @@ public class BuildVersion {
         return pattern;
     }
 
-    public String getCandidatePattern() {
-        return candidatePattern;
+    public String getValidatePattern() {
+        return validatePattern;
     }
 
     public int getMajor() {
@@ -218,45 +218,45 @@ public class BuildVersion {
     public String toString() {
         final String versionString = generateVersionString();
 
-        if (!versionString.matches(getCandidatePattern())) {
+        if (!versionString.matches(getValidatePattern())) {
             throw new IllegalStateException("Version string generated '" + versionString + "' from pattern '"
                                             + getPattern() + "' does not match candidate pattern '"
-                                            + getCandidatePattern()
+                                            + getValidatePattern()
                                             + "'.  Output and candidate patterns must be consistent");
         }
 
         return versionString;
     }
 
-    private String validatePattern(final String validatePattern) {
+    private String checkPattern(final String checkPattern) {
 
         //
         // Ensure the pattern contains no whitespace
         //
-        if (validatePattern.matches("\\S*\\s+\\S*")) {
+        if (checkPattern.matches("\\S*\\s+\\S*")) {
             throw new IllegalArgumentException("Invalid pattern: whitespace not allowed in pattern");
         }
 
         //
         // Ensure each pattern type is used zero or one times only
         //
-        if (validatePattern.matches("\\S*%M%\\S*%M%\\S*")) {
+        if (checkPattern.matches("\\S*%M%\\S*%M%\\S*")) {
             throw new IllegalArgumentException("Invalid pattern: Major variable %M% used more than once in pattern");
         }
 
-        if (validatePattern.matches("\\S*%m%\\S*%m%\\S*")) {
+        if (checkPattern.matches("\\S*%m%\\S*%m%\\S*")) {
             throw new IllegalArgumentException("Invalid pattern: Minor variable %m% used more than once in pattern");
         }
 
-        if (validatePattern.matches("\\S*%b%\\S*%b%\\S*")) {
+        if (checkPattern.matches("\\S*%b%\\S*%b%\\S*")) {
             throw new IllegalArgumentException("Invalid pattern: Build variable %b% used more than once in pattern");
         }
 
-        if (validatePattern.matches("\\S*%d%\\S*%d%\\S*")) {
+        if (checkPattern.matches("\\S*%d%\\S*%d%\\S*")) {
             throw new IllegalArgumentException("Invalid pattern: Date variable %d% used more than once in pattern");
         }
 
-        if (validatePattern.matches("\\S*%t%\\S*%t%\\S*")) {
+        if (checkPattern.matches("\\S*%t%\\S*%t%\\S*")) {
             throw new IllegalArgumentException("Invalid pattern: Time variable %t% used more than once in pattern");
         }
 
@@ -270,7 +270,7 @@ public class BuildVersion {
             //
             // Find the next pattern block to validate
             //
-            index = validatePattern.indexOf("%", index);
+            index = checkPattern.indexOf("%", index);
 
             if (index >= 0) {
 
@@ -278,20 +278,20 @@ public class BuildVersion {
                 // The string must have enough space left for either another % or a variable
                 // followed by a %
                 //
-                if (validatePattern.length() == index + 1) {
+                if (checkPattern.length() == index + 1) {
                     throw new IllegalArgumentException("Invalid pattern: unbalanced % found at end of pattern");
                 }
 
-                if ((validatePattern.length() == index + 2) && (validatePattern.charAt(index + 1) != '%')) {
+                if ((checkPattern.length() == index + 2) && (checkPattern.charAt(index + 1) != '%')) {
                     throw new IllegalArgumentException("Invalid pattern: unbalanced % found at end of pattern");
                 }
 
-                final char nextChar = validatePattern.charAt(index + 1);
+                final char nextChar = checkPattern.charAt(index + 1);
 
                 if (nextChar == '%') {
                     index += 2;
                 } else {
-                    final char fenceChar = validatePattern.charAt(index + 2);
+                    final char fenceChar = checkPattern.charAt(index + 2);
 
                     if (fenceChar != '%') {
                         throw new IllegalArgumentException(
@@ -328,11 +328,11 @@ public class BuildVersion {
             }
         }
 
-        return validatePattern;
+        return checkPattern;
     }
 
-    private static String generateCandidatePattern(String buildPattern) {
-        final StringBuilder candidatePatternStr = new StringBuilder();
+    private static String generateValidatePattern(String buildPattern) {
+        final StringBuilder validatePatternStr = new StringBuilder();
 
         //
         // Escape all regex meta characters while adding in the pattern variables
@@ -359,13 +359,13 @@ public class BuildVersion {
                 //
                 // Place the block from the last match to the current into the string
                 //
-                candidatePatternStr.append(buildPattern.substring(lastIndex, index));
+                validatePatternStr.append(buildPattern.substring(lastIndex, index));
 
                 final char nextChar = buildPattern.charAt(index + 1);
 
                 switch (nextChar) {
                 case '%' :
-                    candidatePatternStr.append("%");
+                    validatePatternStr.append("%");
 
                     //
                     // Backup the index one since this is only 2 characters consumed
@@ -379,7 +379,7 @@ public class BuildVersion {
                 case 'b' :
                 case 'd' :
                 case 't' :
-                    candidatePatternStr.append("\\d+");
+                    validatePatternStr.append("\\d+");
 
                     break;
 
@@ -401,9 +401,9 @@ public class BuildVersion {
         //
         // Tack on the postfix (if any)
         //
-        candidatePatternStr.append(buildPattern.substring(lastIndex));
+        validatePatternStr.append(buildPattern.substring(lastIndex));
 
-        return candidatePatternStr.toString();
+        return validatePatternStr.toString();
     }
 
     private void parseCandidate(final String candidate) throws ParseException {

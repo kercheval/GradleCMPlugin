@@ -5,9 +5,11 @@ import org.gradle.api.Project;
 import org.gradle.api.execution.TaskExecutionGraph;
 import org.gradle.api.execution.TaskExecutionGraphListener;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.TaskExecutionException;
 
 import org.kercheval.gradle.vcs.IVCSAccess;
 import org.kercheval.gradle.vcs.VCSAccessFactory;
+import org.kercheval.gradle.vcs.VCSException;
 import org.kercheval.gradle.vcs.VCSTag;
 
 import java.io.File;
@@ -18,7 +20,29 @@ import java.util.List;
 import java.util.Map;
 
 public class BuildVersionTask extends DefaultTask {
+
+    //
+    // When autowrite is true, the project version will automatically be set at
+    // task graph completion.  This is normally the correct behavior, but turning
+    // this variable to false allows late binding in some cases.
+    //
     private boolean autowrite = true;
+
+    //
+    // If increment is true, then during task execution, the last tag found will
+    // be incremented.  For example if the tag was 4.5, the version placed in the
+    // project would be 4.6.  This is normally the correct behavior.  Turning this
+    // variable off will result in the version staying at exactly the found or set
+    // value.
+    //
+    private boolean autoincrement = true;
+
+    //
+    // This is the object that will be set at the project version.  This is normally
+    // updated via a tag search during task execution, but doLast handlers can modify this
+    // at will.  Updates to this object will be reflected in project.version (which could
+    // also be directly modified after a cast).
+    //
     private BuildVersion version = new BuildVersion(null, 0, 0, 0, null);
 
     public BuildVersionTask() {
@@ -42,6 +66,14 @@ public class BuildVersionTask extends DefaultTask {
                 }
             }
         });
+    }
+
+    public boolean isAutoincrement() {
+        return autoincrement;
+    }
+
+    public void setAutoincrement(final boolean autoincrement) {
+        this.autoincrement = autoincrement;
     }
 
     public BuildVersion getVersion() {
@@ -70,6 +102,11 @@ public class BuildVersionTask extends DefaultTask {
         // execution for naming purposes.
         //
         setVersion(getVersionFromVCS(project));
+
+        if (isAutoincrement()) {
+            getVersion().incrementVersion();
+        }
+
         project.setVersion(getVersion());
     }
 
@@ -81,7 +118,14 @@ public class BuildVersionTask extends DefaultTask {
         // Get the filtered list of tags from VCS and iterate to find the newest one.
         //
         final IVCSAccess vcs = VCSAccessFactory.getCurrentVCS((File) props.get("rootDir"), project.getLogger());
-        final List<VCSTag> tagList = vcs.getTags(getVersion().getCandidatePattern());
+        List<VCSTag> tagList;
+
+        try {
+            tagList = vcs.getTags(getVersion().getValidatePattern());
+        } catch (final VCSException e) {
+            throw new TaskExecutionException(this, e);
+        }
+
         VCSTag foundTag = null;
 
         for (final VCSTag tag : tagList) {
@@ -99,9 +143,11 @@ public class BuildVersionTask extends DefaultTask {
         //
         if (null != foundTag) {
             try {
-                rVal = new BuildVersion(rVal.getPattern(), rVal.getCandidatePattern(), foundTag.getName());
+                rVal = new BuildVersion(rVal.getPattern(), rVal.getValidatePattern(), foundTag.getName());
             } catch (final ParseException e) {
                 project.getLogger().error("Unable to generate version from tag '" + foundTag + "': " + e.getMessage());
+
+                throw new TaskExecutionException(this, e);
             }
         }
 

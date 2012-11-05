@@ -19,7 +19,7 @@ import java.util.List;
 
 public class VCSGitImplTest {
     @Test
-    public void testGetInfo() {
+    public void testGetInfo() throws VCSException {
         final Project project = ProjectBuilder.builder().build();
         final SortedProperties props = VCSAccessFactory.getCurrentVCS(new File("."), project.getLogger()).getInfo();
 
@@ -34,7 +34,7 @@ public class VCSGitImplTest {
     }
 
     @Test
-    public void testGetTags() {
+    public void testGetTags() throws VCSException {
         final VCSGitImpl git = (VCSGitImpl) VCSGitImpl.getInstance(new File("."), null);
         List<VCSTag> tagList = git.getAllTags();
 

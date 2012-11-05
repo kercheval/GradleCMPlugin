@@ -2,7 +2,10 @@ package org.kercheval.gradle.vcs;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
+import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidTagNameException;
+import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.ObjectId;
@@ -59,43 +62,44 @@ public class VCSGitImpl implements IVCSAccess {
     }
 
     @Override
-    public SortedProperties getInfo() {
+    public SortedProperties getInfo() throws VCSException {
         final SortedProperties props = new SortedProperties();
         Repository repository = null;
 
         try {
             repository = new RepositoryBuilder().readEnvironment().findGitDir(getSrcRootDir()).build();
-            props.addProperty("git.basedir", repository.getDirectory().getCanonicalPath());
-            props.addProperty("git.branch", repository.getBranch());
+            props.addProperty("vcs.type", IVCSAccess.Type.GIT);
+            props.addProperty("vcs.git.basedir", repository.getDirectory().getCanonicalPath());
+            props.addProperty("vcs.git.branch", repository.getBranch());
 
             final ObjectId head = repository.resolve("HEAD");
 
-            props.addProperty("git.last.commit", head.getName());
+            props.addProperty("vcs.git.last.commit", head.getName());
 
             final Config config = repository.getConfig();
 
-            props.addProperty("git.user.name", config.getString("user", null, "name"));
-            props.addProperty("git.user.email", config.getString("user", null, "email"));
-            props.addProperty("git.remote.origin", config.getString("remote", "origin", "url"));
+            props.addProperty("vcs.git.user.name", config.getString("user", null, "name"));
+            props.addProperty("vcs.git.user.email", config.getString("user", null, "email"));
+            props.addProperty("vcs.git.remote.origin", config.getString("remote", "origin", "url"));
 
             try {
                 final Status status = new Git(repository).status().call();
 
-                props.addProperty("git.workspace.clean", Boolean.toString(status.isClean()));
-                props.addProperty("git.workspace.files.added", status.getAdded().toString());
-                props.addProperty("git.workspace.files.changed", status.getChanged().toString());
-                props.addProperty("git.workspace.files.missing", status.getMissing().toString());
-                props.addProperty("git.workspace.files.removed", status.getRemoved().toString());
-                props.addProperty("git.workspace.files.untracked", status.getUntracked().toString());
-                props.addProperty("git.workspace.files.conflicting", status.getConflicting().toString());
-                props.addProperty("git.workspace.files.modified", status.getModified().toString());
+                props.addProperty("vcs.git.workspace.clean", Boolean.toString(status.isClean()));
+                props.addProperty("vcs.git.workspace.files.added", status.getAdded().toString());
+                props.addProperty("vcs.git.workspace.files.changed", status.getChanged().toString());
+                props.addProperty("vcs.git.workspace.files.missing", status.getMissing().toString());
+                props.addProperty("vcs.git.workspace.files.removed", status.getRemoved().toString());
+                props.addProperty("vcs.git.workspace.files.untracked", status.getUntracked().toString());
+                props.addProperty("vcs.git.workspace.files.conflicting", status.getConflicting().toString());
+                props.addProperty("vcs.git.workspace.files.modified", status.getModified().toString());
             } catch (final NoWorkTreeException e) {
-                getLogger().error(e.getMessage());
+                throw new VCSException("Unable to determine repository status", e);
             } catch (final GitAPIException e) {
-                getLogger().error(e.getMessage());
+                throw new VCSException("Unable to determine repository status", e);
             }
         } catch (final IOException e) {
-            getLogger().error(e.getMessage());
+            throw new VCSException("Unable to find repository at: " + getSrcRootDir(), e);
         } finally {
             if (null != repository) {
                 repository.close();
@@ -111,12 +115,12 @@ public class VCSGitImpl implements IVCSAccess {
     }
 
     @Override
-    public List<VCSTag> getAllTags() {
+    public List<VCSTag> getAllTags() throws VCSException {
         return getTags(".*");
     }
 
     @Override
-    public List<VCSTag> getTags(final String regexFilter) {
+    public List<VCSTag> getTags(final String regexFilter) throws VCSException {
         final List<VCSTag> rVal = new ArrayList<VCSTag>();
         Repository repository = null;
 
@@ -149,7 +153,7 @@ public class VCSGitImpl implements IVCSAccess {
                 }
             }
         } catch (final IOException e) {
-            getLogger().error(e.getMessage());
+            throw new VCSException("Unable to find repository at: " + getSrcRootDir(), e);
         } finally {
             if (null != repository) {
                 repository.close();
@@ -157,5 +161,34 @@ public class VCSGitImpl implements IVCSAccess {
         }
 
         return rVal;
+    }
+
+    @Override
+    public void setTag(final VCSTag tag) throws VCSException {
+        Repository repository = null;
+
+        try {
+            repository = new RepositoryBuilder().readEnvironment().findGitDir(getSrcRootDir()).build();
+
+            final Git git = new Git(repository);
+
+            try {
+                git.tag().setName(tag.getName()).setMessage(tag.getComment()).call();
+            } catch (final ConcurrentRefUpdateException e) {
+                throw new VCSException("Unable to create tag: " + tag.getName(), e);
+            } catch (final InvalidTagNameException e) {
+                throw new VCSException("Unable to create tag: " + tag.getName(), e);
+            } catch (final NoHeadException e) {
+                throw new VCSException("Unable to create tag: " + tag.getName(), e);
+            } catch (final GitAPIException e) {
+                throw new VCSException("Unable to create tag: " + tag.getName(), e);
+            }
+        } catch (final IOException e) {
+            throw new VCSException("Unable to find repository at: " + getSrcRootDir(), e);
+        } finally {
+            if (null != repository) {
+                repository.close();
+            }
+        }
     }
 }

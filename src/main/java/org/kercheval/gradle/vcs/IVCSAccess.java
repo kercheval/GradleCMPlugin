@@ -22,12 +22,17 @@ public interface IVCSAccess {
     // Obtain 'interesting' information about the current VCS usage
     // and return that as property information.
     //
-    public SortedProperties getInfo();
+    public SortedProperties getInfo() throws VCSException;
 
     //
     // Get tags from repository.
     //
-    public List<VCSTag> getAllTags();
+    public List<VCSTag> getAllTags() throws VCSException;
 
-    public List<VCSTag> getTags(String regexFilter);
+    public List<VCSTag> getTags(String regexFilter) throws VCSException;
+
+    //
+    // Write a tag into the repository
+    //
+    public void setTag(VCSTag tag) throws VCSException;
 }

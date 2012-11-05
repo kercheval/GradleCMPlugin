@@ -35,7 +35,7 @@ public class BuildVersionTaskTest {
         Assert.assertTrue(project.getVersion() instanceof BuildVersion);
         System.out.println(project.getVersion());
         Assert.assertEquals(0, ((BuildVersion) project.getVersion()).getMajor());
-        Assert.assertEquals(2, ((BuildVersion) project.getVersion()).getMinor());
+        Assert.assertEquals(3, ((BuildVersion) project.getVersion()).getMinor());
     }
 
     private BuildVersionTask getTask(final Project project) {

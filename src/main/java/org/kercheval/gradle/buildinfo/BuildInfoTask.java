@@ -10,12 +10,14 @@ import org.gradle.api.execution.TaskExecutionGraphListener;
 import org.gradle.api.file.CopySpec;
 import org.gradle.api.tasks.AbstractCopyTask;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.TaskExecutionException;
 
 import org.kercheval.gradle.util.GradleUtil;
 import org.kercheval.gradle.util.JenkinsUtil;
 import org.kercheval.gradle.util.MachineUtil;
 import org.kercheval.gradle.util.SortedProperties;
 import org.kercheval.gradle.vcs.VCSAccessFactory;
+import org.kercheval.gradle.vcs.VCSException;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -168,6 +170,8 @@ public class BuildInfoTask extends DefaultTask {
                 setFiledir(((File) props.get("buildDir")).getCanonicalPath());
             } catch (final IOException e) {
                 project.getLogger().error(e.getMessage());
+
+                throw new TaskExecutionException(this, e);
             }
         }
 
@@ -340,7 +344,9 @@ public class BuildInfoTask extends DefaultTask {
             new JenkinsUtil().getJenkinsInfo().store(out, "Jenkins Info");
             out.close();
         } catch (final IOException e) {
-            project.getLogger().error(e.getMessage());
+            throw new TaskExecutionException(this, e);
+        } catch (final VCSException e) {
+            throw new TaskExecutionException(this, e);
         }
     }
 }

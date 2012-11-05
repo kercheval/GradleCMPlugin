@@ -10,6 +10,21 @@ public class VCSTag {
     private final String commitEmail;
     private final Date commitDate;
 
+    //
+    // Used when creating a tag in VCS
+    //
+    public VCSTag(final String name, final String comment) {
+        this.name = name;
+        this.comment = comment;
+        commit = null;
+        commitName = null;
+        commitEmail = null;
+        commitDate = null;
+    }
+
+    //
+    // Used when obtaining a tag from VCS
+    //
     public VCSTag(final String name, final String commit, final String comment, final String commitName,
                   final String commitEmail, final Date creationDate) {
         this.name = name;
