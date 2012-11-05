@@ -38,6 +38,14 @@ public class BuildVersionTask extends DefaultTask {
     private boolean autoincrement = true;
 
     //
+    // If usetag is true, then when the task is run, all tags that match the validate
+    // pattern will be iterated and the most recent tag will be used to determine the
+    // version values.  If set to false, then the version variables must be set in
+    // the configuration section of the gradle.build file.
+    //
+    private boolean usetag = true;
+
+    //
     // This is the object that will be set at the project version.  This is normally
     // updated via a tag search during task execution, but doLast handlers can modify this
     // at will.  Updates to this object will be reflected in project.version (which could
@@ -66,6 +74,14 @@ public class BuildVersionTask extends DefaultTask {
                 }
             }
         });
+    }
+
+    public boolean isUsetag() {
+        return usetag;
+    }
+
+    public void setUsetag(final boolean usetag) {
+        this.usetag = usetag;
     }
 
     public boolean isAutoincrement() {
@@ -112,42 +128,46 @@ public class BuildVersionTask extends DefaultTask {
 
     private BuildVersion getVersionFromVCS(final Project project) {
         BuildVersion rVal = getVersion();
-        final Map<String, ?> props = project.getProperties();
 
-        //
-        // Get the filtered list of tags from VCS and iterate to find the newest one.
-        //
-        final IVCSAccess vcs = VCSAccessFactory.getCurrentVCS((File) props.get("rootDir"), project.getLogger());
-        List<VCSTag> tagList;
+        if (isUsetag()) {
+            final Map<String, ?> props = project.getProperties();
 
-        try {
-            tagList = vcs.getTags(getVersion().getValidatePattern());
-        } catch (final VCSException e) {
-            throw new TaskExecutionException(this, e);
-        }
+            //
+            // Get the filtered list of tags from VCS and iterate to find the newest one.
+            //
+            final IVCSAccess vcs = VCSAccessFactory.getCurrentVCS((File) props.get("rootDir"), project.getLogger());
+            List<VCSTag> tagList;
 
-        VCSTag foundTag = null;
+            try {
+                tagList = vcs.getTags(getVersion().getValidatePattern());
+            } catch (final VCSException e) {
+                throw new TaskExecutionException(this, e);
+            }
 
-        for (final VCSTag tag : tagList) {
-            if (null == foundTag) {
-                foundTag = tag;
-            } else {
-                if (foundTag.getCommitDate().before(tag.getCommitDate())) {
+            VCSTag foundTag = null;
+
+            for (final VCSTag tag : tagList) {
+                if (null == foundTag) {
                     foundTag = tag;
+                } else {
+                    if (foundTag.getCommitDate().before(tag.getCommitDate())) {
+                        foundTag = tag;
+                    }
                 }
             }
-        }
 
-        //
-        // If we found a matching tag, generate the build version based on that tag name and return
-        //
-        if (null != foundTag) {
-            try {
-                rVal = new BuildVersion(rVal.getPattern(), rVal.getValidatePattern(), foundTag.getName());
-            } catch (final ParseException e) {
-                project.getLogger().error("Unable to generate version from tag '" + foundTag + "': " + e.getMessage());
+            //
+            // If we found a matching tag, generate the build version based on that tag name and return
+            //
+            if (null != foundTag) {
+                try {
+                    rVal = new BuildVersion(rVal.getPattern(), rVal.getValidatePattern(), foundTag.getName());
+                } catch (final ParseException e) {
+                    project.getLogger().error("Unable to generate version from tag '" + foundTag + "': "
+                                              + e.getMessage());
 
-                throw new TaskExecutionException(this, e);
+                    throw new TaskExecutionException(this, e);
+                }
             }
         }
 
