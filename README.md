@@ -46,7 +46,7 @@ gathered includes:
 In addition to the information above, the buildinfo configuration
 block can be used to add custom information to the build file.
 
-###Quick Start [build-info-quick-start]
+###Quick Start<a id="build-info-quick-start" />
 
 Add a buildscript section for the plugin dependency in your build
 gradle file.  Note that the example below will take the most recent
