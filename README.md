@@ -1,13 +1,18 @@
 #Gradle Configuration Management Build Support
 
-[Summary](#summary)
-
 ## Project Summary
 
 This project is a set of plugins intended to support standard
 configuration management practices that are not necessarily well
-supported in gradle.  I intend for this source code base to be
-instructional as well as useful.
+supported in gradle.  
+
+[Build Info Plugin](#build-info-plugin)
+- [Quick Start](#quick-start)
+- [Variables](#variables)
+- [Examples](#examples)
+
+I intend for this source code base to be instructional as well as
+useful.
 
 The sources here demonstrate the following
 
@@ -183,6 +188,7 @@ an empty map (see example below).
 	</tr>
 </table>
 
+###Examples
 ###Examples
 
 To automatically add build info into a zip file in the directory
