@@ -25,7 +25,7 @@ public class BuildVersion {
     private int major = 0;
     private int minor = 0;
     private int build = 0;
-    private Date buildDate = null;
+    private Date buildDate = new Date();
 
     //
     // These values are set based on the presence of variables in the
@@ -46,14 +46,14 @@ public class BuildVersion {
     // %t% - time (using HHmmss)
     // %% - a percent
     //
-    private final String pattern;
+    private String pattern;
 
     //
     // The validate pattern is used to verify candidate strings and is used
     // to verify toString output.  This pattern is auto-generated if a specific
     // pattern is not supplied (based on output pattern).
     //
-    private final String validatePattern;
+    private String validatePattern;
 
     //
     // Create a default version
@@ -68,44 +68,43 @@ public class BuildVersion {
 
     public BuildVersion(final String pattern, final String validatePattern, final String candidate)
             throws ParseException {
-        this.pattern = init(pattern, 0, 0, 0, null);
-        this.validatePattern = initValidatePattern(validatePattern);
+        init(0, 0, 0, null);
+        setPattern(pattern, validatePattern);
         parseCandidate(candidate);
     }
 
     public BuildVersion(final String pattern, final int major, final int minor, final int build, final Date buildDate) {
-        this.pattern = init(pattern, major, minor, build, buildDate);
-        this.validatePattern = initValidatePattern(null);
+        init(major, minor, build, buildDate);
+        setPattern(pattern);
     }
 
     @SuppressWarnings("hiding")
-    private String init(String validatePattern, final int major, final int minor, final int build,
-                        final Date buildDate) {
-        this.major = major;
-        this.minor = minor;
-        this.build = build;
-        this.buildDate = buildDate;
-
-        if (null == buildDate) {
-            this.buildDate = new Date();
-        }
-
-        if (null == validatePattern) {
-            validatePattern = DEFAULT_PATTERN;
-        }
-
-        return checkPattern(validatePattern);
+    private void init(final int major, final int minor, final int build, final Date buildDate) {
+        setMajor(major);
+        setMinor(minor);
+        setBuild(build);
+        setBuildDate(buildDate);
     }
 
-    @SuppressWarnings("hiding")
-    private String initValidatePattern(final String validatePattern) {
-        String rVal = validatePattern;
+    public void setPattern(final String newPattern) {
+        setPattern(newPattern, null);
+    }
 
-        if (null == validatePattern) {
-            rVal = generateValidatePattern(getPattern());
+    public void setPattern(String newPattern, final String newValidatePattern) {
+
+        // TODO Remove
+        System.out.println("Setting patterns - " + newPattern + " : " + newValidatePattern);
+
+        if (null == newPattern) {
+            newPattern = DEFAULT_PATTERN;
         }
 
-        return rVal;
+        this.pattern = checkPattern(newPattern);
+        this.validatePattern = newValidatePattern;
+
+        if (null == newValidatePattern) {
+            this.validatePattern = generateValidatePattern(getPattern());
+        }
     }
 
     private void setUseMajor(final boolean useMajor) {
@@ -158,6 +157,10 @@ public class BuildVersion {
 
     public void setBuildDate(final Date buildDate) {
         this.buildDate = buildDate;
+
+        if (null == buildDate) {
+            this.buildDate = new Date();
+        }
     }
 
     public boolean useMajor() {
@@ -233,6 +236,13 @@ public class BuildVersion {
     }
 
     private String checkPattern(final String checkPattern) {
+
+        //
+        // Reset variable usage for a new pattern
+        //
+        setUseMajor(false);
+        setUseMinor(false);
+        setUseBuild(false);
 
         //
         // Ensure the pattern contains no whitespace
