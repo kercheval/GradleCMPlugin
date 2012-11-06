@@ -436,7 +436,102 @@ Default: <strong>org.kercheval.gradle.buildversion.BuildVersion(null,
 0, 0, 0, null)</strong>
 </p>
 <p>
-
+This variable is of type
+org.kercheval.gradle.buildversion.BuildVersion.  This object holds the
+version state and creation and parsing patterns used to generate the
+version string.  Along with maintaining a major, minor and build
+numbers (any or all of which can be used), this object also maintains
+a build date (which can also be used in the version string).
+</p>
+<p>
+The actual version string creation is controlled by the use of a
+creation pattern.  The pattern used has the following restrictions
+</p>
+<ul>
+<li>May not have any whitespace (validated)</li>
+<li>May contain any of the following variables (at most once)
+<ul>
+<li>%M% - major version</li>
+<li>%m% - minor version</li>
+<li>%b% - build number</li>
+<li>%d% - date (using yyyyMMdd)</li>
+<li>%t% - time (using HHmmss)</li>
+<li>%% - a percent</li>
+</ul>
+</li>
+</ul>
+<p>
+The pattern can otherwise have any valid form to create patterns that
+are specific to your needs or are specific to your branch or build
+type.  The default pattern used if no pattern is explicitly set is 
+"%M%.%m%-%d%.%t%".  Invalid patterns will result in a build failure.
+</p>
+<p>
+In addition to the version pattern, you can set a validation Pattern.
+The validation pattern is used to filter tags on version parse and is
+used internally for verification of output versions.  The validation
+pattern enables the use of the version plugin in branch specific
+contexts (meaning multiple vcs branches can all be using different
+versions for building artifacts) and for special tag list filtering
+when setting the initial version.  If a validation pattern is not
+explicitly set, then a validation pattern is automatically generated
+from the version pattern.  
+</p>
+<p>
+The validation pattern must always be consistent with the version
+pattern.  To set these patterns, you can use the setPattern() method
+described below and shown in the examples section.
+</p>
+<p>
+The version.major, version.minor, version.build and version.buildDate
+variables can all be set in the configuration section.  If the usetag
+variable is set, you should set these variables in a doLast closure as
+shown in the examples section.
+</p>
+<p>
+There are a few useful methods that can be used on the version object.
+Normally, these methods should be used only after the initial
+buildversion task has been run.  This is most easily accomplished by
+the use of a doLast closure in the configuration block for
+buildversion (see examples) or usage on any task run after
+buildversion.
+</p>
+<p>
+<strong>version.setPattern(String pattern)</strong> - This method will set the version
+pattern to a new value and autogenerate a validation pattern.  You can
+use this method to set an initial value for initialization and then
+use it again to modify the version output for specific types of builds
+(such as development or snapshot builds).
+</p>
+<p>
+<strong>version.setPattern(String pattern, String validatePattern)</strong> -
+This method is used to set both a version pattern and a
+validatePattern.
+</p>
+<p>
+<strong>version.incrementVersion()</strong> - This method will increment the
+most volatile value in the current version pattern.  For instance if
+your pattern was "%M%.%m%", then the minor version would be
+incremented and if your pattern was "%M%.%m%.%b%" then the build
+number would be incremented.
+</p>
+<p>
+<strong>version.incrementMajor()</strong> - This method will increment the
+major version number.
+</p>
+<p>
+<strong>version.incrementMinor()</strong> - This method will increment the minor
+version number.
+</p>
+<p>
+<strong>version.incrementBuild()</strong> - This method will incremen the
+build version number.
+</p>
+<p>
+<strong>version.toString()</strong> - The standard toString() method will
+generate a revision string that is created based on the current
+pattern.  The newly created revision string is validated using the
+validation pattern to ensure consistent behavior.
 </p>
 		</td>
 	</tr>
