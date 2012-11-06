@@ -6,28 +6,36 @@ This project is a set of plugins intended to support standard
 configuration management practices that are not necessarily well
 supported in gradle.  
 
-[Build Info Plugin](#build-info-plugin)
+The [Build Info Plugin](#build-info-plugin) supports creation of a build time 
+info properties file which is a part of the build artifacts.
+
 - [Quick Start](#build-info-quick-start)
-- [Variables](#variables)
-- [Examples](#examples)
+- [Variables](#build-info-variables)
+- [Examples](#build-info-examples)
 
-[Build Version Plugin](#build-version-plugin)
-- [Quick Start](#quick-start-1)
-- [Tasks](#tasks)
-- [Variables](#variables-1)
-- [Examples](#examples-1)
+The [Build Version Plugin](#build-version-plugin) supports the tracking, 
+update and tagging for version numbers in your project and artifacts.
 
-I intend for this source code base to be instructional as well as
-useful.
+- [Quick Start](#build-version-quick-start)
+- [Tasks](#build-version-tasks)
+- [Variables](#build-version-variables)
+- [Examples](#build-version-examples)
 
-The sources here demonstrate the following
+To use these plugins, add a buildscript section for the plugin
+dependency in your build gradle file.  Note that the example below
+will take the most recent released plugin jar file available.
 
-- Creation of Gradle plugins and tasks using standard Java
-- Automatic task run based on the gradle lifecycle.
-- Use of the Gradle API for task customization and iteration
-- Use of the Gradle API for hooking existing tasks
-- Use of java based closure implementation to extend gradle tasks
-- Use of JGit to obtain VCS status and to read and set tags
+```
+buildscript {
+	repositories {
+		mavenCentral()
+		mavenRepo url: 'http://kercheval.org/mvn-repo/releases'
+	}
+	dependencies {
+		classpath 'org.kercheval:GradleCMPlugin:+'
+	}
+}
+```
 
 ##Build Info Plugin
 
@@ -46,25 +54,10 @@ gathered includes:
 In addition to the information above, the buildinfo configuration
 block can be used to add custom information to the build file.
 
-###Quick Start<a id="build-info-quick-start" />
+###Build Info Quick Start
 
-Add a buildscript section for the plugin dependency in your build
-gradle file.  Note that the example below will take the most recent
-released plugin jar file available.
-
-```
-buildscript {
-	repositories {
-		mavenCentral()
-		mavenRepo url: 'http://kercheval.org/mvn-repo/releases'
-	}
-	dependencies {
-		classpath 'org.kercheval:GradleCMPlugin:+'
-	}
-}
-```
-
-Add an apply line to your gradle build file.
+After ensuring the plugin in your script dependencies, add an apply
+line to your gradle build file.
 
 ```
 apply plugin: 'buildinfo'
@@ -74,7 +67,7 @@ This will cause a file called buildinfo.properties to be placed within
 your ${buildDir} directory and will automatically insert the
 buildinfo.properties file into all generated jar, war and ear files.
 
-###Variables
+###Build Info Variables
 
 By default, the plugin will create the information file in the default
 build directory, name the file buildinfo.properties and insert this
@@ -194,7 +187,7 @@ an empty map (see example below).
 	</tr>
 </table>
 
-###Examples
+###Build Info Examples
 
 To automatically add build info into a zip file in the directory
 'testingdir' you can add the specific task to the task map (overriding
@@ -317,7 +310,235 @@ property set in the gradle build file for important information in
 your environment.  New information sources are simple to add in this
 plugin if you have an interest in contributing.
 
+##Build Version Plugin
+
+###Summary
+
+The buildversion plugin supports the automatic setting of build numbers 
+based on VCS tag labeling.  The plugin support multiple branch version and 
+can be used without tagging at all.
+
+Using the default behavior of the plugin, the gradle version object
+will be updated to reflect a single increment version update from the
+last tag recognized as a tag label.  For example, if a tag was found
+with version 2.6, the gradle version would be updated to 2.7 (your
+builds are actually targeted at the next version release, not the last
+one.
+
+The increment behavior, build numbers, version format default
+behaviors can all be overriden using the task variables.
+
+There are two tasks defined in this plugin:
+
+####buildversion
+
+This task will find the most recent tag (not the highest build number,
+but the most recently placed) and will use that as the template for
+the build version.  The tags used for comparison are filtered based on
+the validatePattern (see variable section).  The gradle version update
+occurs at the point at which the task graph is completed.  This is
+just after the evaluation phase of the build and just prior to actual
+task execution.
+
+####buildversiontag
+
+This task will take the current version and write a tag using the
+current version format.  This tag is written locally, so if you wish
+this published in a central repository, you will need to push these
+tags (this would be 'git push origin --tags' for git users).  The
+buildversiontag task always depends on the buildversion task and will
+use variables created in that task for tag output.
+
+###Build Version Quick Start
+
+After ensuring the plugin in your script dependencies, add an apply
+line to your gradle build file.
+
+```
+apply plugin: 'buildversion'
+```
+
+This will automatically cause the tag list to be parsed and the
+version object to be placed in project.version.  
+
+The buildversiontag task must be executed seperately by an explicit
+gradle call or by setting the dependsOn property of another task to be
+run.
+
+```
+gradle buildversiontag
+```
+
+###Build Version Variables
+
+####The 'buildversion' task
+
+The primary output of the buildversion task is to place an
+org.kercheval.gradle.buildversion.BuildVersion object as the
+project.version object.  This object can be referenced by using
+'project.version' or 'buildversion.version'.
+
+The buildversion task behavior can be modified by the following
+variables.
+
+<table style="border: 1px solid black;">
+	<tr>
+		<th>Variable</td>
+		<th>Description</td>
+	</tr>
+	<tr>
+		<td>autoincrement</td>
+		<td>
+<p>
+Default: <strong>true</strong>
+</p>
+<p>
+When autoincrement is set to true, the version build number will be
+incremented when set.  For example if the version was derived to be
+2.6.3, the version when set will be 2.6.4.  Note that the most
+volatile value in the version will be incremented with the order being
+to change the build number if enabled, otherwise the minor number is
+modified if enabled, otherwise the major version is modified.  The
+current date for the version is always updated on increment.
+</p>
+<p>
+If autoincrement is false, the version number used will be the
+evaluated version which came from the tag list or from the
+configuration settings.  Tasks can always use the incrementVersion()
+method of the version variable to accomplish this action (reasonable
+when creating tags with autoincrement off).
+</p>
+		</td>
+	</tr>
+	<tr>
+		<td>usetag</td>
+		<td>
+<p>
+Default: <strong>true</strong>
+</p>
+<p>
+</p>
+		</td>
+	</tr>
+	<tr>
+		<td>version</td>
+		<td>
+<p>
+Default: <strong>org.kercheval.gradle.buildversion.BuildVersion(null,
+0, 0, 0, null)</strong>
+</p>
+<p>
+
+</p>
+		</td>
+	</tr>
+	<tr>
+		<td>autowrite</td>
+		<td>
+<p>
+Default: <strong>true</strong>
+</p>
+<p>
+</p>
+		</td>
+	</tr>
+</table>
+
+####The 'buildversiontag' task
+
+By default the buildversiontag task will generate a tag in the current
+branch of your VCS using the pattern for the version specified by the
+buildversion task.  Normally, this will only be allowed when the
+current workspace is considered clean (no modified/added/delete
+files).  The intent of the tag is to represent a reproducible build
+point so the tag will be attached to the current commit (HEAD in git).
+ 
+The buildversiontag task behavior can be modified by the following
+variables.
+
+<table style="border: 1px solid black;">
+	<tr>
+		<th>Variable</td>
+		<th>Description</td>
+	</tr>
+	<tr>
+		<td>comment</td>
+		<td>
+<p>
+Default: <strong>"Tag created by buildversiontag"</strong>
+</p>
+<p>
+The comment variable determines the comment or description field for
+the generated tag.  This field is not used for determination of
+version or functionality in any way, but is a useful way to place
+build information of interest into the tag.
+</p>
+		</td>
+	</tr>
+	<tr>
+		<td>onlyifclean</td>
+		<td>
+<p>
+Default: <strong>true</strong>
+</p>
+<p>
+When the onlyifclean variable is set to true, the build will fail if
+the buildversiontag task is run when the current workspace is not
+clean.  To be clean, all modified/added/deleted files must be
+committed and the current workspace must represent a specific commit
+of the vcs system (note it is NOT necessary that the tag be at the
+current head).
+</p>
+<p>
+When set to false, tags will be allowed to be written at any time, but
+the tag will be attached to the commit that has outstanding changes.
+This means that the current build artifacts on the current location
+may not match the artifacts later created based on the tag since there
+were changed files on this build workspace at the time the tag was
+written.  This is typically not a good practice and this variable
+should normally remain true.
+</p>
+		</td>
+	</tr>
+</table>
+
+###Build Version Examples
+
+To do this
+
+```
+foo
+```
+
+To do that
+
+```
+bar
+```
+
+###Lifecycle Considerations
+
+This plugin hooks task graph completion (which occurs right after the
+configuration phase of a gradle run).  At that time, default values
+are assigned if not already set.  Like the buildinfo plugin, be sure
+that user variables used in the configuration block are created and
+modified in the write order and note that the version variable will
+not be referencable as described in the variable section via the
+project until after this task has run.
+
 ##Project Specifics
+
+I intend for this source code base to be instructional as well as
+useful.
+
+The sources here demonstrate the following
+
+- Creation of Gradle plugins and tasks using standard Java
+- Automatic task run based on the gradle lifecycle.
+- Use of the Gradle API for task customization and iteration
+- Use of the Gradle API for hooking existing tasks
+- Use of java based closure implementation to extend gradle tasks
+- Use of JGit to obtain VCS status and to read and set tags
 
 ### Dependencies
 
