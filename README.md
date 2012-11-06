@@ -417,6 +417,14 @@ when creating tags with autoincrement off).
 Default: <strong>true</strong>
 </p>
 <p>
+If the usetag variable is set to true, the version is determined based
+on the most recent tag which matches the version pattern.  If a tag
+matching the pattern does not exist, then the values initially set in
+the version variable will be used (these values all default to zero).
+See the version variable for details on the pattern set and default
+values.  When set to false, the buildversion task will not do any tag
+list evaluation at all and will only use the values set in the
+buildversion configuration block.
 </p>
 		</td>
 	</tr>
@@ -439,6 +447,11 @@ Default: <strong>org.kercheval.gradle.buildversion.BuildVersion(null,
 Default: <strong>true</strong>
 </p>
 <p>
+When set to true, the project.version value will be set at task graph
+completion (just before tasks are executed and just after the
+configuration phase).  This is normally exactly the right behavior,
+but specific build ordering or other custom needs may be require some
+form of later task execution (and thus project.version binding).
 </p>
 		</td>
 	</tr>
@@ -503,6 +516,19 @@ should normally remain true.
 </table>
 
 ###Build Version Examples
+
+Examples to use in version plugin
+
+  - Use incrementVersion()
+  - Set version pattern
+  - Set validate pattern
+  - Update major/minor/build
+  - Show use without tags
+  - Show usage for branch specific versions
+  - Show usage for build type version
+  - Show setting comment for tag set
+  - Show override of major/minor/etc using configuration doLast{}
+
 
 To do this
 
