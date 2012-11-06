@@ -901,7 +901,7 @@ using the gradle command line (or IDE arguments)
 
 ```
 > gradle clean
-> gradle -pbuildType=release uploadArchive
+> gradle -PbuildType=release uploadArchive
 > git push origin --tags
 ```
 
