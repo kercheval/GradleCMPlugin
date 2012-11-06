@@ -190,27 +190,26 @@ public class BuildVersion {
     }
 
     public void incrementBuild() {
-        if (useBuild()) {
-            build++;
-        }
-
+        build++;
         updateDate();
     }
 
     public void incrementMinor() {
-        if (useMinor()) {
-            minor++;
-        }
-
+        minor++;
         updateDate();
     }
 
     public void incrementMajor() {
-        if (useMajor()) {
-            major++;
-        }
-
+        major++;
+        setMinor(0);
         updateDate();
+    }
+
+    public void updateMajor(final int newMajor) {
+        if (getMajor() != newMajor) {
+            setMajor(newMajor);
+            setMinor(0);
+        }
     }
 
     public void updateDate() {

@@ -189,7 +189,7 @@ an empty map (see example below).
 
 ###Build Info Examples
 
-To automatically add build info into a zip file in the directory
+*Example 1* To automatically add build info into a zip file in the directory
 'testingdir' you can add the specific task to the task map (overriding
 the defaults)
 
@@ -204,7 +204,7 @@ task helloZip(type: Zip) {
 }
 ```
 
-To add the build info file into other files (such as a zip, sync or
+*Example 2* To add the build info file into other files (such as a zip, sync or
 other location), you can add your target to the buildinfo taskmap
 variable or just do a standard copy as follows.  This is the approach
 you would take for tasks that are not derived somehow from a
@@ -226,7 +226,7 @@ task myZip (type: Zip) {
 }
 ```
 
-To add some custom data to your build info file, add the custom info
+*Example 3* To add some custom data to your build info file, add the custom info
 map variable to the buildinfo configuration section.  Remember the map
 values can be any object at all and the value will be derived from
 the default toString() behavior of the object.
@@ -241,7 +241,7 @@ buildinfo {
 }
 ```
 
-To prevent automatic injection into any tasks, assign an empty map to
+*Example 4* To prevent automatic injection into any tasks, assign an empty map to
 the taskmap.
 
 ```
@@ -250,7 +250,7 @@ buildinfo {
 }
 ```
 
-To customize the location and name of the build info file use the
+*Example 5* To customize the location and name of the build info file use the
 filedir and filename variables
 
 ```
@@ -527,8 +527,14 @@ incremented and if your pattern was "%M%.%m%.%b%" then the build
 number would be incremented.
 </p>
 <p>
+<strong>version.updateMajor(int newMajor)</strong> - This method will
+set the major version and if different than the current major version
+will reset the minor version to 0.  This behavior simplifies the
+gradle script logic surrounding version updates.
+</p>
+<p>
 <strong>version.incrementMajor()</strong> - This method will increment the
-major version number.
+major version number.  This method will reset the minor version to 0.
 </p>
 <p>
 <strong>version.incrementMinor()</strong> - This method will increment the minor
@@ -624,7 +630,7 @@ should normally remain true.
 
 ###Build Version Examples
 
-To prevent the version from auto incrementing so that the version
+*Example 1* To prevent the version from auto incrementing so that the version
 reflects the last tag value (rather than the 'next' version).
 
 ```
@@ -633,9 +639,12 @@ buildversion {
 }
 ```
 
-To set a specific major version after the initial revision has been
-obtained from tags.  Note the use of the doLast closure (should be used anytime you are
-explicitly setting a value when usetag is true).
+*Example 2* To set a specific major version after the initial revision
+has been obtained from tags.  Note the use of the doLast closure
+(should be used anytime you are explicitly setting a value when usetag
+is true).  Note that this example could use the updateMajor() method
+to accomplish this as well.  This example sets the major version but
+does not affect the minor version at all.
 
 ```
 buildversion {
@@ -645,7 +654,7 @@ buildversion {
 }
 ```
 
-To use a specific version number that is controlled only by gradle
+*Example 3* To use a specific version number that is controlled only by gradle
 variables (this example will result in version 3.3).  (Use autoincrement
 set to false to have the version match exactly).
 
@@ -657,7 +666,7 @@ buildversion {
 }
 ```
 
-To use a 'classic' major.minor.build version scheme that is set via
+*Example 4* To use a 'classic' major.minor.build version scheme that is set via
 gradle variable usage.
 
 ```
@@ -670,7 +679,7 @@ buildversion {
 }
 ```
 
-To create a version string that has only a major and minor version
+*Example 5* To create a version string that has only a major and minor version
 
 ```
 buildversion {
@@ -678,7 +687,7 @@ buildversion {
 }
 ```
 
-To create a branch specific version pattern
+*Example 6* To create a branch specific version pattern
 
 ```
 def currentBranch = 'mainline'
@@ -688,12 +697,12 @@ buildversion {
 }
 ```
 
-To create a validation pattern and version pattern to create a branch
-specific version (useful for hotfix branches, parallel development,
-etc.) but will grab the most recent tag from any branch (named without
-numbers).  Note that the regex can be arbitrarily complex so you can
-any sort of tag filtering you want as long as it is consistent with
-the version pattern.  
+*Example 7* To create a validation pattern and version pattern to
+create a branch specific version (useful for hotfix branches, parallel
+development, etc.) but will grab the most recent tag from any branch
+(named without numbers).  Note that the regex can be arbitrarily
+complex so you can any sort of tag filtering you want as long as it is
+consistent with the version pattern.  
 
 ```
 def currentBranch = 'release'
@@ -703,7 +712,7 @@ buildversion {
 }
 ```
 
-To explicitly increment the version in a task through the project
+*Example 7* To explicitly increment the version in a task through the project
 variable (note the << is the same as using a doFirst closure)
 
 ```
@@ -712,7 +721,7 @@ task doIncrementBeforeAction << {
 }
 ```
 
-To set a comment for the tag created by the buildversiontag task
+*Example 8* To set a comment for the tag created by the buildversiontag task
 
 ```
 buildversiontag {
@@ -720,7 +729,7 @@ buildversiontag {
 }
 ```
 
-To allow tags to be generated even when the workspace has uncommitted
+*Example 9* To allow tags to be generated even when the workspace has uncommitted
 changes.
 
 ```
@@ -729,7 +738,7 @@ buildversiontag {
 }
 ```
 
-To set a comment and increment the version prior to writing a version
+*Example 10* To set a comment and increment the version prior to writing a version
 tag.
 
 ```
@@ -741,11 +750,28 @@ buildversiontag {
 }
 ```
 
-As a final more complex example:
+*Example 11* To create a version based on the year a minor version and
+the current build number (ie r2012.1.345)
 
-To create a version based on build type (release does a full version,
-but dev mainline creates snapshot builds).  In this example the major
-version is part of the configuration file as well.
+```
+def year = Calendar.getInstance().get(Calendar.YEAR);
+
+buildversion {
+	version.setPattern('r%M%.%m%.%b%')
+	doLast {
+		//
+		// Use updateMajor() to ensure that minor is reset if
+		// different (ie if was 2011.5 setting to 2012 will
+		// result in 2012.0
+		//
+		version.updateMajor(year);
+	}
+}  
+```
+
+*Example 12* To create a version based on build type (release does a
+full version, but dev mainline creates snapshot builds).  In this
+example the major version is part of the configuration file as well.
 
 In gradle.properties set the build type
 
@@ -780,7 +806,22 @@ buildversion {
 		if (buildType != "release") {
 			version.setPattern("%M%.%m%-${buildType}") 
 		}
-		version.major = buildMajorVersion
+		version.updateMajor(buildMajorVersion) 
+	}
+}
+```
+
+*Example 13* To ensure that on every update to a repository (via the
+maven plugin) you get a valid tag in the current branch.  This is done
+by adding a doFirst closure to the maven upload target.  The tag is
+dropped whenever you are not doing a snapshot upload in this example.
+
+```
+uploadArchives {
+	doFirst {
+		if (buildType != "SNAPSHOT") {
+			tasks.buildversiontag.execute()
+		}
 	}
 }
 ```

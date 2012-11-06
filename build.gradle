@@ -35,13 +35,13 @@ jar {
 // Build dependency section
 //
 repositories {
-    mavenCentral()
+	mavenCentral()
 }
 
 dependencies {
 	compile gradleApi()
 	compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '2.1.0.201209190230-r'
-    testCompile group: 'junit', name: 'junit', version: '4.+'
+	testCompile group: 'junit', name: 'junit', version: '4.+'
 }
 
 //
@@ -63,32 +63,38 @@ buildscript {
 group = 'org.kercheval'
 
 uploadArchives {
-    repositories {
-        mavenDeployer {
-		    //
-		    // Note this cute little bit of indirection.  The upload target will place the repository 
-		    // files into a local github repository that is at the same level as the root of this 
-		    // project.  I have cloned my maven repository into that location so that these line up
-		    // correctly.  This allows me to validate the release binaries and commit them as a 
-		    // seperate step.  If I had nexus deployed and was using CI for this project, this repository
-		    // reference would be pointing directly at that instead.
-		    //
-		    repository(url: "file://${rootDir}/../mvn-repo/releases")
-			
-		    //
-		    // Note that this repository will be used ONLY if the buildType
-		    // in gradle.properties is set to 'SNAPSHOT'
-		    //
-		    snapshotRepository(url: "file://${rootDir}/../mvn-repo/snapshots") 
-		    pom.project {
+	doFirst {
+		if (buildType != "SNAPSHOT") {
+			tasks.buildversiontag.execute()
+		}
+	}
+
+	repositories {
+		mavenDeployer {
+			//
+			// Note this cute little bit of indirection.  The upload target will place the repository 
+			// files into a local github repository that is at the same level as the root of this 
+			// project.  I have cloned my maven repository into that location so that these line up
+			// correctly.  This allows me to validate the release binaries and commit them as a 
+			// seperate step.  If I had nexus deployed and was using CI for this project, this repository
+			// reference would be pointing directly at that instead.
+			//
+			repository(url: "file://${rootDir}/../mvn-repo/releases")
+
+			//
+			// Note that this repository will be used ONLY if the buildType
+			// in gradle.properties is set to 'SNAPSHOT'
+			//
+			snapshotRepository(url: "file://${rootDir}/../mvn-repo/snapshots") 
+			pom.project {
 				licenses {
-				    license {
+					license {
 						name 'Creative Commons Attribution 3.0 Unported License'
 						url 'http://creativecommons.org/licenses/by/3.0/deed.en_US'
-				    }
+					}
 				}
-		    }
-        }
-    }
+			}
+		}
+	}
 }
 
