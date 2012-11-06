@@ -46,10 +46,10 @@ properties format) that shows environment and build information
 present at the time a build takes place.  The primary information
 gathered includes:
 
-- Obtains Git repository information about the build
-- Obtains build machine information and user info
-- Obtains Jenkins CI build system information
-- Obtains Gradle property information
+- Git repository information about the build
+- Build machine information and user info
+- Jenkins CI build system information
+- Gradle property information
 
 In addition to the information above, the buildinfo configuration
 block can be used to add custom information to the build file.
@@ -65,16 +65,14 @@ apply plugin: 'buildinfo'
 
 This will cause a file called buildinfo.properties to be placed within
 your ${buildDir} directory and will automatically insert the
-buildinfo.properties file into all generated jar, war and ear files.
+buildinfo.properties file into the META-INF directory of all generated
+jar, war and ear files.
 
 ###Build Info Variables
 
-By default, the plugin will create the information file in the default
-build directory, name the file buildinfo.properties and insert this
-file into the META-INF directory of all created JAR/WAR/EAR files
-created in the build.  All of these behaviors are modifiable by
-setting custom variables in your gradle build file in the 'buildinfo'
-task configuration as illustrated in the examples below.
+Most behaviors of this plugin are modifiable by setting custom
+variables in your gradle build file in the 'buildinfo' task
+configuration as illustrated in the examples below.
 
 <table style="border: 1px solid black;">
 	<tr>
@@ -341,6 +339,15 @@ filtered based on the validatePattern set in the configuration block
 point at which the task graph is completed.  This is just after the
 evaluation phase of the build and just prior to actual task execution.
 
+Nearly any version scheme you may want to utilize is supported by this
+plugin.  Some common version schemes shown in the examples are:
+
+- M.m-d.t (standard maven versioning - the default)
+- M.m.b (classic major/minor/build)
+- Y.m.b (year/minor/build)
+
+Extended patterns are supported to allow very flexible variations.
+
 ####buildversiontag
 
 This task will take the current version and write a tag using the
@@ -350,6 +357,9 @@ repository, you will need to push the tags to the origin repository
 explicitly (this would be 'git push origin --tags' for git users).
 The buildversiontag task always depends on the buildversion task and
 will use variables created in buildversion task for tag output.
+
+The tag and comment inserted into VCS will be output when the --info
+command line option is used on the gradle command line.
 
 ###Build Version Quick Start
 
@@ -541,7 +551,7 @@ major version number.  This method will reset the minor version to 0.
 version number.
 </p>
 <p>
-<strong>version.incrementBuild()</strong> - This method will incremen the
+<strong>version.incrementBuild()</strong> - This method will increment the
 build version number.
 </p>
 <p>
@@ -701,8 +711,8 @@ buildversion {
 create a branch specific version (useful for hotfix branches, parallel
 development, etc.) but will grab the most recent tag from any branch
 (named without numbers).  Note that the regex can be arbitrarily
-complex so you can any sort of tag filtering you want as long as it is
-consistent with the version pattern.  
+complex so you can do any sort of tag filtering you want as long as it
+is consistent with the version pattern.  
 
 ```
 def currentBranch = 'release'
@@ -712,7 +722,7 @@ buildversion {
 }
 ```
 
-*Example 7* To explicitly increment the version in a task through the project
+*Example 8* To explicitly increment the version in a task through the project
 variable (note the << is the same as using a doFirst closure)
 
 ```
@@ -721,7 +731,7 @@ task doIncrementBeforeAction << {
 }
 ```
 
-*Example 8* To set a comment for the tag created by the buildversiontag task
+*Example 9* To set a comment for the tag created by the buildversiontag task
 
 ```
 buildversiontag {
@@ -729,7 +739,7 @@ buildversiontag {
 }
 ```
 
-*Example 9* To allow tags to be generated even when the workspace has uncommitted
+*Example 10* To allow tags to be generated even when the workspace has uncommitted
 changes.
 
 ```
@@ -738,7 +748,7 @@ buildversiontag {
 }
 ```
 
-*Example 10* To set a comment and increment the version prior to writing a version
+*Example 11* To set a comment and increment the version prior to writing a version
 tag.
 
 ```
@@ -750,7 +760,7 @@ buildversiontag {
 }
 ```
 
-*Example 11* To create a version based on the year a minor version and
+*Example 12* To create a version based on the year, a minor version and
 the current build number (ie r2012.1.345)
 
 ```
@@ -769,7 +779,7 @@ buildversion {
 }  
 ```
 
-*Example 12* To create a version based on build type (release does a
+*Example 13* To create a version based on build type (release does a
 full version, but dev mainline creates snapshot builds).  In this
 example the major version is part of the configuration file as well.
 
@@ -792,9 +802,9 @@ so that you will get versions like 4.3-SNAPSHOT (assuming the last
 release version was 4.2), but when doing release builds you get the
 full blown 4.3-20111028.123456 revision numbers (including the maven
 style date default pattern).  Notice the use of the doLast closure to
-init from the last release tag but to use standard snapshot version
-string.  This makes for a very flexible environment with very simple
-configuration.
+init from the last release tag but to use the standard snapshot
+version string during the build.  This makes for a very flexible
+environment with very simple configuration.
 
 ```
 buildversion {
@@ -811,10 +821,10 @@ buildversion {
 }
 ```
 
-*Example 13* To ensure that on every update to a repository (via the
+*Example 14* To ensure that on every update to a repository (via the
 maven plugin) you get a valid tag in the current branch.  This is done
 by adding a doFirst closure to the maven upload target.  The tag is
-dropped whenever you are not doing a snapshot upload in this example.
+created whenever you are not doing a snapshot upload in this example.
 
 ```
 uploadArchives {
@@ -873,7 +883,7 @@ using the gradle command line (or IDE arguments)
 > gradle build -PbuildType=release
 ```
 
-### Current steps to release artifacts with this project
+### Current Steps to Release Artifacts
 
 *Snapshot Upload*
 
@@ -893,12 +903,12 @@ using the gradle command line (or IDE arguments)
 I have explicitly built this plugin set for my local technology stack,
 but the intent is that additional support should be simple to add.
 
-The vcs interfaces completely abstract the updates made from the
+The vcs interfaces completely abstracts the updates made from the
 internal logic so support for other systems (like SVN, Mercurial or
 Perforce) should be very straight forward.
 
 Support for additional information sources (Hudson, etc) should also
-be straight forward.
+relatively simple to accomplish.
 
 Do you like this plugin and just need a new information source, or
 have a useful plugin to contribute that surrounds configuration

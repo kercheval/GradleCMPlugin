@@ -82,7 +82,11 @@ public class BuildVersionTagTask extends DefaultTask {
             // Write a tag into VCS using the current project version
             //
             try {
-                vcs.setTag(new VCSTag(getProject().getVersion().toString(), comment));
+                final VCSTag tag = new VCSTag(getProject().getVersion().toString(), comment);
+
+                vcs.setTag(tag);
+                getProject().getLogger().info("Tag '" + tag.getName() + "' written to VCS with comment '"
+                                              + tag.getComment() + "'");
             } catch (final VCSException e) {
                 throw new TaskExecutionException(this, e);
             }
