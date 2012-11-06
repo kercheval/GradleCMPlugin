@@ -70,7 +70,7 @@ public class BuildVersionTask extends DefaultTask {
                 // told not to set the version
                 //
                 if (isAutowrite()) {
-                    doTask();
+                    execute();
                 }
             }
         });
@@ -124,6 +124,7 @@ public class BuildVersionTask extends DefaultTask {
         }
 
         project.setVersion(getVersion());
+        project.getLogger().info("Version set to " + getVersion());
     }
 
     private BuildVersion getVersionFromVCS(final Project project) {

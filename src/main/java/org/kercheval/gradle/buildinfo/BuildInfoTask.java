@@ -83,7 +83,7 @@ public class BuildInfoTask extends DefaultTask {
                 // Run our task and insert into tasks if autowrite
                 //
                 if (isAutowrite()) {
-                    doTask();
+                    execute();
 
                     final Map<String, Task> tasknameMap = new HashMap<String, Task>();
 

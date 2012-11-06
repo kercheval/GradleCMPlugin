@@ -2,25 +2,22 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
 apply plugin: 'buildinfo'
+apply plugin: 'buildversion'
 
 //
-// Build date is a part of all release versions.  Use the standard maven 
-// time stamp format.
+// Normal dev builds will typically get SNAPSHOT versions
 //
-def buildDate = new Date().format("yyyyMMdd.HHmmss")
-
-//
-// Here we use the build type in the version (could be SNAPSHOT, dev, qa, etc)
-// If it is not release, this will deploy a single binary in snapshot form to 
-// the repository.  For release, we have unique versioning based on the current
-// build date (in maven timestamp format).  The default buildType and buildVersion
-// are a part of gradle.properties.
-//
-def versionSuffix = buildType
-if (buildType == "release") {
-	versionSuffix = new Date().format("yyyyMMdd.HHmmss")
-} 
-version = "${buildVersion}-${versionSuffix}"
+buildversion {
+	doLast {
+		//
+		// Set the pattern after the tags have been used to set the initial 
+		// values.  Release gets the default pattern of the maven default 
+		//
+		if (buildType != "release") {
+			version.setPattern("%M%.%m%-${buildType}") 
+		}
+	}
+}
 
 //
 // Manifest specific properties.  This would be done for the War/Ear target if 
@@ -28,7 +25,9 @@ version = "${buildVersion}-${versionSuffix}"
 //
 jar {
     manifest {
-        attributes 'Implementation-Title': 'Gradle Build CM Plugin', 'Implementation-Version': version
+		doFirst {
+			attributes 'Implementation-Title': 'Gradle Build CM Plugin', 'Implementation-Version': version
+		}
     }
 }
 
@@ -54,7 +53,7 @@ buildscript {
 		mavenRepo url: 'http://kercheval.org/mvn-repo/releases'
 	}
 	dependencies {
-		classpath 'org.kercheval:GradleCMPlugin:+'
+		classpath 'org.kercheval:GradleCMPlugin:0.8+'
 	}
 }
 
