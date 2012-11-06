@@ -8,19 +8,24 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 
-public class JenkinsUtilTest {
-    @Test
-    public void test() {
-        final JenkinsUtil jenkinsUtil = new JenkinsUtil();
-        final SortedProperties props = jenkinsUtil.getJenkinsInfo();
+public class JenkinsUtilTest
+{
+	@Test
+	public void test()
+	{
+		final JenkinsUtil jenkinsUtil = new JenkinsUtil();
+		final SortedProperties props = jenkinsUtil.getJenkinsInfo();
 
-        try {
-            props.store(System.out, "\nJenkins Info\n");
-        } catch (final IOException e) {
-            fail();
-        }
+		try
+		{
+			props.store(System.out, "\nJenkins Info\n");
+		}
+		catch (final IOException e)
+		{
+			fail();
+		}
 
-        assertNotNull(props);
-        assertTrue(props.size() > 0);
-    }
+		assertNotNull(props);
+		assertTrue(props.size() > 0);
+	}
 }

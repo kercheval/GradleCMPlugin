@@ -8,36 +8,45 @@ import java.util.List;
 // This interface supports the specific types of operation required by
 // programmatic access to the VCS system in use.
 //
-// NOTE:  GIT is the only supported system at the moment.
+// NOTE: GIT is the only supported system at the moment.
 //
-public interface IVCSAccess {
-    public enum Type { GIT }
+public interface IVCSAccess
+{
+	public enum Type
+	{
+		GIT
+	}
 
-    //
-    // Get the current VCSType.
-    //
-    public Type getType();
+	//
+	// Get the current VCSType.
+	//
+	public Type getType();
 
-    //
-    // Obtain 'interesting' information about the current VCS usage
-    // and return that as property information.
-    //
-    public SortedProperties getInfo() throws VCSException;
+	//
+	// Obtain 'interesting' information about the current VCS usage
+	// and return that as property information.
+	//
+	public SortedProperties getInfo()
+		throws VCSException;
 
-    //
-    // Get tags from repository.
-    //
-    public List<VCSTag> getAllTags() throws VCSException;
+	//
+	// Get tags from repository.
+	//
+	public List<VCSTag> getAllTags()
+		throws VCSException;
 
-    public List<VCSTag> getTags(String regexFilter) throws VCSException;
+	public List<VCSTag> getTags(String regexFilter)
+		throws VCSException;
 
-    //
-    // Write a tag into the repository
-    //
-    public void setTag(VCSTag tag) throws VCSException;
+	//
+	// Write a tag into the repository
+	//
+	public void setTag(VCSTag tag)
+		throws VCSException;
 
-    //
-    // Return the current status of the VCS system (all workspace changes)
-    //
-    public VCSStatus getStatus() throws VCSException;
+	//
+	// Return the current status of the VCS system (all workspace changes)
+	//
+	public VCSStatus getStatus()
+		throws VCSException;
 }

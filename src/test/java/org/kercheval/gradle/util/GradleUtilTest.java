@@ -11,20 +11,25 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 
-public class GradleUtilTest {
-    @Test
-    public void test() {
-        final Project project = ProjectBuilder.builder().build();
-        final GradleUtil gradleUtil = new GradleUtil(project);
-        final SortedProperties props = gradleUtil.getGradleInfo();
+public class GradleUtilTest
+{
+	@Test
+	public void test()
+	{
+		final Project project = ProjectBuilder.builder().build();
+		final GradleUtil gradleUtil = new GradleUtil(project);
+		final SortedProperties props = gradleUtil.getGradleInfo();
 
-        try {
-            props.store(System.out, "\nGradle Info\n");
-        } catch (final IOException e) {
-            fail();
-        }
+		try
+		{
+			props.store(System.out, "\nGradle Info\n");
+		}
+		catch (final IOException e)
+		{
+			fail();
+		}
 
-        assertNotNull(props);
-        assertTrue(props.size() > 0);
-    }
+		assertNotNull(props);
+		assertTrue(props.size() > 0);
+	}
 }

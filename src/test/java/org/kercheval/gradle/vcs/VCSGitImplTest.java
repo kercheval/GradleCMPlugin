@@ -17,33 +17,43 @@ import java.io.IOException;
 
 import java.util.List;
 
-public class VCSGitImplTest {
-    @Test
-    public void testGetInfo() throws VCSException {
-        final Project project = ProjectBuilder.builder().build();
-        final SortedProperties props = VCSAccessFactory.getCurrentVCS(new File("."), project.getLogger()).getInfo();
+public class VCSGitImplTest
+{
+	@Test
+	public void testGetInfo()
+		throws VCSException
+	{
+		final Project project = ProjectBuilder.builder().build();
+		final SortedProperties props = VCSAccessFactory.getCurrentVCS(new File("."),
+			project.getLogger()).getInfo();
 
-        try {
-            props.store(System.out, "\nVCS Info\n");
-        } catch (final IOException e) {
-            fail();
-        }
+		try
+		{
+			props.store(System.out, "\nVCS Info\n");
+		}
+		catch (final IOException e)
+		{
+			fail();
+		}
 
-        assertNotNull(props);
-        assertTrue(props.size() > 0);
-    }
+		assertNotNull(props);
+		assertTrue(props.size() > 0);
+	}
 
-    @Test
-    public void testGetTags() throws VCSException {
-        final VCSGitImpl git = (VCSGitImpl) VCSGitImpl.getInstance(new File("."), null);
-        List<VCSTag> tagList = git.getAllTags();
+	@Test
+	public void testGetTags()
+		throws VCSException
+	{
+		final VCSGitImpl git = (VCSGitImpl) VCSGitImpl.getInstance(new File("."), null);
+		List<VCSTag> tagList = git.getAllTags();
 
-        for (final VCSTag tag : tagList) {
-            System.out.println(tag);
-        }
+		for (final VCSTag tag : tagList)
+		{
+			System.out.println(tag);
+		}
 
-        Assert.assertTrue(tagList.size() > 1);
-        tagList = git.getTags("^JUNIT_Tag_Filter$");
-        Assert.assertTrue(tagList.size() == 1);
-    }
+		Assert.assertTrue(tagList.size() > 1);
+		tagList = git.getTags("^JUNIT_Tag_Filter$");
+		Assert.assertTrue(tagList.size() == 1);
+	}
 }

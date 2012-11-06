@@ -11,8 +11,10 @@ import java.io.File;
 // NOTE: Currently there is only GIT support, but auto detection of any
 // number of other revision control sources is very reasonable.
 //
-public class VCSAccessFactory {
-    public static IVCSAccess getCurrentVCS(final File srcRootDir, final Logger logger) {
-        return VCSGitImpl.getInstance(srcRootDir, logger);
-    }
+public class VCSAccessFactory
+{
+	public static IVCSAccess getCurrentVCS(final File srcRootDir, final Logger logger)
+	{
+		return VCSGitImpl.getInstance(srcRootDir, logger);
+	}
 }

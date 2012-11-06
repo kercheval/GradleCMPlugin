@@ -1,176 +1,209 @@
 package org.kercheval.gradle.buildversion;
 
+import java.io.File;
+import java.text.ParseException;
+import java.util.List;
+import java.util.Map;
+
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.execution.TaskExecutionGraph;
 import org.gradle.api.execution.TaskExecutionGraphListener;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
-
 import org.kercheval.gradle.vcs.IVCSAccess;
 import org.kercheval.gradle.vcs.VCSAccessFactory;
 import org.kercheval.gradle.vcs.VCSException;
 import org.kercheval.gradle.vcs.VCSTag;
 
-import java.io.File;
+public class BuildVersionTask
+	extends DefaultTask
+{
 
-import java.text.ParseException;
+	//
+	// When autowrite is true, the project version will automatically be set at
+	// task graph completion. This is normally the correct behavior, but turning
+	// this variable to false allows late binding in some cases.
+	//
+	private boolean autowrite = true;
 
-import java.util.List;
-import java.util.Map;
+	//
+	// If increment is true, then during task execution, the last tag found will
+	// be incremented. For example if the tag was 4.5, the version placed in the
+	// project would be 4.6. This is normally the correct behavior. Turning this
+	// variable off will result in the version staying at exactly the found or set
+	// value.
+	//
+	private boolean autoincrement = true;
 
-public class BuildVersionTask extends DefaultTask {
+	//
+	// If usetag is true, then when the task is run, all tags that match the validate
+	// pattern will be iterated and the most recent tag will be used to determine the
+	// version values. If set to false, then the version variables must be set in
+	// the configuration section of the gradle.build file.
+	//
+	private boolean usetag = true;
 
-    //
-    // When autowrite is true, the project version will automatically be set at
-    // task graph completion.  This is normally the correct behavior, but turning
-    // this variable to false allows late binding in some cases.
-    //
-    private boolean autowrite = true;
+	//
+	// This is the object that will be set at the project version. This is normally
+	// updated via a tag search during task execution, but doLast handlers can modify this
+	// at will. Updates to this object will be reflected in project.version (which could
+	// also be directly modified after a cast).
+	//
+	private BuildVersion version = new BuildVersion(null, 0, 0, 0, null);
 
-    //
-    // If increment is true, then during task execution, the last tag found will
-    // be incremented.  For example if the tag was 4.5, the version placed in the
-    // project would be 4.6.  This is normally the correct behavior.  Turning this
-    // variable off will result in the version staying at exactly the found or set
-    // value.
-    //
-    private boolean autoincrement = true;
+	public BuildVersionTask()
+	{
 
-    //
-    // If usetag is true, then when the task is run, all tags that match the validate
-    // pattern will be iterated and the most recent tag will be used to determine the
-    // version values.  If set to false, then the version variables must be set in
-    // the configuration section of the gradle.build file.
-    //
-    private boolean usetag = true;
+		//
+		// Add a listener to obtain the current version information from the system.
+		// This is done here to ensure all configuration parameters have been written.
+		//
+		final Project project = getProject();
 
-    //
-    // This is the object that will be set at the project version.  This is normally
-    // updated via a tag search during task execution, but doLast handlers can modify this
-    // at will.  Updates to this object will be reflected in project.version (which could
-    // also be directly modified after a cast).
-    //
-    private BuildVersion version = new BuildVersion(null, 0, 0, 0, null);
+		project.getGradle().getTaskGraph()
+			.addTaskExecutionGraphListener(new TaskExecutionGraphListener()
+			{
+				@Override
+				public void graphPopulated(final TaskExecutionGraph graph)
+				{
 
-    public BuildVersionTask() {
+					//
+					// Set the version automagically unless we have explicitly been
+					// told not to set the version
+					//
+					if (isAutowrite())
+					{
+						execute();
+					}
+				}
+			});
+	}
 
-        //
-        // Add a listener to obtain the current version information from the system.
-        // This is done here to ensure all configuration parameters have been written.
-        //
-        final Project project = getProject();
+	@TaskAction
+	public void doTask()
+	{
+		final Project project = getProject();
 
-        project.getGradle().getTaskGraph().addTaskExecutionGraphListener(new TaskExecutionGraphListener() {
-            @Override
-            public void graphPopulated(final TaskExecutionGraph graph) {
+		//
+		// Get the version from VCS and set the project version to our shiny new
+		// version object. The project version is used by most other tasks during
+		// execution for naming purposes.
+		//
+		setVersion(getVersionFromVCS(project));
 
-                //
-                // Set the version automagically unless we have explicitly been
-                // told not to set the version
-                //
-                if (isAutowrite()) {
-                    execute();
-                }
-            }
-        });
-    }
+		if (isAutoincrement())
+		{
+			getVersion().incrementVersion();
+		}
 
-    public boolean isUsetag() {
-        return usetag;
-    }
+		project.setVersion(getVersion());
+	}
 
-    public void setUsetag(final boolean usetag) {
-        this.usetag = usetag;
-    }
+	public BuildVersion getVersion()
+	{
+		return version;
+	}
 
-    public boolean isAutoincrement() {
-        return autoincrement;
-    }
+	private BuildVersion getVersionFromVCS(final Project project)
+	{
+		BuildVersion rVal = getVersion();
 
-    public void setAutoincrement(final boolean autoincrement) {
-        this.autoincrement = autoincrement;
-    }
+		if (isUsetag())
+		{
+			final Map<String, ?> props = project.getProperties();
 
-    public BuildVersion getVersion() {
-        return version;
-    }
+			//
+			// Get the filtered list of tags from VCS and iterate to find the newest one.
+			//
+			final IVCSAccess vcs = VCSAccessFactory.getCurrentVCS((File) props.get("rootDir"),
+				project.getLogger());
+			List<VCSTag> tagList;
 
-    public void setVersion(final BuildVersion version) {
-        this.version = version;
-    }
+			try
+			{
+				tagList = vcs.getTags(getVersion().getValidatePattern());
+			}
+			catch (final VCSException e)
+			{
+				throw new TaskExecutionException(this, e);
+			}
 
-    public void setAutowrite(final boolean autowrite) {
-        this.autowrite = autowrite;
-    }
+			VCSTag foundTag = null;
 
-    protected boolean isAutowrite() {
-        return autowrite;
-    }
+			for (final VCSTag tag : tagList)
+			{
+				if (null == foundTag)
+				{
+					foundTag = tag;
+				}
+				else
+				{
+					if (foundTag.getCommitDate().before(tag.getCommitDate()))
+					{
+						foundTag = tag;
+					}
+				}
+			}
 
-    @TaskAction
-    public void doTask() {
-        final Project project = getProject();
+			//
+			// If we found a matching tag, generate the build version based on that tag name
+			// and return
+			//
+			if (null != foundTag)
+			{
+				try
+				{
+					rVal = new BuildVersion(rVal.getPattern(), rVal.getValidatePattern(),
+						foundTag.getName());
+				}
+				catch (final ParseException e)
+				{
+					project.getLogger()
+						.error(
+							"Unable to generate version from tag '" + foundTag + "': "
+								+ e.getMessage());
 
-        //
-        // Get the version from VCS and set the project version to our shiny new
-        // version object.  The project version is used by most other tasks during
-        // execution for naming purposes.
-        //
-        setVersion(getVersionFromVCS(project));
+					throw new TaskExecutionException(this, e);
+				}
+			}
+		}
 
-        if (isAutoincrement()) {
-            getVersion().incrementVersion();
-        }
+		return rVal;
+	}
 
-        project.setVersion(getVersion());
-    }
+	public boolean isAutoincrement()
+	{
+		return autoincrement;
+	}
 
-    private BuildVersion getVersionFromVCS(final Project project) {
-        BuildVersion rVal = getVersion();
+	protected boolean isAutowrite()
+	{
+		return autowrite;
+	}
 
-        if (isUsetag()) {
-            final Map<String, ?> props = project.getProperties();
+	public boolean isUsetag()
+	{
+		return usetag;
+	}
 
-            //
-            // Get the filtered list of tags from VCS and iterate to find the newest one.
-            //
-            final IVCSAccess vcs = VCSAccessFactory.getCurrentVCS((File) props.get("rootDir"), project.getLogger());
-            List<VCSTag> tagList;
+	public void setAutoincrement(final boolean autoincrement)
+	{
+		this.autoincrement = autoincrement;
+	}
 
-            try {
-                tagList = vcs.getTags(getVersion().getValidatePattern());
-            } catch (final VCSException e) {
-                throw new TaskExecutionException(this, e);
-            }
+	public void setAutowrite(final boolean autowrite)
+	{
+		this.autowrite = autowrite;
+	}
 
-            VCSTag foundTag = null;
+	public void setUsetag(final boolean usetag)
+	{
+		this.usetag = usetag;
+	}
 
-            for (final VCSTag tag : tagList) {
-                if (null == foundTag) {
-                    foundTag = tag;
-                } else {
-                    if (foundTag.getCommitDate().before(tag.getCommitDate())) {
-                        foundTag = tag;
-                    }
-                }
-            }
-
-            //
-            // If we found a matching tag, generate the build version based on that tag name and return
-            //
-            if (null != foundTag) {
-                try {
-                    rVal = new BuildVersion(rVal.getPattern(), rVal.getValidatePattern(), foundTag.getName());
-                } catch (final ParseException e) {
-                    project.getLogger().error("Unable to generate version from tag '" + foundTag + "': "
-                                              + e.getMessage());
-
-                    throw new TaskExecutionException(this, e);
-                }
-            }
-        }
-
-        return rVal;
-    }
+	public void setVersion(final BuildVersion version)
+	{
+		this.version = version;
+	}
 }

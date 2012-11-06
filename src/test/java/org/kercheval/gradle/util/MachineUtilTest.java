@@ -11,20 +11,25 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 
-public class MachineUtilTest {
-    @Test
-    public void test() {
-        final Project project = ProjectBuilder.builder().build();
-        final MachineUtil machineUtil = new MachineUtil(project);
-        final SortedProperties props = machineUtil.getMachineInfo();
+public class MachineUtilTest
+{
+	@Test
+	public void test()
+	{
+		final Project project = ProjectBuilder.builder().build();
+		final MachineUtil machineUtil = new MachineUtil(project);
+		final SortedProperties props = machineUtil.getMachineInfo();
 
-        try {
-            props.store(System.out, "\nMachine Info\n");
-        } catch (final IOException e) {
-            fail();
-        }
+		try
+		{
+			props.store(System.out, "\nMachine Info\n");
+		}
+		catch (final IOException e)
+		{
+			fail();
+		}
 
-        assertNotNull(props);
-        assertTrue(props.size() > 0);
-    }
+		assertNotNull(props);
+		assertTrue(props.size() > 0);
+	}
 }
