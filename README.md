@@ -17,8 +17,8 @@ The [Build Version Plugin](#build-version-plugin) supports the tracking,
 update and tagging for version numbers in your project and artifacts.
 
 - [Quick Start](#build-version-quick-start)
-- [Tasks](#build-version-tasks)
-- [Variables](#build-version-variables)
+- [Variables for 'buildversion'](#the-buildversion-task)
+- [Variables for 'buildversiontag'](#the-buildversiontag-task)
 - [Examples](#build-version-examples)
 
 To use these plugins, add a buildscript section for the plugin
@@ -290,11 +290,12 @@ information is present.
 
 ###Information sources
 
-Git - This plugin uses the library JGit to obtain git information.
-Among other things, this plugin logs the most recent commit
-information and the current status (showing modified/delete/added
-files).  Development builds can utilize this information to determine
-change information for specific artifacts.
+Git - This plugin uses the library JGit
+(<http://www.eclipse.org/jgit/>) to obtain git information.  Among
+other things, this plugin logs the most recent commit information and
+the current status (showing modified/delete/added files).  Development
+builds can utilize this information to determine change information
+for specific artifacts.
 
 Machine - Machine characteristics including username, machine name, IP
 address, java vm info and OS info are gathered.
@@ -468,8 +469,9 @@ type.  The default pattern used if no pattern is explicitly set is
 </p>
 <p>
 In addition to the version pattern, you can set a validation Pattern.
-The validation pattern is used to filter tags on version parse and is
-used internally for verification of output versions.  The validation
+This pattern is a regular expression following standard Java regex
+patterns and is used to filter tags on version parse as well as
+internally for verification of output version strings.  The validation
 pattern enables the use of the version plugin in branch specific
 contexts (meaning multiple vcs branches can all be using different
 versions for building artifacts) and for special tag list filtering
@@ -546,7 +548,7 @@ When set to true, the project.version value will be set at task graph
 completion (just before tasks are executed and just after the
 configuration phase).  This is normally exactly the right behavior,
 but specific build ordering or other custom needs may be require some
-form of later task execution (and thus project.version binding).
+form of later task execution (and thus late project.version binding).
 </p>
 		</td>
 	</tr>
@@ -612,29 +614,164 @@ should normally remain true.
 
 ###Build Version Examples
 
-Examples to use in version plugin
-
-  - Use incrementVersion()
-  - Set version pattern
-  - Set validate pattern
-  - Update major/minor/build
-  - Show use without tags
-  - Show usage for branch specific versions
-  - Show usage for build type version
-  - Show setting comment for tag set
-  - Show override of major/minor/etc using configuration doLast{}
-
-
-To do this
+To prevent the version from autoincrementing so that the version
+reflects the last tag value (rather than the 'next' version).
 
 ```
-foo
+buildversion {
+	autoincrement = false
+}
 ```
 
-To do that
+To set a specific major version after the initial revision has been
+obtained from tags.  The doLast closure should be used anytime you are
+explicitly setting a value when usetag is true.
 
 ```
-bar
+buildversion {
+	doLast {
+		version.major = 2;
+	}
+}
+```
+
+To use a specific version number that is controlled only by gradle
+variables (this example will result in version 3.3, use autoincrement
+set to false to have the version match exactly).
+
+```
+buildversion {
+	usetag = false;
+	version.major = 3
+	version.minor = 2
+}
+```
+
+To use a 'classic' major.minor.build version scheme that is set via
+gradle variable usage.
+
+```
+buildversion {
+	usetag = false;
+	version.setPattern('%M%.%m%.%b%')
+	version.major = 3
+	version.minor = 2
+	version.build = buildNumber // perhaps via Jenkins build id?
+}
+```
+
+To create a version string that has only a major and minor version
+
+```
+buildversion {
+	version.pattern = '%M%.%m%'
+}
+```
+
+To create a branch specific version pattern
+
+```
+def currentBranch = 'mainline'
+
+buildversion {
+	version.setPattern("%M%.%m%-${currentBranch}")
+}
+```
+
+To create a validation pattern and version pattern to create a branch
+specific version (useful for hotfix branches, parallel development,
+etc.) but will grab the most recent tag from any branch.  Note that
+the regex can be arbitrarily complex so you can any sort of tag
+filtering you want.   
+
+```
+def currentBranch = 'release'
+
+buildversion {
+	version.setPattern("%M%.%m%-${currentBranch}", "\\d+.\\d+-\\D+")
+}
+```
+
+To explicitly increment the version in a task through the project
+variable (note the << is the same as using a doFirst closure)
+
+```
+task doIncrementBeforeAction << {
+	project.version.incrementVersion();
+}
+```
+
+To set a comment for the tag created by the buildversiontag task
+
+```
+buildversiontag {
+	comment = 'This is a comment in build.gradle for buildversiontag'
+}
+```
+
+To allow tags to be generated even when the workspace has uncommitted
+changes.
+
+```
+buildversiontag {
+	onlyifclean = false
+}
+```
+
+To set a comment and increment the version prior to writing a version
+tag.
+
+```
+buildversiontag {
+	comment = 'This is a comment in build.gradle for buildversiontag'
+	doFirst {
+		version.incrementVersion()
+	}
+}
+```
+
+As a final more complex example:
+
+To create a version based on build type (release does a full version,
+but dev mainline creates snapshot builds).  In this example the major
+version is part of the configuration file as well.
+
+In gradle.properties set the build type
+
+```
+buildType=SNAPSHOT
+buildMajorVersion=4
+```
+
+You can set the buildtype on the command line to override the default
+for CI release builds (or manual release builds)
+
+```
+gradle build -PbuildType=release
+```
+
+Within the gradle.build file set the pattern based on the build type
+so that (assuming the last release version was 4.2 then you normally
+you will get versions like 4.3-SNAPSHOT, but when doing release builds
+you get the full blown 4.3-20111028.123456 revision numbers (including
+the maven style date default pattern).  Notice the use of the doLast
+closure to init from the last release tag but to use standard snapshot
+versions (in this case).  This makes for a very flexible environment
+with very simple configuration.
+
+```
+buildversion {
+	doLast {
+		//
+		// Set the pattern after the tags have been used to
+		// set the initial values.  Release gets the default.
+		//
+		if (buildType != "release") {
+			version.setPattern("%M%.%m%-${buildType}") 
+		}
+		version.major = buildMajorVersion
+	}
+}
 ```
 
 ###Lifecycle Considerations
@@ -665,11 +802,14 @@ The sources here demonstrate the following
 
 This project depends on the following tools currently:
 
-- The gradle API - This is a gradle plugin after all
-- JUNIT - There is some JUNIT validation for information sources and
-utility code
-- JGIT - The git information is acquired using the very well done JGit
-project code (used for the Eclipse project)
+- The gradle API
+(<http://www.gradle.org/docs/current/javadoc/index.html>)- This is a
+gradle plugin after all  
+- JUNIT (<http://www.junit.org/>) - There is some JUNIT validation
+for information sources and utility code
+- JGIT (<http://www.eclipse.org/jgit/>)- The git information is
+acquired using the very well done JGit project code (used for the
+Eclipse project) 
 
 ### Setting Build Version and Build Type
 
