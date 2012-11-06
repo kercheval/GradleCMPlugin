@@ -16,6 +16,7 @@ buildversion {
 		if (buildType != "release") {
 			version.setPattern("%M%.%m%-${buildType}") 
 		}
+		version.updateMajor(new Integer(buildMajorVersion)) 
 	}
 }
 
@@ -53,7 +54,7 @@ buildscript {
 		mavenRepo url: 'http://kercheval.org/mvn-repo/releases'
 	}
 	dependencies {
-		classpath 'org.kercheval:GradleCMPlugin:0.8+'
+		classpath 'org.kercheval:GradleCMPlugin:0.+'
 	}
 }
 

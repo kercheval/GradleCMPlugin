@@ -367,7 +367,7 @@ The buildversiontag task must be executed seperately by an explicit
 gradle call 
 
 ```
-gradle buildversiontag
+> gradle buildversiontag
 ```
 
 or by setting the dependsOn property of another task to be
@@ -784,7 +784,7 @@ You can set the buildtype on the command line to override the default
 for CI release builds (or manual release builds)
 
 ```
-gradle build -PbuildType=release
+> gradle build -PbuildType=release
 ```
 
 Within the gradle.build file set the pattern based on the build type
@@ -806,7 +806,7 @@ buildversion {
 		if (buildType != "release") {
 			version.setPattern("%M%.%m%-${buildType}") 
 		}
-		version.updateMajor(buildMajorVersion) 
+		version.updateMajor(new Integer(buildMajorVersion)) 
 	}
 }
 ```
@@ -870,7 +870,22 @@ The build type is set in the gradle.properties file to default to
 using the gradle command line (or IDE arguments)
 
 ```
-gradle build -PbuildType=release
+> gradle build -PbuildType=release
+```
+
+### Current steps to release artifacts with this project
+
+*Snapshot Upload*
+
+```
+> gradle uploadArchive
+```
+
+*Release Upload*
+
+```
+> gradle -pbuildType=release uploadArchive
+> git push origin --tags
 ```
 
 ##Contributing
