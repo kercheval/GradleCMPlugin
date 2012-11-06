@@ -56,7 +56,7 @@ block can be used to add custom information to the build file.
 
 ###Build Info Quick Start
 
-After ensuring the plugin in your script dependencies, add an apply
+After ensuring the plugin is in your script dependencies, add an apply
 line to your gradle build file.
 
 ```
@@ -316,8 +316,8 @@ plugin if you have an interest in contributing.
 ###Summary
 
 The buildversion plugin supports the automatic setting of build numbers 
-based on VCS tag labeling.  The plugin support multiple branch version and 
-can be used without tagging at all.
+based on VCS tag labeling.  The plugin supports multiple branch
+versioning and can be used without tagging at all.
 
 Using the default behavior of the plugin, the gradle version object
 will be updated to reflect a single increment version update from the
@@ -326,33 +326,34 @@ with version 2.6, the gradle version would be updated to 2.7 (your
 builds are actually targeted at the next version release, not the last
 one.
 
-The increment behavior, build numbers, version format default
+The increment behavior, build numbers and version format default
 behaviors can all be overriden using the task variables.
 
 There are two tasks defined in this plugin:
 
 ####buildversion
 
-This task will find the most recent tag (not the highest build number,
-but the most recently placed) and will use that as the template for
-the build version.  The tags used for comparison are filtered based on
-the validatePattern (see variable section).  The gradle version update
-occurs at the point at which the task graph is completed.  This is
-just after the evaluation phase of the build and just prior to actual
-task execution.
+This task will find the most recent (not the highest build number, but
+the most recently placed) version tag and will use that as the
+template for the build version.  The tags used for comparison are
+filtered based on the validatePattern set in the configuration block
+(see the variable section).  The gradle version update occurs at the
+point at which the task graph is completed.  This is just after the
+evaluation phase of the build and just prior to actual task execution.
 
 ####buildversiontag
 
 This task will take the current version and write a tag using the
-current version format.  This tag is written locally, so if you wish
-this published in a central repository, you will need to push these
-tags (this would be 'git push origin --tags' for git users).  The
-buildversiontag task always depends on the buildversion task and will
-use variables created in that task for tag output.
+current version format.  This tag is written to the local repository
+for the vcs, so if you wish these tags published in a central
+repository, you will need to push the tags to the origin repository
+explicitly (this would be 'git push origin --tags' for git users).
+The buildversiontag task always depends on the buildversion task and
+will use variables created in buildversion task for tag output.
 
 ###Build Version Quick Start
 
-After ensuring the plugin in your script dependencies, add an apply
+After ensuring the plugin is in your script dependencies, add an apply
 line to your gradle build file.
 
 ```
@@ -363,11 +364,19 @@ This will automatically cause the tag list to be parsed and the
 version object to be placed in project.version.  
 
 The buildversiontag task must be executed seperately by an explicit
-gradle call or by setting the dependsOn property of another task to be
-run.
+gradle call 
 
 ```
 gradle buildversiontag
+```
+
+or by setting the dependsOn property of another task to be
+run.
+
+```
+task doTag(dependsOn: buildversiontag) << {
+	println 'Hello from doTag'
+}
 ```
 
 ###Build Version Variables
@@ -439,8 +448,8 @@ Default: <strong>org.kercheval.gradle.buildversion.BuildVersion(null,
 <p>
 This variable is of type
 org.kercheval.gradle.buildversion.BuildVersion.  This object holds the
-version state and creation and parsing patterns used to generate the
-version string.  Along with maintaining a major, minor and build
+version state as well as the creation and parsing patterns used to generate the
+version string.  Along with maintaining major, minor and build
 numbers (any or all of which can be used), this object also maintains
 a build date (which can also be used in the version string).
 </p>
@@ -457,7 +466,7 @@ creation pattern.  The pattern used has the following restrictions
 <li>%b% - build number</li>
 <li>%d% - date (using yyyyMMdd)</li>
 <li>%t% - time (using HHmmss)</li>
-<li>%% - a percent</li>
+<li>%% - a percent character (may appear multiple times in the pattern)</li>
 </ul>
 </li>
 </ul>
@@ -559,9 +568,10 @@ form of later task execution (and thus late project.version binding).
 By default the buildversiontag task will generate a tag in the current
 branch of your VCS using the pattern for the version specified by the
 buildversion task.  Normally, this will only be allowed when the
-current workspace is considered clean (no modified/added/delete
-files).  The intent of the tag is to represent a reproducible build
-point so the tag will be attached to the current commit (HEAD in git).
+current workspace is considered clean (no modified/added/deleted
+files).  The intent of the written tag is to represent a reproducible
+build point so the tag will be attached to the current checkout commit
+(usually the HEAD in git).
  
 The buildversiontag task behavior can be modified by the following
 variables.
@@ -601,7 +611,7 @@ current head).
 </p>
 <p>
 When set to false, tags will be allowed to be written at any time, but
-the tag will be attached to the commit that has outstanding changes.
+the tag will be attached to a commit that may have outstanding changes.
 This means that the current build artifacts on the current location
 may not match the artifacts later created based on the tag since there
 were changed files on this build workspace at the time the tag was
@@ -614,7 +624,7 @@ should normally remain true.
 
 ###Build Version Examples
 
-To prevent the version from autoincrementing so that the version
+To prevent the version from auto incrementing so that the version
 reflects the last tag value (rather than the 'next' version).
 
 ```
@@ -624,8 +634,8 @@ buildversion {
 ```
 
 To set a specific major version after the initial revision has been
-obtained from tags.  The doLast closure should be used anytime you are
-explicitly setting a value when usetag is true.
+obtained from tags.  Note the use of the doLast closure (should be used anytime you are
+explicitly setting a value when usetag is true).
 
 ```
 buildversion {
@@ -636,7 +646,7 @@ buildversion {
 ```
 
 To use a specific version number that is controlled only by gradle
-variables (this example will result in version 3.3, use autoincrement
+variables (this example will result in version 3.3).  (Use autoincrement
 set to false to have the version match exactly).
 
 ```
@@ -680,9 +690,10 @@ buildversion {
 
 To create a validation pattern and version pattern to create a branch
 specific version (useful for hotfix branches, parallel development,
-etc.) but will grab the most recent tag from any branch.  Note that
-the regex can be arbitrarily complex so you can any sort of tag
-filtering you want.   
+etc.) but will grab the most recent tag from any branch (named without
+numbers).  Note that the regex can be arbitrarily complex so you can
+any sort of tag filtering you want as long as it is consistent with
+the version pattern.  
 
 ```
 def currentBranch = 'release'
@@ -751,13 +762,13 @@ gradle build -PbuildType=release
 ```
 
 Within the gradle.build file set the pattern based on the build type
-so that (assuming the last release version was 4.2 then you normally
-you will get versions like 4.3-SNAPSHOT, but when doing release builds
-you get the full blown 4.3-20111028.123456 revision numbers (including
-the maven style date default pattern).  Notice the use of the doLast
-closure to init from the last release tag but to use standard snapshot
-versions (in this case).  This makes for a very flexible environment
-with very simple configuration.
+so that you will get versions like 4.3-SNAPSHOT (assuming the last
+release version was 4.2), but when doing release builds you get the
+full blown 4.3-20111028.123456 revision numbers (including the maven
+style date default pattern).  Notice the use of the doLast closure to
+init from the last release tag but to use standard snapshot version
+string.  This makes for a very flexible environment with very simple
+configuration.
 
 ```
 buildversion {
@@ -803,15 +814,18 @@ The sources here demonstrate the following
 This project depends on the following tools currently:
 
 - The gradle API
-(<http://www.gradle.org/docs/current/javadoc/index.html>)- This is a
+(<http://www.gradle.org/docs/current/javadoc/index.html>) - This is a
 gradle plugin after all  
 - JUNIT (<http://www.junit.org/>) - There is some JUNIT validation
 for information sources and utility code
-- JGIT (<http://www.eclipse.org/jgit/>)- The git information is
+- JGIT (<http://www.eclipse.org/jgit/>) - The git information is
 acquired using the very well done JGit project code (used for the
 Eclipse project) 
 
 ### Setting Build Version and Build Type
+
+TODO: 11/6/2012 This will change as soon as bootstrap buildversion
+into the gradle.build file
 
 The build version and type is set in the gradle.properties file to
 default to 'snapshot.dev'.  This version is made of two parts: the
@@ -834,7 +848,16 @@ gradle build -PbuildType=release
 
 ##Contributing
 
-I have explicitly built this plugin set for my local technology stack.
+I have explicitly built this plugin set for my local technology stack,
+but the intent is that additional support should be simple to add.
+
+The vcs interfaces completely abstract the updates made from the
+internal logic so support for other systems (like SVN, Mercurial or
+Perforce) should be very straight forward.
+
+Support for additional information sources (Hudson, etc) should also
+be straight forward.
+
 Do you like this plugin and just need a new information source, or
 have a useful plugin to contribute that surrounds configuration
 managment?  I welcome any contributions and pull requests.

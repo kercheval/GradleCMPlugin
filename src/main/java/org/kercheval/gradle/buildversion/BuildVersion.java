@@ -44,7 +44,7 @@ public class BuildVersion {
     // %b% - build number
     // %d% - date (using yyyyMMdd)
     // %t% - time (using HHmmss)
-    // %% - a percent
+    // %% - a percent character (may appear multiple times in the pattern)
     //
     private String pattern;
 
@@ -91,10 +91,6 @@ public class BuildVersion {
     }
 
     public void setPattern(String newPattern, final String newValidatePattern) {
-
-        // TODO Remove
-        System.out.println("Setting patterns - " + newPattern + " : " + newValidatePattern);
-
         if (null == newPattern) {
             newPattern = DEFAULT_PATTERN;
         }
