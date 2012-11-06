@@ -860,6 +860,12 @@ The sources here demonstrate the following
 - Use of java based closure implementation to extend gradle tasks
 - Use of JGit to obtain VCS status and to read and set tags
 
+### Release History
+
+- 1.0 - Nov 6, 2012 - The initial completion of the buildversion
+plugin 
+- 0.6 - Oct 20, 2012 - The initial compeltion of the buildinfo plugin
+
 ### Dependencies
 
 This project depends on the following tools currently:
