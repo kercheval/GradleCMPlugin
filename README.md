@@ -864,7 +864,7 @@ The sources here demonstrate the following
 
 - 1.0 - Nov 6, 2012 - The initial completion of the buildversion
 plugin 
-- 0.6 - Oct 20, 2012 - The initial compeltion of the buildinfo plugin
+- 0.6 - Oct 20, 2012 - The initial completion of the buildinfo plugin
 
 ### Dependencies
 
