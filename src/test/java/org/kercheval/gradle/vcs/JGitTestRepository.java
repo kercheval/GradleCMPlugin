@@ -15,10 +15,10 @@ import org.eclipse.jgit.lib.RepositoryBuilder;
 public class JGitTestRepository
 {
 
-	public static final String JUNIT_REPOSITORY_LOCATION = "./build/JUNIT_TEMP/vcs";
+	public static final String JUNIT_REPOSITORY_LOCATION = "./build/junit_temp/vcs";
 
-	private static final String ORIGIN_LOCATION = "./build/JUNIT_TEMP/vcs/origin";
-	private static final String STANDARD_LOCATION = "./build/JUNIT_TEMP/vcs/mainline";
+	private static final String ORIGIN_LOCATION = JUNIT_REPOSITORY_LOCATION + "/origin";
+	private static final String STANDARD_LOCATION = JUNIT_REPOSITORY_LOCATION + "/mainline";
 
 	private static final File originFile = new File(ORIGIN_LOCATION);
 	private static final File standardFile = new File(STANDARD_LOCATION);

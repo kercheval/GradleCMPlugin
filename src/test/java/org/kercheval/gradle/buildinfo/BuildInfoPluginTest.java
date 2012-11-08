@@ -16,7 +16,7 @@ import org.junit.Test;
 
 public class BuildInfoPluginTest
 {
-	private static final String JUNIT_FILE_LOCATION = "./build/JUNIT_TEMP/infoplugin";
+	private static final String JUNIT_FILE_LOCATION = "./build/junit_temp/infoplugin";
 	private static final String JUNIT_FILE_NAME = JUNIT_FILE_LOCATION + "/build/"
 		+ BuildInfoTask.DEFAULT_FILENAME;
 
