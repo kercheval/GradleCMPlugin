@@ -189,11 +189,15 @@ an empty map (see example below).
 
 *Example 1* To automatically add build info into a zip file in the directory
 'testingdir' you can add the specific task to the task map (overriding
-the defaults)
+the defaults).  In this example we preserve the copy of
+buildinfo.properties into newly created jar files.
 
 ```
 buildinfo {
-	taskmap = [helloZip: "testingdir"]
+	taskmap = [
+		helloZip: "testingdir",
+		jar: "META-INF"
+	]
 }
 
 task helloZip(type: Zip) {
@@ -261,19 +265,11 @@ buildinfo {
 ###Lifecycle Considerations
 
 This plugin hooks task graph completion (which occurs right after the
-configuration phase of a gradle run).  At that time, default values
-are assigned if not already set.  If the variable autowrite is true,
-then and the build info file is created and task hooking is completed
-to copy the info file into specified (or default) tasks.
+configuration phase of a gradle run).  If the variable autowrite is
+true, then the build info file is created and task hooking is
+completed to copy the info file into specified (or default) tasks.
 
 This timing has several specific implications.
-
-- If you are using buildinfo variables in any of your tasks, you need
-to ensure the references are done during the execution phase in a task
-or that the configuration of your task is accomplished *after* the
-configuration of the buildinfo task.  Default assignment of the
-buildinfo variables are not done until the configuration phase is
-complete and the task graph creation has been completed.
 
 - Any gradle variables used within the buildinfo configuration block must
 be assigned prior to the declaration of the buildinfo block.
@@ -839,11 +835,8 @@ uploadArchives {
 ###Lifecycle Considerations
 
 This plugin hooks task graph completion (which occurs right after the
-configuration phase of a gradle run).  At that time, default values
-are assigned if not already set.  Like the buildinfo plugin, be sure
-that user variables used in the configuration block are created and
-modified in the write order and note that the version variable will
-not be referencable as described in the variable section via the
+configuration phase of a gradle run).  Note that the version variable
+will not be referencable as described in the variable section via the
 project until after this task has run.
 
 ##Project Specifics

@@ -2,6 +2,18 @@ package org.kercheval.gradle.buildinfo;
 
 import groovy.lang.Closure;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -11,7 +23,6 @@ import org.gradle.api.file.CopySpec;
 import org.gradle.api.tasks.AbstractCopyTask;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
-
 import org.kercheval.gradle.util.GradleUtil;
 import org.kercheval.gradle.util.JenkinsUtil;
 import org.kercheval.gradle.util.MachineUtil;
@@ -19,35 +30,34 @@ import org.kercheval.gradle.util.SortedProperties;
 import org.kercheval.gradle.vcs.VCSAccessFactory;
 import org.kercheval.gradle.vcs.VCSException;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-
 public class BuildInfoTask
 	extends DefaultTask
 {
-	public static final String DEFAULT_BUILDINFO_PROPERTIES = "buildinfo.properties";
-	static private String EOL = System.getProperty("line.separator");
+	public static final String DEFAULT_FILENAME = "buildinfo.properties";
+	public static final boolean DEFAULT_AUTOWRITE = true;
+	private static final Map<String, String> DEFAULT_TASKMAP_PRIVATE = new HashMap<String, String>();
+	static
+	{
+		DEFAULT_TASKMAP_PRIVATE.put("jar", "META-INF");
+		DEFAULT_TASKMAP_PRIVATE.put("war", "META-INF");
+		DEFAULT_TASKMAP_PRIVATE.put("ear", "META-INF");
+	}
+	public static final Map<String, String> DEFAULT_TASKMAP = Collections
+		.unmodifiableMap(DEFAULT_TASKMAP_PRIVATE);
+
+	static private final String EOL = System.getProperty("line.separator");
 
 	//
 	// If true, the buildinfo file will be written automatically at
 	// the beginning of the task evaluation phase for the project.
 	//
-	private boolean autowrite = true;
+	private boolean autowrite = DEFAULT_AUTOWRITE;
 
 	//
 	// This is the file name to use for info file. The default value
 	// for this filename is buildinfo.properties
 	//
-	private String filename;
+	private String filename = DEFAULT_FILENAME;
 
 	//
 	// This directory represents the path used for the file written.
@@ -59,15 +69,31 @@ public class BuildInfoTask
 	// This is the map of tasks/locations that will copy elements added so
 	// that the build info file will be added into the output.
 	//
-	private Map<String, String> taskmap;
+	private Map<String, String> taskmap = DEFAULT_TASKMAP;
 
 	//
 	// This map represents custom information should be placed in the file written
 	//
-	private Map<String, Object> custominfo;
+	private Map<String, Object> custominfo = new HashMap<String, Object>();
 
 	public BuildInfoTask()
 	{
+		final Project project = getProject();
+
+		//
+		// Init the file directory
+		//
+		final Map<String, ?> props = project.getProperties();
+		try
+		{
+			setFiledir(((File) props.get("buildDir")).getCanonicalPath());
+		}
+		catch (final IOException e)
+		{
+			project.getLogger().error(e.getMessage());
+
+			throw new TaskExecutionException(this, e);
+		}
 
 		//
 		// Add a listener to automatically write the build info file as soon
@@ -75,16 +101,12 @@ public class BuildInfoTask
 		// completed their configuration phase and all variable updates have
 		// been completed for the purposes of this plugin.
 		//
-		final Project project = getProject();
-
 		project.getGradle().getTaskGraph()
 			.addTaskExecutionGraphListener(new TaskExecutionGraphListener()
 			{
 				@Override
 				public void graphPopulated(final TaskExecutionGraph graph)
 				{
-					final boolean validateMap = setDefaultVariables(project);
-
 					//
 					// Run our task and insert into tasks if autowrite
 					//
@@ -125,11 +147,9 @@ public class BuildInfoTask
 
 											//
 											// Groovy closure creation in Java is a bit odd since
-// you
-											// need to know the magic. doCall must be defined and
-// the parameter
-											// being passed is done via reflection. This allows
-// pretty clean
+											// you need to know the magic. doCall must be
+											// defined and the parameter being passed is done via
+											// reflection. This allows pretty clean
 											// interaction.
 											//
 											@SuppressWarnings("unused")
@@ -137,9 +157,9 @@ public class BuildInfoTask
 											{
 
 												//
-												// This closure is being sent a child copy spec, add
-												// in the from and include parameters for the child
-// spec
+												// This closure is being sent a child copy spec,
+												// add in the from and include parameters for
+												// the child spec
 												//
 												copySpec.into(taskmap.get(taskname)).include(
 													getFilename());
@@ -161,7 +181,7 @@ public class BuildInfoTask
 							}
 							else
 							{
-								if (validateMap)
+								if (getTaskmap() != DEFAULT_TASKMAP)
 								{
 
 									//
@@ -178,114 +198,6 @@ public class BuildInfoTask
 			});
 	}
 
-	//
-	// Set default variables if they have not been already specified
-	//
-	protected boolean setDefaultVariables(final Project project)
-	{
-		final Map<String, ?> props = project.getProperties();
-		boolean validateMap = true;
-
-		//
-		// Set variable defaults
-		//
-		if (getFiledir() == null)
-		{
-
-			//
-			// filedir was not set in gradle file, so set to default value
-			//
-			try
-			{
-				setFiledir(((File) props.get("buildDir")).getCanonicalPath());
-			}
-			catch (final IOException e)
-			{
-				project.getLogger().error(e.getMessage());
-
-				throw new TaskExecutionException(this, e);
-			}
-		}
-
-		if (getFilename() == null)
-		{
-
-			//
-			// Set default filename
-			//
-			setFilename(DEFAULT_BUILDINFO_PROPERTIES);
-		}
-
-		if (getTaskmap() == null)
-		{
-
-			//
-			// set the default taskMap
-			//
-			taskmap = new HashMap<String, String>();
-			taskmap.put("jar", "META-INF");
-			taskmap.put("war", "META-INF");
-			taskmap.put("ear", "META-INF");
-
-			//
-			// Don't validate the default map
-			//
-			validateMap = false;
-		}
-
-		return validateMap;
-	}
-
-	public Map<String, Object> getCustominfo()
-	{
-		return custominfo;
-	}
-
-	public void setCustominfo(final Map<String, Object> custominfo)
-	{
-		this.custominfo = custominfo;
-	}
-
-	public Map<String, String> getTaskmap()
-	{
-		return taskmap;
-	}
-
-	public void setTaskmap(final Map<String, String> taskmap)
-	{
-		this.taskmap = taskmap;
-	}
-
-	public boolean isAutowrite()
-	{
-		return autowrite;
-	}
-
-	public void setAutowrite(final boolean autowrite)
-	{
-		this.autowrite = autowrite;
-	}
-
-	public String getFilename()
-	{
-		return filename;
-	}
-
-	public void setFilename(final String filename)
-	{
-		this.filename = filename;
-	}
-
-	public String getFiledir()
-	{
-		return filedir;
-	}
-
-	public void setFiledir(final String filedir)
-	{
-		this.filedir = filedir;
-	}
-
 	@TaskAction
 	public void doTask()
 	{
@@ -293,7 +205,7 @@ public class BuildInfoTask
 		//
 		// Obtain the project properties
 		//
-		final Project project = this.getProject();
+		final Project project = getProject();
 		final Map<String, ?> props = project.getProperties();
 
 		try
@@ -366,7 +278,7 @@ public class BuildInfoTask
 			// If custom info is specified in the gradle build file, go ahead and place that
 			// in the info file at the beginning
 			//
-			if (getCustominfo() != null)
+			if ((getCustominfo() != null) && !getCustominfo().isEmpty())
 			{
 				final Properties customProps = new SortedProperties();
 
@@ -405,5 +317,55 @@ public class BuildInfoTask
 		{
 			throw new TaskExecutionException(this, e);
 		}
+	}
+
+	public Map<String, Object> getCustominfo()
+	{
+		return custominfo;
+	}
+
+	public String getFiledir()
+	{
+		return filedir;
+	}
+
+	public String getFilename()
+	{
+		return filename;
+	}
+
+	public Map<String, String> getTaskmap()
+	{
+		return taskmap;
+	}
+
+	public boolean isAutowrite()
+	{
+		return autowrite;
+	}
+
+	public void setAutowrite(final boolean autowrite)
+	{
+		this.autowrite = autowrite;
+	}
+
+	public void setCustominfo(final Map<String, Object> custominfo)
+	{
+		this.custominfo = custominfo;
+	}
+
+	public void setFiledir(final String filedir)
+	{
+		this.filedir = filedir;
+	}
+
+	public void setFilename(final String filename)
+	{
+		this.filename = filename;
+	}
+
+	public void setTaskmap(final Map<String, String> taskmap)
+	{
+		this.taskmap = taskmap;
 	}
 }

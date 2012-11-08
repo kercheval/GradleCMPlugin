@@ -19,13 +19,16 @@ import org.kercheval.gradle.vcs.VCSTag;
 public class BuildVersionTask
 	extends DefaultTask
 {
+	public static final boolean DEFAULT_AUTOWRITE = true;
+	public static final boolean DEFAULT_AUTOINCREMENT = true;
+	public static final boolean DEFAULT_USETAG = true;
 
 	//
 	// When autowrite is true, the project version will automatically be set at
 	// task graph completion. This is normally the correct behavior, but turning
 	// this variable to false allows late binding in some cases.
 	//
-	private boolean autowrite = true;
+	private boolean autowrite = DEFAULT_AUTOWRITE;
 
 	//
 	// If increment is true, then during task execution, the last tag found will
@@ -34,7 +37,7 @@ public class BuildVersionTask
 	// variable off will result in the version staying at exactly the found or set
 	// value.
 	//
-	private boolean autoincrement = true;
+	private boolean autoincrement = DEFAULT_AUTOINCREMENT;
 
 	//
 	// If usetag is true, then when the task is run, all tags that match the validate
@@ -42,7 +45,7 @@ public class BuildVersionTask
 	// version values. If set to false, then the version variables must be set in
 	// the configuration section of the gradle.build file.
 	//
-	private boolean usetag = true;
+	private boolean usetag = DEFAULT_USETAG;
 
 	//
 	// This is the object that will be set at the project version. This is normally

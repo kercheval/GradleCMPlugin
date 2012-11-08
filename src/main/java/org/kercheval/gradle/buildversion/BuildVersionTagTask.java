@@ -1,28 +1,28 @@
 package org.kercheval.gradle.buildversion;
 
+import java.io.File;
+import java.util.Map;
+
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
-
 import org.kercheval.gradle.vcs.IVCSAccess;
 import org.kercheval.gradle.vcs.VCSAccessFactory;
 import org.kercheval.gradle.vcs.VCSException;
 import org.kercheval.gradle.vcs.VCSStatus;
 import org.kercheval.gradle.vcs.VCSTag;
 
-import java.io.File;
-
-import java.util.Map;
-
 public class BuildVersionTagTask
 	extends DefaultTask
 {
-
+	public static final String DEFAULT_COMMENT = "Tag created by "
+		+ BuildVersionPlugin.TAG_TASK_NAME;
+	public static final boolean DEFAULT_ONLYIFCLEAN = true;
 	//
 	// The comment is set to a string that will be placed in the comment
 	// of the tag written to VCS
 	//
-	private String comment = "Tag created by " + this.getName();
+	private String comment = DEFAULT_COMMENT;
 
 	//
 	// if onlyifclean is true, then tags are only written to the VCS system
@@ -30,31 +30,11 @@ public class BuildVersionTagTask
 	// will prevent tagging based on old commits or build releases that are not
 	// replicable.
 	//
-	private boolean onlyifclean = true;
+	private boolean onlyifclean = DEFAULT_ONLYIFCLEAN;
 
 	public BuildVersionTagTask()
 	{
-		this.dependsOn(":" + BuildVersionPlugin.MAIN_TASK_NAME);
-	}
-
-	public boolean isOnlyifclean()
-	{
-		return onlyifclean;
-	}
-
-	public void setOnlyifclean(final boolean onlyifclean)
-	{
-		this.onlyifclean = onlyifclean;
-	}
-
-	public String getComment()
-	{
-		return comment;
-	}
-
-	public void setComment(final String comment)
-	{
-		this.comment = comment;
+		dependsOn(":" + BuildVersionPlugin.MAIN_TASK_NAME);
 	}
 
 	@TaskAction
@@ -116,5 +96,25 @@ public class BuildVersionTagTask
 				new IllegalStateException(
 					"Project version is not of type BuildVersion: ensure buildversion task has been run or set project version to an object of type BuildVersion."));
 		}
+	}
+
+	public String getComment()
+	{
+		return comment;
+	}
+
+	public boolean isOnlyifclean()
+	{
+		return onlyifclean;
+	}
+
+	public void setComment(final String comment)
+	{
+		this.comment = comment;
+	}
+
+	public void setOnlyifclean(final boolean onlyifclean)
+	{
+		this.onlyifclean = onlyifclean;
 	}
 }
