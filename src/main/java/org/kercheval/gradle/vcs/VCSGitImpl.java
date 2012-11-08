@@ -1,11 +1,20 @@
 package org.kercheval.gradle.vcs;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRefNameException;
 import org.eclipse.jgit.api.errors.InvalidTagNameException;
 import org.eclipse.jgit.api.errors.NoHeadException;
+import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
+import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.ObjectId;
@@ -15,17 +24,8 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
-
 import org.gradle.api.logging.Logger;
-
 import org.kercheval.gradle.util.SortedProperties;
-
-import java.io.File;
-import java.io.IOException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 //
 // This class implements the VCSAccess interface for GIT.
@@ -35,14 +35,6 @@ public class VCSGitImpl
 {
 	static Object singletonLock = new Object();
 	static VCSGitImpl singleton = null;
-	private final File srcRootDir;
-	private final Logger logger;
-
-	private VCSGitImpl(final File srcRootDir, final Logger logger)
-	{
-		this.srcRootDir = srcRootDir;
-		this.logger = logger;
-	}
 
 	public static IVCSAccess getInstance(final File srcRootDir, final Logger logger)
 	{
@@ -59,14 +51,121 @@ public class VCSGitImpl
 		}
 	}
 
-	public File getSrcRootDir()
+	private final File srcRootDir;
+
+	private final Logger logger;
+
+	private VCSGitImpl(final File srcRootDir, final Logger logger)
 	{
-		return srcRootDir;
+		this.srcRootDir = srcRootDir;
+		this.logger = logger;
 	}
 
-	public Logger getLogger()
+	@Override
+	public void createBranch(final String branchName, final String remoteOrigin,
+		final boolean ignoreOrigin)
+		throws VCSException
 	{
-		return logger;
+		// TODO: Need pull on branch from origin
+		// TODO: Need push on branch from origin
+
+		Repository repository = null;
+
+		try
+		{
+			repository = new RepositoryBuilder().readEnvironment().findGitDir(getSrcRootDir())
+				.build();
+
+			final Git git = new Git(repository);
+
+			git.branchCreate().setName(branchName).setForce(false).call();
+
+			// 0) First check to see if refs/heads/<branchname> exists
+			// If not, the do 1) otherwise do 2)
+			// 1) First check to see if refs/remotes/origin/<branchname> exists
+			//
+			// Use code like
+			//
+			// may be able to use getRef instead (which returns null if not present)
+			//
+			// final Map<String, Ref> refMap = repository.getAllRefs();
+			// if (refMap.containsKey("refs/remotes/origin/" + branchName))
+			// {
+			// // Do
+			// // git branch branchname origin/branchname
+			// }
+			// else
+			// {
+			// // Do
+			// // git branch branchname
+			// // git push origin branchname
+			// }
+			// 2) Actually, should check for current local and current remote and
+			// deal with repair logic. If remote and not local, then get.
+			// If local and not remote then push. If neither then create and push.
+		}
+		catch (final IOException e)
+		{
+			throw new VCSException("Unable to find repository at: " + getSrcRootDir(), e);
+		}
+		catch (final RefAlreadyExistsException e)
+		{
+			throw new VCSException("Unable to create branch: " + branchName, e);
+		}
+		catch (final RefNotFoundException e)
+		{
+			throw new VCSException("Unable to create branch: " + branchName, e);
+		}
+		catch (final InvalidRefNameException e)
+		{
+			throw new VCSException("Unable to create branch: " + branchName, e);
+		}
+		catch (final GitAPIException e)
+		{
+			throw new VCSException("Unable to create branch: " + branchName, e);
+		}
+		finally
+		{
+			if (null != repository)
+			{
+				repository.close();
+			}
+		}
+	}
+
+	@Override
+	public List<VCSTag> getAllTags()
+		throws VCSException
+	{
+		return getTags(".*");
+	}
+
+	@Override
+	public String getBranchName()
+		throws VCSException
+	{
+		String rVal = "";
+		Repository repository = null;
+
+		try
+		{
+			repository = new RepositoryBuilder().readEnvironment().findGitDir(getSrcRootDir())
+				.build();
+			rVal = repository.getBranch();
+		}
+		catch (final IOException e)
+		{
+			throw new VCSException("Unable to find repository at: " + getSrcRootDir(), e);
+		}
+		finally
+		{
+			if (null != repository)
+			{
+				repository.close();
+			}
+		}
+
+		return rVal;
 	}
 
 	@Override
@@ -137,17 +236,62 @@ public class VCSGitImpl
 		return props;
 	}
 
-	@Override
-	public Type getType()
+	public Logger getLogger()
 	{
-		return IVCSAccess.Type.GIT;
+		return logger;
+	}
+
+	public File getSrcRootDir()
+	{
+		return srcRootDir;
 	}
 
 	@Override
-	public List<VCSTag> getAllTags()
+	public VCSStatus getStatus()
 		throws VCSException
 	{
-		return getTags(".*");
+		final VCSStatus rVal = new VCSStatus();
+		Repository repository = null;
+
+		try
+		{
+			repository = new RepositoryBuilder().readEnvironment().findGitDir(getSrcRootDir())
+				.build();
+
+			try
+			{
+				final Status status = new Git(repository).status().call();
+
+				rVal.setAdded(status.getAdded());
+				rVal.setChanged(status.getChanged());
+				rVal.setMissing(status.getMissing());
+				rVal.setRemoved(status.getRemoved());
+				rVal.setUntracked(status.getUntracked());
+				rVal.setConflicting(status.getConflicting());
+				rVal.setModified(status.getModified());
+			}
+			catch (final NoWorkTreeException e)
+			{
+				throw new VCSException("Unable to determine repository status", e);
+			}
+			catch (final GitAPIException e)
+			{
+				throw new VCSException("Unable to determine repository status", e);
+			}
+		}
+		catch (final IOException e)
+		{
+			throw new VCSException("Unable to find repository at: " + getSrcRootDir(), e);
+		}
+		finally
+		{
+			if (null != repository)
+			{
+				repository.close();
+			}
+		}
+
+		return rVal;
 	}
 
 	@Override
@@ -213,7 +357,13 @@ public class VCSGitImpl
 	}
 
 	@Override
-	public void setTag(final VCSTag tag)
+	public Type getType()
+	{
+		return IVCSAccess.Type.GIT;
+	}
+
+	@Override
+	public void createTag(final VCSTag tag)
 		throws VCSException
 	{
 		Repository repository = null;
@@ -257,53 +407,5 @@ public class VCSGitImpl
 				repository.close();
 			}
 		}
-	}
-
-	@Override
-	public VCSStatus getStatus()
-		throws VCSException
-	{
-		final VCSStatus rVal = new VCSStatus();
-		Repository repository = null;
-
-		try
-		{
-			repository = new RepositoryBuilder().readEnvironment().findGitDir(getSrcRootDir())
-				.build();
-
-			try
-			{
-				final Status status = new Git(repository).status().call();
-
-				rVal.setAdded(status.getAdded());
-				rVal.setChanged(status.getChanged());
-				rVal.setMissing(status.getMissing());
-				rVal.setRemoved(status.getRemoved());
-				rVal.setUntracked(status.getUntracked());
-				rVal.setConflicting(status.getConflicting());
-				rVal.setModified(status.getModified());
-			}
-			catch (final NoWorkTreeException e)
-			{
-				throw new VCSException("Unable to determine repository status", e);
-			}
-			catch (final GitAPIException e)
-			{
-				throw new VCSException("Unable to determine repository status", e);
-			}
-		}
-		catch (final IOException e)
-		{
-			throw new VCSException("Unable to find repository at: " + getSrcRootDir(), e);
-		}
-		finally
-		{
-			if (null != repository)
-			{
-				repository.close();
-			}
-		}
-
-		return rVal;
 	}
 }

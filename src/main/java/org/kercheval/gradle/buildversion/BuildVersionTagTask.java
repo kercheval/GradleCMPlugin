@@ -79,7 +79,7 @@ public class BuildVersionTagTask
 			{
 				final VCSTag tag = new VCSTag(getProject().getVersion().toString(), comment);
 
-				vcs.setTag(tag);
+				vcs.createTag(tag);
 				getProject().getLogger().info(
 					"Tag '" + tag.getName() + "' written to VCS with comment '" + tag.getComment()
 						+ "'");
