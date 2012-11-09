@@ -7,14 +7,16 @@ public class BuildReleasePlugin
 	implements Plugin<Project>
 {
 	static final String INIT_TASK_NAME = "buildreleaseinit";
+	static final String PUSH_TASK_NAME = "buildreleasepush";
 
 	@Override
 	public void apply(final Project project)
 	{
 
 		//
-		// Create the actual task that will be executed
+		// Create the actual tasks that will be executed
 		//
 		project.getTasks().add(INIT_TASK_NAME, BuildReleaseInitTask.class);
+		project.getTasks().add(PUSH_TASK_NAME, BuildReleasePushTask.class);
 	}
 }

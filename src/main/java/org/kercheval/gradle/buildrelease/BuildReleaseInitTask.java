@@ -61,8 +61,6 @@ public class BuildReleaseInitTask
 		{
 			throw new TaskExecutionException(this, e);
 		}
-
-		System.out.println("Executed BuildReleaseInit");
 	}
 
 	public String getReleasebranch()
