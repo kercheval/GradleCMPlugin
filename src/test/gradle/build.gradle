@@ -46,18 +46,6 @@ task myZip (type: Zip) {
 	} 
 }
 
-task createTestRepositoryInit(type:Exec) {
-	workingDir '.';
-	commandLine 'git', 'init'
-}
-
-buildreleaseinit {
-	dependsOn createTestRepositoryInit
-}
-buildversiontag {
-	dependsOn createTestRepositoryInit
-}
-
 buildscript {
 	repositories {
 	    mavenCentral()
