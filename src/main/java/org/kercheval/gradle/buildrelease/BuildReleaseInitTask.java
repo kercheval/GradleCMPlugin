@@ -1,7 +1,15 @@
 package org.kercheval.gradle.buildrelease;
 
+import java.io.File;
+import java.util.Map;
+
 import org.gradle.api.DefaultTask;
+import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.TaskExecutionException;
+import org.kercheval.gradle.vcs.IVCSAccess;
+import org.kercheval.gradle.vcs.VCSAccessFactory;
+import org.kercheval.gradle.vcs.VCSException;
 
 public class BuildReleaseInitTask
 	extends DefaultTask
@@ -40,6 +48,20 @@ public class BuildReleaseInitTask
 	@TaskAction
 	public void doTask()
 	{
+		final Project project = getProject();
+		final Map<String, ?> props = project.getProperties();
+		final IVCSAccess vcs = VCSAccessFactory.getCurrentVCS((File) props.get("rootDir"),
+			project.getLogger());
+
+		try
+		{
+			vcs.createBranch(getReleasebranch(), getRemoteorigin(), isIgnoreorigin());
+		}
+		catch (final VCSException e)
+		{
+			throw new TaskExecutionException(this, e);
+		}
+
 		System.out.println("Executed BuildReleaseInit");
 	}
 

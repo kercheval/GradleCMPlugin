@@ -18,5 +18,6 @@ classes
 *.iml
 
 #ignore test build files
-src/test/.gradle
-src/test/build
+src/test/gradle/.git
+src/test/gradle/.gradle
+src/test/gradle/build
