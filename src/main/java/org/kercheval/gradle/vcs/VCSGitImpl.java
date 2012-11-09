@@ -264,8 +264,14 @@ public class VCSGitImpl
 			props.addProperty("vcs.git.branch", repository.getBranch());
 
 			final ObjectId head = repository.resolve("HEAD");
-
-			props.addProperty("vcs.git.last.commit", head.getName());
+			if (null == head)
+			{
+				props.addProperty("vcs.git.last.commit", "");
+			}
+			else
+			{
+				props.addProperty("vcs.git.last.commit", head.getName());
+			}
 
 			final Config config = repository.getConfig();
 

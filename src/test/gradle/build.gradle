@@ -5,6 +5,8 @@
 // the plugin, it is only used for testing purposes.
 //
 apply plugin: 'buildinfo'
+apply plugin: 'buildversion'
+apply plugin: 'buildrelease'
 apply plugin: 'war'
 
 description = 'Gradle CM Plugin test build file'
@@ -42,6 +44,18 @@ task myZip (type: Zip) {
 	from (buildinfo.filedir) {
 		include buildinfo.filename into 'infodir'
 	} 
+}
+
+task createTestRepositoryInit(type:Exec) {
+	workingDir '.';
+	commandLine 'git', 'init'
+}
+
+buildreleaseinit {
+	dependsOn createTestRepositoryInit
+}
+buildversiontag {
+	dependsOn createTestRepositoryInit
 }
 
 buildscript {
