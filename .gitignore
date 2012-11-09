@@ -19,6 +19,6 @@ classes
 
 #ignore test build files
 src/test/gradle
-!src/test/gracle/build.gradle
-!src/test/gracle/testinit.bat
-!src/test/gracle/.gitignore
+!src/test/gradle/build.gradle
+!src/test/gradle/testinit.bat
+!src/test/gradle/.gitignore

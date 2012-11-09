@@ -21,6 +21,18 @@ buildversion {
 }
 
 //
+// Clean up the gradle test area
+//
+clean {
+	doLast {
+		project.delete("src/test/gradle/build")
+		project.delete("src/test/gradle/gitfiles")
+		project.delete("src/test/gradle/.gradle")
+		project.delete("src/test/gradle/.git")
+	}
+}
+
+//
 // Manifest specific properties.  This would be done for the War/Ear target if 
 // those plugins were also being used.
 //
