@@ -60,7 +60,7 @@ public class BuildVersionTaskTest
 		try
 		{
 
-			Project project = ProjectBuilder.builder().withProjectDir(repoUtil.getOriginfile())
+			Project project = ProjectBuilder.builder().withProjectDir(repoUtil.getOriginFile())
 				.build();
 
 			BuildVersionTask versionTask = (BuildVersionTask) getTask(project, "buildversion");
@@ -77,12 +77,12 @@ public class BuildVersionTaskTest
 			//
 			// Reset project to try with changes resident and onlyifclean true.
 			//
-			project = ProjectBuilder.builder().withProjectDir(repoUtil.getOriginfile()).build();
+			project = ProjectBuilder.builder().withProjectDir(repoUtil.getOriginFile()).build();
 
 			versionTask = (BuildVersionTask) getTask(project, "buildversion");
 			versionTask.doTask();
 
-			new File(repoUtil.getOriginfile().getAbsolutePath() + "/foo.txt").createNewFile();
+			new File(repoUtil.getOriginFile().getAbsolutePath() + "/foo.txt").createNewFile();
 			task = (BuildVersionTagTask) getTask(project, "buildversiontag");
 			task.setOnlyifclean(true);
 			task.setComment("Testing only if clean");
@@ -116,7 +116,7 @@ public class BuildVersionTaskTest
 		{
 
 			final Project project = ProjectBuilder.builder()
-				.withProjectDir(repoUtil.getOriginfile()).build();
+				.withProjectDir(repoUtil.getOriginFile()).build();
 			final BuildVersionTask task = (BuildVersionTask) getTask(project, "buildversion");
 
 			Assert.assertNotNull(task);
@@ -140,7 +140,7 @@ public class BuildVersionTaskTest
 		throws VCSException
 	{
 		final BuildVersion version = ((BuildVersion) project.getVersion());
-		final VCSGitImpl git = (VCSGitImpl) VCSGitImpl.getInstance(repoUtil.getOriginfile(),
+		final VCSGitImpl git = (VCSGitImpl) VCSGitImpl.getInstance(repoUtil.getOriginFile(),
 			project.getLogger());
 		final List<VCSTag> tagList = git.getTags(version.getValidatePattern());
 		boolean found = false;

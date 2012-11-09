@@ -76,9 +76,18 @@ public class BuildInfoTask
 	//
 	private Map<String, Object> custominfo = new HashMap<String, Object>();
 
+	//
+	// This is the original buildDir to determine if it has changed during
+	// task graph build. The filedirWasSet variable is used to determine if the
+	//
+	// TODO: Need to test. If filedirWasSet is reliable, then just always update from buildDir
+	private String originalBuildDir;
+	private boolean filedirWasSet = false;
+
 	public BuildInfoTask()
 	{
 		final Project project = getProject();
+		final Task thisTask = this;
 
 		//
 		// Init the file directory
@@ -86,7 +95,8 @@ public class BuildInfoTask
 		final Map<String, ?> props = project.getProperties();
 		try
 		{
-			setFiledir(((File) props.get("buildDir")).getCanonicalPath());
+			originalBuildDir = ((File) props.get("buildDir")).getCanonicalPath();
+			setFiledir(originalBuildDir);
 		}
 		catch (final IOException e)
 		{
@@ -107,6 +117,29 @@ public class BuildInfoTask
 				@Override
 				public void graphPopulated(final TaskExecutionGraph graph)
 				{
+
+					final Map<String, ?> afterGraphProps = project.getProperties();
+					try
+					{
+						//
+						// If the buildDir was reset at config and it is the same as was initially
+						// created, then reset to the new buildDir.
+						//
+						final String newBuildDir = ((File) afterGraphProps.get("buildDir"))
+							.getCanonicalPath();
+						if (!filedirWasSet && getFiledir().equals(originalBuildDir))
+						{
+							setFiledir(newBuildDir);
+						}
+					}
+					catch (final IOException e)
+					{
+
+						project.getLogger().error(e.getMessage());
+
+						throw new TaskExecutionException(thisTask, e);
+					}
+
 					//
 					// Run our task and insert into tasks if autowrite
 					//
@@ -356,6 +389,7 @@ public class BuildInfoTask
 
 	public void setFiledir(final String filedir)
 	{
+		filedirWasSet = true;
 		this.filedir = filedir;
 	}
 

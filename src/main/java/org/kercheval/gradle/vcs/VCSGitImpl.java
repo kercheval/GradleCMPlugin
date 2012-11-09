@@ -24,6 +24,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.transport.RefSpec;
 import org.gradle.api.logging.Logger;
 import org.kercheval.gradle.util.SortedProperties;
 
@@ -66,8 +67,9 @@ public class VCSGitImpl
 		final boolean ignoreOrigin)
 		throws VCSException
 	{
-		// TODO: Need pull on branch from origin
-		// TODO: Need push on branch from origin
+		final String refLocalBranch = "refs/heads/" + branchName;
+		final String refRemote = "refs/remotes/" + remoteOrigin + "/master";
+		final String refRemoteBranch = "refs/remotes/" + remoteOrigin + "/" + branchName;
 
 		Repository repository = null;
 
@@ -78,31 +80,62 @@ public class VCSGitImpl
 
 			final Git git = new Git(repository);
 
-			git.branchCreate().setName(branchName).setForce(false).call();
+			final Map<String, Ref> refMap = repository.getAllRefs();
+			final boolean localBranchExists = refMap.containsKey(refLocalBranch);
+			final boolean remoteExists = refMap.containsKey(refRemote);
+			if (ignoreOrigin || !remoteExists)
+			{
+				if (!localBranchExists)
+				{
+					//
+					// Go ahead and create the local branch
+					//
+					git.branchCreate().setName(branchName).setForce(false).call();
+				}
+			}
+			else
+			{
+				final boolean remoteBranchExists = refMap.containsKey(refRemoteBranch);
+				boolean doPush = false;
+				if (!remoteBranchExists)
+				{
+					//
+					// If the remote does not exist, we will need to push to remote after
+					// creation or local branch validation
+					//
+					doPush = true;
+				}
 
-			// 0) First check to see if refs/heads/<branchname> exists
-			// If not, the do 1) otherwise do 2)
-			// 1) First check to see if refs/remotes/origin/<branchname> exists
-			//
-			// Use code like
-			//
-			// may be able to use getRef instead (which returns null if not present)
-			//
-			// final Map<String, Ref> refMap = repository.getAllRefs();
-			// if (refMap.containsKey("refs/remotes/origin/" + branchName))
-			// {
-			// // Do
-			// // git branch branchname origin/branchname
-			// }
-			// else
-			// {
-			// // Do
-			// // git branch branchname
-			// // git push origin branchname
-			// }
-			// 2) Actually, should check for current local and current remote and
-			// deal with repair logic. If remote and not local, then get.
-			// If local and not remote then push. If neither then create and push.
+				if (!localBranchExists)
+				{
+					if (remoteBranchExists)
+					{
+						//
+						// Remote branch does exist and local does not. Create a tracking
+						// branch from remote.
+						//
+						git.branchCreate().setName(branchName).setStartPoint(refRemoteBranch)
+							.setForce(false).call();
+					}
+					else
+					{
+						//
+						// Neither branch exists, create the local branch
+						//
+						git.branchCreate().setName(branchName).setForce(false).call();
+						doPush = true;
+					}
+				}
+
+				if (doPush)
+				{
+					//
+					// Need to push the local branch back to remote
+					//
+					git.push().setRemote(remoteOrigin).setRefSpecs(new RefSpec(refLocalBranch))
+						.call();
+				}
+			}
 		}
 		catch (final IOException e)
 		{
@@ -123,6 +156,53 @@ public class VCSGitImpl
 		catch (final GitAPIException e)
 		{
 			throw new VCSException("Unable to create branch: " + branchName, e);
+		}
+		finally
+		{
+			if (null != repository)
+			{
+				repository.close();
+			}
+		}
+	}
+
+	@Override
+	public void createTag(final VCSTag tag)
+		throws VCSException
+	{
+		Repository repository = null;
+
+		try
+		{
+			repository = new RepositoryBuilder().readEnvironment().findGitDir(getSrcRootDir())
+				.build();
+
+			final Git git = new Git(repository);
+
+			try
+			{
+				git.tag().setName(tag.getName()).setMessage(tag.getComment()).call();
+			}
+			catch (final ConcurrentRefUpdateException e)
+			{
+				throw new VCSException("Unable to create tag: " + tag.getName(), e);
+			}
+			catch (final InvalidTagNameException e)
+			{
+				throw new VCSException("Unable to create tag: " + tag.getName(), e);
+			}
+			catch (final NoHeadException e)
+			{
+				throw new VCSException("Unable to create tag: " + tag.getName(), e);
+			}
+			catch (final GitAPIException e)
+			{
+				throw new VCSException("Unable to create tag: " + tag.getName(), e);
+			}
+		}
+		catch (final IOException e)
+		{
+			throw new VCSException("Unable to find repository at: " + getSrcRootDir(), e);
 		}
 		finally
 		{
@@ -360,52 +440,5 @@ public class VCSGitImpl
 	public Type getType()
 	{
 		return IVCSAccess.Type.GIT;
-	}
-
-	@Override
-	public void createTag(final VCSTag tag)
-		throws VCSException
-	{
-		Repository repository = null;
-
-		try
-		{
-			repository = new RepositoryBuilder().readEnvironment().findGitDir(getSrcRootDir())
-				.build();
-
-			final Git git = new Git(repository);
-
-			try
-			{
-				git.tag().setName(tag.getName()).setMessage(tag.getComment()).call();
-			}
-			catch (final ConcurrentRefUpdateException e)
-			{
-				throw new VCSException("Unable to create tag: " + tag.getName(), e);
-			}
-			catch (final InvalidTagNameException e)
-			{
-				throw new VCSException("Unable to create tag: " + tag.getName(), e);
-			}
-			catch (final NoHeadException e)
-			{
-				throw new VCSException("Unable to create tag: " + tag.getName(), e);
-			}
-			catch (final GitAPIException e)
-			{
-				throw new VCSException("Unable to create tag: " + tag.getName(), e);
-			}
-		}
-		catch (final IOException e)
-		{
-			throw new VCSException("Unable to find repository at: " + getSrcRootDir(), e);
-		}
-		finally
-		{
-			if (null != repository)
-			{
-				repository.close();
-			}
-		}
 	}
 }

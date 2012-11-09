@@ -2,6 +2,7 @@ package org.kercheval.gradle.vcs;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
@@ -14,14 +15,15 @@ import org.eclipse.jgit.lib.RepositoryBuilder;
 
 public class JGitTestRepository
 {
-
 	public static final String JUNIT_REPOSITORY_LOCATION = "./build/junit_temp/vcs";
 
-	private static final String ORIGIN_LOCATION = JUNIT_REPOSITORY_LOCATION + "/origin";
-	private static final String STANDARD_LOCATION = JUNIT_REPOSITORY_LOCATION + "/mainline";
+	private static AtomicInteger currentIndex = new AtomicInteger((int) (Math.random() * 100000));
+	private final int testIndex = currentIndex.incrementAndGet();
+	private final String ORIGIN_LOCATION = JUNIT_REPOSITORY_LOCATION + "/origin" + testIndex;
+	private final String STANDARD_LOCATION = JUNIT_REPOSITORY_LOCATION + "/mainline" + testIndex;
 
-	private static final File originFile = new File(ORIGIN_LOCATION);
-	private static final File standardFile = new File(STANDARD_LOCATION);
+	private final File originFile = new File(ORIGIN_LOCATION);
+	private final File standardFile = new File(STANDARD_LOCATION);
 
 	private Repository originRepo = null;
 	private Repository standardRepo = null;
@@ -36,6 +38,14 @@ public class JGitTestRepository
 	public void close()
 	{
 		closeRepositories();
+
+		//
+		// Note that close is not perfect, so some artifacts may remain after this
+		// recursive delete. This should normally not be a problem in a clean system
+		// since we increment the depot name index and wipe on entry and exit.
+		//
+		// Comment out this line if you want to validate the test repositories.
+		//
 		deleteTemporaryDirectories();
 	}
 
@@ -56,7 +66,7 @@ public class JGitTestRepository
 
 		try
 		{
-			FileUtils.deleteDirectory(new File(ORIGIN_LOCATION));
+			FileUtils.deleteDirectory(getOriginFile());
 		}
 		catch (final Exception e)
 		{
@@ -64,7 +74,7 @@ public class JGitTestRepository
 		}
 		try
 		{
-			FileUtils.deleteDirectory(new File(STANDARD_LOCATION));
+			FileUtils.deleteDirectory(getStandardFile());
 		}
 		catch (final Exception e)
 		{
@@ -72,7 +82,7 @@ public class JGitTestRepository
 		}
 	}
 
-	public File getOriginfile()
+	public File getOriginFile()
 	{
 		return originFile;
 	}
@@ -82,7 +92,7 @@ public class JGitTestRepository
 		return originRepo;
 	}
 
-	public File getStandardfile()
+	public File getStandardFile()
 	{
 		return standardFile;
 	}
@@ -100,16 +110,14 @@ public class JGitTestRepository
 		//
 		// Create the origin
 		//
-		final Repository originRepository = new RepositoryBuilder().setWorkTree(getOriginfile())
-			.build();
-		originRepository.create();
-		originRepo = originRepository;
+		originRepo = new RepositoryBuilder().setWorkTree(getOriginFile()).build();
+		originRepo.create();
 
 		//
 		// Create an empty file and commit it
 		//
-		final Git originGit = new Git(originRepository);
-		final File newFile = new File(getOriginfile().getAbsolutePath() + "/EmptyFile.txt");
+		final Git originGit = new Git(originRepo);
+		final File newFile = new File(getOriginFile().getAbsolutePath() + "/EmptyFile.txt");
 		newFile.createNewFile();
 		System.out.println(newFile);
 		originGit.add().addFilepattern(".").call();
@@ -123,19 +131,24 @@ public class JGitTestRepository
 		originGit.tag().setName("3.0-2012110101-123456").setMessage("Test version tag").call();
 
 		//
-		// Create a file for history in the origin
+		// Need branches on the origin
 		//
+		originGit.branchCreate().setName("OriginBranch1").setForce(false).call();
+		originGit.branchCreate().setName("OriginBranch2").setForce(false).call();
+		originGit.branchCreate().setName("OriginBranch3").setForce(false).call();
+		originGit.branchCreate().setName("OriginBranch4").setForce(false).call();
 
 		//
 		// Clone the origin
 		//
-		standardRepo = Git.cloneRepository().setURI(getOriginfile().getCanonicalPath())
-			.setDirectory(getStandardfile()).call().getRepository();
-// final Repository repository = new RepositoryBuilder().readEnvironment()
-// .findGitDir(getSrcRootDir()).build();
-//
-// final Git git = new Git(repository);
-// git.branchCreate().setName(branchName).setForce(false).call();
+		standardRepo = Git.cloneRepository().setURI(getOriginFile().getCanonicalPath())
+			.setDirectory(getStandardFile()).setRemote("myOrigin").call().getRepository();
+		final Git standardGit = new Git(standardRepo);
+		standardGit.branchCreate().setName("OriginBranch1")
+			.setStartPoint("refs/remotes/myOrigin/OriginBranch1").setForce(false).call();
+		standardGit.branchCreate().setName("OriginBranch2")
+			.setStartPoint("refs/remotes/myOrigin/OriginBranch2").setForce(false).call();
+		standardGit.branchCreate().setName("StandardBranch1").setForce(false).call();
+		standardGit.branchCreate().setName("StandardBranch2").setForce(false).call();
 	}
-
 }
