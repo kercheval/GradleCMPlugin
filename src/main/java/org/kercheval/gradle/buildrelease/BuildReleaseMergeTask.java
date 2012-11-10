@@ -13,10 +13,10 @@ import org.kercheval.gradle.vcs.VCSAccessFactory;
 import org.kercheval.gradle.vcs.VCSException;
 import org.kercheval.gradle.vcs.VCSStatus;
 
-public class BuildReleasePushTask
+public class BuildReleaseMergeTask
 	extends DefaultTask
 {
-	public BuildReleasePushTask()
+	public BuildReleaseMergeTask()
 	{
 		dependsOn(":" + BuildReleasePlugin.INIT_TASK_NAME);
 	}
@@ -32,6 +32,24 @@ public class BuildReleasePushTask
 		try
 		{
 			//
+			// Get the current release init task to obtain the branch and origin
+			// variables
+			//
+			final BuildReleaseInitTask initTask = (BuildReleaseInitTask) new GradleUtil(
+				getProject()).getTask(BuildReleasePlugin.INIT_TASK_NAME);
+
+			//
+			// Verify we are on the right branch to perform this task.
+			//
+			final String branchName = vcs.getBranchName();
+			if (!branchName.equals(initTask.getReleasebranch()))
+			{
+				throw new TaskExecutionException(this, new IllegalStateException(
+					"The current workspace is using the incorrect source branch.  Please checkout the '"
+						+ initTask.getReleasebranch() + "' branch to continue."));
+			}
+
+			//
 			// Verify the current workspace is clean
 			//
 			final VCSStatus status = vcs.getStatus();
@@ -44,22 +62,26 @@ public class BuildReleasePushTask
 			}
 
 			//
-			// Get the current release init task to obtain the branch and origin
-			// variables
-			//
-			final BuildReleaseInitTask initTask = (BuildReleaseInitTask) new GradleUtil(
-				getProject()).getTask(BuildReleasePlugin.INIT_TASK_NAME);
-
-			//
 			// Validate the release branch is current. This is done by a
 			// pull against the branch origin.
 			//
-			vcs.fetchBranch(initTask.getReleasebranch(), initTask.getRemoteorigin());
+			if (!initTask.isIgnoreorigin())
+			{
+				vcs.fetchBranch(initTask.getReleasebranch(), initTask.getRemoteorigin());
+			}
 
 			//
 			// Merge the current branch to the release branch
 			//
+			vcs.mergeBranch(initTask.getMainlinebranch());
 
+			//
+			// Push the new merge changes back to origin
+			//
+			if (!initTask.isIgnoreorigin())
+			{
+				vcs.pushBranch(initTask.getReleasebranch(), initTask.getRemoteorigin());
+			}
 		}
 		catch (final VCSException e)
 		{

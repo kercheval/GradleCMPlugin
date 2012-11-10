@@ -28,6 +28,7 @@ buildinfo {
 }
 
 buildreleaseinit {
+	mainlinebranch = "mainline"
 	releasebranch = "releasetestbranch"
 }
 

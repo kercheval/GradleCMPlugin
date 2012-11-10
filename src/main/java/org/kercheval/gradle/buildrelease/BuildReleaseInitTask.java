@@ -15,6 +15,7 @@ public class BuildReleaseInitTask
 	extends DefaultTask
 {
 	public static final String DEFAULT_RELEASE_BRANCH = "release";
+	public static final String DEFAULT_MAINLINE_BRANCH = "master";
 	public static final String DEFAULT_REMOTE_ORIGIN = "origin";
 	public static final boolean DEFAULT_IGNORE_ORIGIN = false;
 
@@ -24,6 +25,13 @@ public class BuildReleaseInitTask
 	// target line for the project.
 	//
 	private String releasebranch = DEFAULT_RELEASE_BRANCH;
+
+	//
+	// The mainlinebranch variable defines the development branch
+	// which is the principal source of code promotion into the release
+	// branch. This is the source of merges.
+	//
+	private String mainlinebranch = DEFAULT_MAINLINE_BRANCH;
 
 	//
 	// the remoteorigin variable defaults to origin. This is a
@@ -55,12 +63,18 @@ public class BuildReleaseInitTask
 
 		try
 		{
+			vcs.createBranch(getMainlinebranch(), getRemoteorigin(), isIgnoreorigin());
 			vcs.createBranch(getReleasebranch(), getRemoteorigin(), isIgnoreorigin());
 		}
 		catch (final VCSException e)
 		{
 			throw new TaskExecutionException(this, e);
 		}
+	}
+
+	public String getMainlinebranch()
+	{
+		return mainlinebranch;
 	}
 
 	public String getReleasebranch()
@@ -81,6 +95,11 @@ public class BuildReleaseInitTask
 	public void setIgnoreorigin(final boolean ignoreorigin)
 	{
 		this.ignoreorigin = ignoreorigin;
+	}
+
+	public void setMainlinebranch(final String mainlinebranch)
+	{
+		this.mainlinebranch = mainlinebranch;
 	}
 
 	public void setReleasebranch(final String releasebranch)

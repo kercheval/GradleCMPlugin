@@ -85,6 +85,13 @@ public interface IVCSAccess
 	// update must be the equivalent of a git fast-forward merge.
 	// Failure will throw a VCSException.
 	//
-	public void mergeBranch(String fromBranch, String toBranch)
+	public void mergeBranch(final String fromBranch)
+		throws VCSException;
+
+	//
+	// Push the a branch back into the origin. Push failures will result in
+	// an exception being thrown.
+	//
+	public void pushBranch(final String fromBranch, final String remoteOrigin)
 		throws VCSException;
 }

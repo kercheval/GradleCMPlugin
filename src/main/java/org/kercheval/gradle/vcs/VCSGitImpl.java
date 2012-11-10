@@ -7,16 +7,22 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.MergeResult;
+import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.api.Status;
+import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidMergeHeadsException;
 import org.eclipse.jgit.api.errors.InvalidRefNameException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.InvalidTagNameException;
 import org.eclipse.jgit.api.errors.NoHeadException;
+import org.eclipse.jgit.api.errors.NoMessageException;
 import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
 import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.ObjectId;
@@ -220,6 +226,7 @@ public class VCSGitImpl
 		throws VCSException
 	{
 		final String refLocalBranch = "refs/heads/" + branchName;
+		final String refRemoteOrigin = "refs/remotes/" + remoteOrigin;
 
 		Repository repository = null;
 
@@ -227,8 +234,17 @@ public class VCSGitImpl
 		{
 			repository = new RepositoryBuilder().readEnvironment().findGitDir(getSrcRootDir())
 				.build();
-			final Git git = new Git(repository);
-			git.fetch().setRemote(remoteOrigin).setRefSpecs(new RefSpec(refLocalBranch)).call();
+
+			final Map<String, Ref> refMap = repository.getAllRefs();
+			final boolean localBranchExists = refMap.containsKey(refLocalBranch);
+			final boolean remoteExists = refMap.containsKey(refRemoteOrigin);
+
+			if (localBranchExists && remoteExists)
+			{
+
+				final Git git = new Git(repository);
+				git.fetch().setRemote(remoteOrigin).setRefSpecs(new RefSpec(refLocalBranch)).call();
+			}
 		}
 		catch (final IOException e)
 		{
@@ -491,10 +507,10 @@ public class VCSGitImpl
 	}
 
 	@Override
-	public void mergeBranch(final String fromBranch, final String toBranch)
+	public void mergeBranch(final String fromBranch)
 		throws VCSException
 	{
-// final String refLocalBranch = "refs/heads/" + fromBranch;
+		final String refLocalBranch = "refs/heads/" + fromBranch;
 
 		Repository repository = null;
 
@@ -503,12 +519,52 @@ public class VCSGitImpl
 			repository = new RepositoryBuilder().readEnvironment().findGitDir(getSrcRootDir())
 				.build();
 			final Git git = new Git(repository);
-			git.hashCode();
-// git.merge().include(repository.getRef(refLocalBranch)).setStrategy(MergeStrategy.))
+			final MergeResult mergeResult = git.merge().include(repository.getRef(refLocalBranch))
+				.call();
+
+			if (!mergeResult.getMergeStatus().isSuccessful())
+			{
+				//
+				// Need to bail on merge failure.
+				//
+				git.reset().setMode(ResetType.HARD).setRef(repository.getFullBranch()).call();
+				throw new VCSException(
+					"Unable to merge branch: " + mergeResult.getMergeStatus(),
+					new IllegalStateException(
+						"The release branch must be merged or manually corrected before continuing"));
+			}
 		}
 		catch (final IOException e)
 		{
 			throw new VCSException("Unable to find repository at: " + getSrcRootDir(), e);
+		}
+		catch (final NoHeadException e)
+		{
+			throw new VCSException("Unable to merge branch: " + fromBranch, e);
+		}
+		catch (final ConcurrentRefUpdateException e)
+		{
+			throw new VCSException("Unable to merge branch: " + fromBranch, e);
+		}
+		catch (final CheckoutConflictException e)
+		{
+			throw new VCSException("Unable to merge branch: " + fromBranch, e);
+		}
+		catch (final InvalidMergeHeadsException e)
+		{
+			throw new VCSException("Unable to merge branch: " + fromBranch, e);
+		}
+		catch (final WrongRepositoryStateException e)
+		{
+			throw new VCSException("Unable to merge branch: " + fromBranch, e);
+		}
+		catch (final NoMessageException e)
+		{
+			throw new VCSException("Unable to merge branch: " + fromBranch, e);
+		}
+		catch (final GitAPIException e)
+		{
+			throw new VCSException("Unable to merge branch: " + fromBranch, e);
 		}
 		finally
 		{
@@ -517,5 +573,55 @@ public class VCSGitImpl
 				repository.close();
 			}
 		}
+	}
+
+	@Override
+	public void pushBranch(final String fromBranch, final String remoteOrigin)
+		throws VCSException
+	{
+		final String refLocalBranch = "refs/heads/" + fromBranch;
+		final String refRemoteOrigin = "refs/remotes/" + remoteOrigin;
+
+		Repository repository = null;
+
+		try
+		{
+			repository = new RepositoryBuilder().readEnvironment().findGitDir(getSrcRootDir())
+				.build();
+			final Map<String, Ref> refMap = repository.getAllRefs();
+			final boolean localBranchExists = refMap.containsKey(refLocalBranch);
+			final boolean remoteExists = refMap.containsKey(refRemoteOrigin);
+
+			if (localBranchExists && remoteExists)
+			{
+
+				final Git git = new Git(repository);
+				git.push().setRemote(remoteOrigin).setRefSpecs(new RefSpec(refLocalBranch)).call();
+			}
+		}
+		catch (final IOException e)
+		{
+			throw new VCSException("Unable to push repository at: " + getSrcRootDir(), e);
+		}
+		catch (final InvalidRemoteException e)
+		{
+			throw new VCSException("Unable to push branch: " + fromBranch, e);
+		}
+		catch (final TransportException e)
+		{
+			throw new VCSException("Unable to push branch: " + fromBranch, e);
+		}
+		catch (final GitAPIException e)
+		{
+			throw new VCSException("Unable to push branch: " + fromBranch, e);
+		}
+		finally
+		{
+			if (null != repository)
+			{
+				repository.close();
+			}
+		}
+
 	}
 }
