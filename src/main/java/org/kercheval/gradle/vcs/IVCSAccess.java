@@ -35,6 +35,18 @@ public interface IVCSAccess
 		throws VCSException;
 
 	//
+	// Write a tag into the repository
+	//
+	public void createTag(final VCSTag tag)
+		throws VCSException;
+
+	//
+	// Obtain from the branch and origin the current content for that branch.
+	//
+	public void fetchBranch(final String branchName, final String remoteOrigin)
+		throws VCSException;
+
+	//
 	// Get tags from repository.
 	//
 	public List<VCSTag> getAllTags()
@@ -73,12 +85,6 @@ public interface IVCSAccess
 	// update must be the equivalent of a git fast-forward merge.
 	// Failure will throw a VCSException.
 	//
-// public void mergeBranch(String fromBranch, String toBranch)
-// throws VCSException;
-
-	//
-	// Write a tag into the repository
-	//
-	public void createTag(final VCSTag tag)
+	public void mergeBranch(String fromBranch, String toBranch)
 		throws VCSException;
 }

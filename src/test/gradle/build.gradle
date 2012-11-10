@@ -27,6 +27,10 @@ buildinfo {
 	custominfo = ["foo": "bar", "baz": "quux", "special": mySpecialVar]
 }
 
+buildreleaseinit {
+	releasebranch = "releasetestbranch"
+}
+
 task helloZip(type: Zip) {
 	classifier = 'hello'
 	from "." include "build.gradle"

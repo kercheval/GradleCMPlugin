@@ -5,21 +5,18 @@ import groovy.lang.Closure;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
-import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.internal.plugins.DefaultObjectConfigurationAction;
 import org.gradle.api.tasks.TaskExecutionException;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.Assert;
 import org.junit.Test;
+import org.kercheval.gradle.util.GradleUtil;
 import org.kercheval.gradle.vcs.JGitTestRepository;
 import org.kercheval.gradle.vcs.VCSException;
 import org.kercheval.gradle.vcs.VCSGitImpl;
@@ -27,7 +24,7 @@ import org.kercheval.gradle.vcs.VCSTag;
 
 public class BuildVersionTaskTest
 {
-	private DefaultTask getTask(final Project project, final String taskname)
+	private void applyBuildVersionPlugin(final Project project)
 	{
 		project.apply(new Closure<DefaultObjectConfigurationAction>(project, project)
 		{
@@ -39,16 +36,6 @@ public class BuildVersionTaskTest
 				return pluginAction;
 			}
 		});
-
-		final Map<String, Task> tasknameMap = new HashMap<String, Task>();
-
-		for (final Task task : project.getAllTasks(false).get(project))
-		{
-			System.out.println(task.getName());
-			tasknameMap.put(task.getName(), task);
-		}
-
-		return (DefaultTask) tasknameMap.get(taskname);
 	}
 
 	@Test
@@ -59,15 +46,16 @@ public class BuildVersionTaskTest
 		final JGitTestRepository repoUtil = new JGitTestRepository();
 		try
 		{
-
 			Project project = ProjectBuilder.builder().withProjectDir(repoUtil.getOriginFile())
 				.build();
+			applyBuildVersionPlugin(project);
+			GradleUtil gradleUtil = new GradleUtil(project);
 
-			BuildVersionTask versionTask = (BuildVersionTask) getTask(project, "buildversion");
+			BuildVersionTask versionTask = (BuildVersionTask) gradleUtil.getTask("buildversion");
 			Assert.assertNotNull(versionTask);
 			versionTask.doTask();
 
-			BuildVersionTagTask task = (BuildVersionTagTask) getTask(project, "buildversiontag");
+			BuildVersionTagTask task = (BuildVersionTagTask) gradleUtil.getTask("buildversiontag");
 
 			Assert.assertNotNull(task);
 			task.setComment("We now have a comment");
@@ -78,12 +66,14 @@ public class BuildVersionTaskTest
 			// Reset project to try with changes resident and onlyifclean true.
 			//
 			project = ProjectBuilder.builder().withProjectDir(repoUtil.getOriginFile()).build();
+			applyBuildVersionPlugin(project);
+			gradleUtil = new GradleUtil(project);
 
-			versionTask = (BuildVersionTask) getTask(project, "buildversion");
+			versionTask = (BuildVersionTask) gradleUtil.getTask("buildversion");
 			versionTask.doTask();
 
 			new File(repoUtil.getOriginFile().getAbsolutePath() + "/foo.txt").createNewFile();
-			task = (BuildVersionTagTask) getTask(project, "buildversiontag");
+			task = (BuildVersionTagTask) gradleUtil.getTask("buildversiontag");
 			task.setOnlyifclean(true);
 			task.setComment("Testing only if clean");
 			try
@@ -117,7 +107,9 @@ public class BuildVersionTaskTest
 
 			final Project project = ProjectBuilder.builder()
 				.withProjectDir(repoUtil.getOriginFile()).build();
-			final BuildVersionTask task = (BuildVersionTask) getTask(project, "buildversion");
+			applyBuildVersionPlugin(project);
+			final GradleUtil gradleUtil = new GradleUtil(project);
+			final BuildVersionTask task = (BuildVersionTask) gradleUtil.getTask("buildversion");
 
 			Assert.assertNotNull(task);
 			task.doTask();

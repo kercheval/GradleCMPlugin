@@ -2,6 +2,8 @@ package org.kercheval.gradle.buildrelease;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
+import org.kercheval.gradle.util.GradleUtil;
 
 public class BuildReleasePlugin
 	implements Plugin<Project>
@@ -16,7 +18,11 @@ public class BuildReleasePlugin
 		//
 		// Create the actual tasks that will be executed
 		//
-		project.getTasks().add(INIT_TASK_NAME, BuildReleaseInitTask.class);
-		project.getTasks().add(PUSH_TASK_NAME, BuildReleasePushTask.class);
+		Task task = project.getTasks().add(INIT_TASK_NAME, BuildReleaseInitTask.class);
+		task.setDescription("Create a release branch structure supporting release code promotion and publication");
+		task.setGroup(GradleUtil.PLUGIN_GROUP_NAME);
+		task = project.getTasks().add(PUSH_TASK_NAME, BuildReleasePushTask.class);
+		task.setDescription("Update the release branch with changes made to the mainline branch");
+		task.setGroup(GradleUtil.PLUGIN_GROUP_NAME);
 	}
 }

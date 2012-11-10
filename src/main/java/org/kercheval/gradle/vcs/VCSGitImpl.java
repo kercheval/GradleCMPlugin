@@ -11,10 +11,12 @@ import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRefNameException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.InvalidTagNameException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
+import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.ObjectId;
@@ -203,6 +205,46 @@ public class VCSGitImpl
 		catch (final IOException e)
 		{
 			throw new VCSException("Unable to find repository at: " + getSrcRootDir(), e);
+		}
+		finally
+		{
+			if (null != repository)
+			{
+				repository.close();
+			}
+		}
+	}
+
+	@Override
+	public void fetchBranch(final String branchName, final String remoteOrigin)
+		throws VCSException
+	{
+		final String refLocalBranch = "refs/heads/" + branchName;
+
+		Repository repository = null;
+
+		try
+		{
+			repository = new RepositoryBuilder().readEnvironment().findGitDir(getSrcRootDir())
+				.build();
+			final Git git = new Git(repository);
+			git.fetch().setRemote(remoteOrigin).setRefSpecs(new RefSpec(refLocalBranch)).call();
+		}
+		catch (final IOException e)
+		{
+			throw new VCSException("Unable to find repository at: " + getSrcRootDir(), e);
+		}
+		catch (final InvalidRemoteException e)
+		{
+			throw new VCSException("Unable to fetch branch: " + branchName, e);
+		}
+		catch (final TransportException e)
+		{
+			throw new VCSException("Unable to fetch branch: " + branchName, e);
+		}
+		catch (final GitAPIException e)
+		{
+			throw new VCSException("Unable to fetch branch: " + branchName, e);
 		}
 		finally
 		{
@@ -446,5 +488,34 @@ public class VCSGitImpl
 	public Type getType()
 	{
 		return IVCSAccess.Type.GIT;
+	}
+
+	@Override
+	public void mergeBranch(final String fromBranch, final String toBranch)
+		throws VCSException
+	{
+// final String refLocalBranch = "refs/heads/" + fromBranch;
+
+		Repository repository = null;
+
+		try
+		{
+			repository = new RepositoryBuilder().readEnvironment().findGitDir(getSrcRootDir())
+				.build();
+			final Git git = new Git(repository);
+			git.hashCode();
+// git.merge().include(repository.getRef(refLocalBranch)).setStrategy(MergeStrategy.))
+		}
+		catch (final IOException e)
+		{
+			throw new VCSException("Unable to find repository at: " + getSrcRootDir(), e);
+		}
+		finally
+		{
+			if (null != repository)
+			{
+				repository.close();
+			}
+		}
 	}
 }
