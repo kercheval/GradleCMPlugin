@@ -18,6 +18,22 @@ public class BuildReleaseInitTask
 	public static final String DEFAULT_REMOTE_ORIGIN = "origin";
 	public static final boolean DEFAULT_IGNORE_ORIGIN = false;
 
+	private static final String DEFAULT_UPLOAD_TASK = "uploadArchives";
+	private static final boolean DEFAULT_ONLYIFCLEAN = true;
+
+	//
+	// The upload task is the normal publish task for the build artifacts. This
+	// task will be hooked at task graph completion so that tagging and project
+	// validation will occur prior to publication.
+	//
+	private String uploadtask = DEFAULT_UPLOAD_TASK;
+
+	//
+	// if onlyifclean is true, then the release will only occur
+	// if the workspace is clean (no files checked out or modified).
+	//
+	private boolean onlyifclean = DEFAULT_ONLYIFCLEAN;
+
 	//
 	// The releasebranch variable defines the target branch for
 	// release code promotion. This is the merge point and tag
@@ -86,9 +102,19 @@ public class BuildReleaseInitTask
 		return remoteorigin;
 	}
 
+	public String getUploadtask()
+	{
+		return uploadtask;
+	}
+
 	public boolean isIgnoreorigin()
 	{
 		return ignoreorigin;
+	}
+
+	public boolean isOnlyifclean()
+	{
+		return onlyifclean;
 	}
 
 	public void setIgnoreorigin(final boolean ignoreorigin)
@@ -101,6 +127,11 @@ public class BuildReleaseInitTask
 		this.mainlinebranch = mainlinebranch;
 	}
 
+	public void setOnlyifclean(final boolean onlyifclean)
+	{
+		this.onlyifclean = onlyifclean;
+	}
+
 	public void setReleasebranch(final String releasebranch)
 	{
 		this.releasebranch = releasebranch;
@@ -109,6 +140,11 @@ public class BuildReleaseInitTask
 	public void setRemoteorigin(final String remoteorigin)
 	{
 		this.remoteorigin = remoteorigin;
+	}
+
+	public void setUploadtask(final String uploadtask)
+	{
+		this.uploadtask = uploadtask;
 	}
 
 }

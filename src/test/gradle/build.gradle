@@ -28,9 +28,6 @@ buildinfo {
 buildreleaseinit {
 	mainlinebranch = "mainline"
 	releasebranch = "releasetestbranch"
-}
-
-buildreleaseupload {
 	uploadtask = "uploadArchives"
 }
 
