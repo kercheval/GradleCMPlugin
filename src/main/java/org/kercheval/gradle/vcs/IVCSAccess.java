@@ -92,6 +92,6 @@ public interface IVCSAccess
 	// Push the a branch back into the origin. Push failures will result in
 	// an exception being thrown.
 	//
-	public void pushBranch(final String fromBranch, final String remoteOrigin)
+	public void pushBranch(final String fromBranch, final String remoteOrigin, boolean pushTags)
 		throws VCSException;
 }

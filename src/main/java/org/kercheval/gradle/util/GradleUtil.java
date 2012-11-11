@@ -3,7 +3,6 @@ package org.kercheval.gradle.util;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 
@@ -36,7 +35,7 @@ public class GradleUtil
 		return props;
 	}
 
-	public DefaultTask getTask(final String taskname)
+	public Task getTask(final String taskname)
 	{
 		final Map<String, Task> tasknameMap = new HashMap<String, Task>();
 
@@ -45,6 +44,6 @@ public class GradleUtil
 			tasknameMap.put(task.getName(), task);
 		}
 
-		return (DefaultTask) tasknameMap.get(taskname);
+		return tasknameMap.get(taskname);
 	}
 }

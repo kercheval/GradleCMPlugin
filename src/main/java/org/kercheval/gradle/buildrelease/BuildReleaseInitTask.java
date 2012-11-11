@@ -7,9 +7,8 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
-import org.kercheval.gradle.vcs.IVCSAccess;
-import org.kercheval.gradle.vcs.VCSAccessFactory;
 import org.kercheval.gradle.vcs.VCSException;
+import org.kercheval.gradle.vcs.VCSTaskUtil;
 
 public class BuildReleaseInitTask
 	extends DefaultTask
@@ -58,13 +57,13 @@ public class BuildReleaseInitTask
 	{
 		final Project project = getProject();
 		final Map<String, ?> props = project.getProperties();
-		final IVCSAccess vcs = VCSAccessFactory.getCurrentVCS((File) props.get("rootDir"),
-			project.getLogger());
+		final VCSTaskUtil vcsUtil = new VCSTaskUtil((File) props.get("rootDir"), getProject()
+			.getLogger());
 
 		try
 		{
-			vcs.createBranch(getMainlinebranch(), getRemoteorigin(), isIgnoreorigin());
-			vcs.createBranch(getReleasebranch(), getRemoteorigin(), isIgnoreorigin());
+			vcsUtil.getVCS().createBranch(getMainlinebranch(), getRemoteorigin(), isIgnoreorigin());
+			vcsUtil.getVCS().createBranch(getReleasebranch(), getRemoteorigin(), isIgnoreorigin());
 		}
 		catch (final VCSException e)
 		{

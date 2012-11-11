@@ -576,7 +576,8 @@ public class VCSGitImpl
 	}
 
 	@Override
-	public void pushBranch(final String fromBranch, final String remoteOrigin)
+	public void pushBranch(final String fromBranch, final String remoteOrigin,
+		final boolean pushTags)
 		throws VCSException
 	{
 		final String refLocalBranch = "refs/heads/" + fromBranch;
@@ -596,7 +597,16 @@ public class VCSGitImpl
 			{
 
 				final Git git = new Git(repository);
-				git.push().setRemote(remoteOrigin).setRefSpecs(new RefSpec(refLocalBranch)).call();
+				if (pushTags)
+				{
+					git.push().setRemote(remoteOrigin).setRefSpecs(new RefSpec(refLocalBranch))
+						.setPushTags().call();
+				}
+				else
+				{
+					git.push().setRemote(remoteOrigin).setRefSpecs(new RefSpec(refLocalBranch))
+						.call();
+				}
 			}
 		}
 		catch (final IOException e)

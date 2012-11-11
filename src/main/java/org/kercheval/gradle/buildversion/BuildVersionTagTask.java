@@ -6,11 +6,9 @@ import java.util.Map;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
-import org.kercheval.gradle.vcs.IVCSAccess;
-import org.kercheval.gradle.vcs.VCSAccessFactory;
 import org.kercheval.gradle.vcs.VCSException;
-import org.kercheval.gradle.vcs.VCSStatus;
 import org.kercheval.gradle.vcs.VCSTag;
+import org.kercheval.gradle.vcs.VCSTaskUtil;
 
 public class BuildVersionTagTask
 	extends DefaultTask
@@ -43,33 +41,15 @@ public class BuildVersionTagTask
 		if (getProject().getVersion() instanceof BuildVersion)
 		{
 			final Map<String, ?> props = getProject().getProperties();
-			final IVCSAccess vcs = VCSAccessFactory.getCurrentVCS((File) props.get("rootDir"),
-				getProject().getLogger());
+			final VCSTaskUtil vcsUtil = new VCSTaskUtil((File) props.get("rootDir"), getProject()
+				.getLogger());
 
 			if (isOnlyifclean())
 			{
-
 				//
 				// Tags should be written only if the workspace is clean.
 				//
-				VCSStatus status;
-
-				try
-				{
-					status = vcs.getStatus();
-				}
-				catch (final VCSException e)
-				{
-					throw new TaskExecutionException(this, e);
-				}
-
-				if (!status.isClean())
-				{
-					throw new TaskExecutionException(
-						this,
-						new IllegalStateException(
-							"The current workspace is not clean.  Please ensure you have committed all outstanding work."));
-				}
+				vcsUtil.validateWorkspaceIsClean(this);
 			}
 
 			//
@@ -79,7 +59,7 @@ public class BuildVersionTagTask
 			{
 				final VCSTag tag = new VCSTag(getProject().getVersion().toString(), getComment());
 
-				vcs.createTag(tag);
+				vcsUtil.getVCS().createTag(tag);
 				getProject().getLogger().info(
 					"Tag '" + tag.getName() + "' written to VCS with comment '" + tag.getComment()
 						+ "'");

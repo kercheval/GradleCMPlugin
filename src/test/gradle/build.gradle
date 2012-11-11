@@ -32,6 +32,10 @@ buildreleaseinit {
 	releasebranch = "releasetestbranch"
 }
 
+buildreleaseupload {
+	uploadtask = "uploadArchives"
+}
+
 task helloZip(type: Zip) {
 	classifier = 'hello'
 	from "." include "build.gradle"

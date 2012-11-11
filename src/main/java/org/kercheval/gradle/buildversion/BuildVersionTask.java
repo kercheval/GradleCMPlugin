@@ -11,10 +11,9 @@ import org.gradle.api.execution.TaskExecutionGraph;
 import org.gradle.api.execution.TaskExecutionGraphListener;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
-import org.kercheval.gradle.vcs.IVCSAccess;
-import org.kercheval.gradle.vcs.VCSAccessFactory;
 import org.kercheval.gradle.vcs.VCSException;
 import org.kercheval.gradle.vcs.VCSTag;
+import org.kercheval.gradle.vcs.VCSTaskUtil;
 
 public class BuildVersionTask
 	extends DefaultTask
@@ -119,13 +118,13 @@ public class BuildVersionTask
 			//
 			// Get the filtered list of tags from VCS and iterate to find the newest one.
 			//
-			final IVCSAccess vcs = VCSAccessFactory.getCurrentVCS((File) props.get("rootDir"),
-				project.getLogger());
+			final VCSTaskUtil vcsUtil = new VCSTaskUtil((File) props.get("rootDir"), getProject()
+				.getLogger());
 			List<VCSTag> tagList;
 
 			try
 			{
-				tagList = vcs.getTags(getVersion().getValidatePattern());
+				tagList = vcsUtil.getVCS().getTags(getVersion().getValidatePattern());
 			}
 			catch (final VCSException e)
 			{

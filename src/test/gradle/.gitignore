@@ -1,5 +1,6 @@
 .gradle
 .gitignore
+gradle-app.setting
 build
 build.gradle
 testinit.bat

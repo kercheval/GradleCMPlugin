@@ -97,7 +97,8 @@ uploadArchives {
 
 			//
 			// Note that this repository will be used ONLY if the buildType
-			// in gradle.properties is set to 'SNAPSHOT'
+			// in gradle.properties is set to 'SNAPSHOT' (well really if the 
+			// version ends with 'SNAPSHOT').
 			//
 			snapshotRepository(url: "file://${rootDir}/../mvn-repo/snapshots") 
 			pom.project {

@@ -8,7 +8,7 @@ import org.kercheval.gradle.util.GradleUtil;
 public class BuildInfoPlugin
 	implements Plugin<Project>
 {
-	static final String TASK_NAME = "buildinfo";
+	public static final String TASK_NAME = "buildinfo";
 
 	@Override
 	public void apply(final Project project)

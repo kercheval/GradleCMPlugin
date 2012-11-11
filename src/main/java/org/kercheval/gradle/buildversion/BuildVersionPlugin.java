@@ -8,8 +8,8 @@ import org.kercheval.gradle.util.GradleUtil;
 public class BuildVersionPlugin
 	implements Plugin<Project>
 {
-	static final String MAIN_TASK_NAME = "buildversion";
-	static final String TAG_TASK_NAME = "buildversiontag";
+	public static final String MAIN_TASK_NAME = "buildversion";
+	public static final String TAG_TASK_NAME = "buildversiontag";
 
 	@Override
 	public void apply(final Project project)
