@@ -1,18 +1,17 @@
 package org.kercheval.gradle.buildinfo;
 
-import groovy.lang.Closure;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.internal.plugins.DefaultObjectConfigurationAction;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.Assert;
 import org.junit.Test;
+import org.kercheval.gradle.gradlecm.GradleCMPlugin;
 
 public class BuildInfoPluginTest
 {
@@ -22,14 +21,10 @@ public class BuildInfoPluginTest
 
 	private BuildInfoTask getTask(final Project project)
 	{
-		project.apply(new Closure<DefaultObjectConfigurationAction>(project, project)
+		project.apply(new LinkedHashMap<String, String>()
 		{
-			@SuppressWarnings("unused")
-			public Object doCall(final DefaultObjectConfigurationAction pluginAction)
 			{
-				pluginAction.plugin("buildinfo");
-
-				return pluginAction;
+				put("plugin", GradleCMPlugin.BUILD_INFO_PLUGIN);
 			}
 		});
 
@@ -40,7 +35,7 @@ public class BuildInfoPluginTest
 			tasknameMap.put(task.getName(), task);
 		}
 
-		final BuildInfoTask task = (BuildInfoTask) tasknameMap.get("buildinfo");
+		final BuildInfoTask task = (BuildInfoTask) tasknameMap.get(BuildInfoPlugin.INFO_TASK_NAME);
 
 		return task;
 	}

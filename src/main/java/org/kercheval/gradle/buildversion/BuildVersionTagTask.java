@@ -32,7 +32,7 @@ public class BuildVersionTagTask
 
 	public BuildVersionTagTask()
 	{
-		dependsOn(":" + BuildVersionPlugin.MAIN_TASK_NAME);
+		dependsOn(":" + BuildVersionPlugin.VERSION_TASK_NAME);
 	}
 
 	@TaskAction

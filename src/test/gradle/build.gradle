@@ -4,10 +4,8 @@
 // This build file should not be used as an example of how to use 
 // the plugin, it is only used for testing purposes.
 //
-apply plugin: 'buildinfo'
-apply plugin: 'buildversion'
-apply plugin: 'buildrelease'
 apply plugin: 'war'
+apply plugin: 'gradlecm'
 
 description = 'Gradle CM Plugin test build file'
 

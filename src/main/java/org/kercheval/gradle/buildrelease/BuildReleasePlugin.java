@@ -1,8 +1,11 @@
 package org.kercheval.gradle.buildrelease;
 
+import java.util.LinkedHashMap;
+
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.kercheval.gradle.gradlecm.GradleCMPlugin;
 import org.kercheval.gradle.util.GradleUtil;
 
 public class BuildReleasePlugin
@@ -15,6 +18,15 @@ public class BuildReleasePlugin
 	@Override
 	public void apply(final Project project)
 	{
+		//
+		// This plugin uses buildversion tasks
+		//
+		project.apply(new LinkedHashMap<String, String>()
+		{
+			{
+				put("plugin", GradleCMPlugin.BUILD_VERSION_PLUGIN);
+			}
+		});
 
 		//
 		// Create the actual tasks that will be executed

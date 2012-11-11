@@ -1,21 +1,20 @@
 package org.kercheval.gradle.buildversion;
 
-import groovy.lang.Closure;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.gradle.api.Project;
-import org.gradle.api.internal.plugins.DefaultObjectConfigurationAction;
 import org.gradle.api.tasks.TaskExecutionException;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.Assert;
 import org.junit.Test;
+import org.kercheval.gradle.gradlecm.GradleCMPlugin;
 import org.kercheval.gradle.util.GradleUtil;
 import org.kercheval.gradle.vcs.JGitTestRepository;
 import org.kercheval.gradle.vcs.VCSException;
@@ -26,14 +25,10 @@ public class BuildVersionTaskTest
 {
 	private void applyBuildVersionPlugin(final Project project)
 	{
-		project.apply(new Closure<DefaultObjectConfigurationAction>(project, project)
+		project.apply(new LinkedHashMap<String, String>()
 		{
-			@SuppressWarnings("unused")
-			public Object doCall(final DefaultObjectConfigurationAction pluginAction)
 			{
-				pluginAction.plugin("buildversion");
-
-				return pluginAction;
+				put("plugin", GradleCMPlugin.BUILD_VERSION_PLUGIN);
 			}
 		});
 	}
@@ -51,11 +46,13 @@ public class BuildVersionTaskTest
 			applyBuildVersionPlugin(project);
 			GradleUtil gradleUtil = new GradleUtil(project);
 
-			BuildVersionTask versionTask = (BuildVersionTask) gradleUtil.getTask("buildversion");
+			BuildVersionTask versionTask = (BuildVersionTask) gradleUtil
+				.getTask(BuildVersionPlugin.VERSION_TASK_NAME);
 			Assert.assertNotNull(versionTask);
 			versionTask.doTask();
 
-			BuildVersionTagTask task = (BuildVersionTagTask) gradleUtil.getTask("buildversiontag");
+			BuildVersionTagTask task = (BuildVersionTagTask) gradleUtil
+				.getTask(BuildVersionPlugin.TAG_TASK_NAME);
 
 			Assert.assertNotNull(task);
 			task.setComment("We now have a comment");
@@ -69,11 +66,11 @@ public class BuildVersionTaskTest
 			applyBuildVersionPlugin(project);
 			gradleUtil = new GradleUtil(project);
 
-			versionTask = (BuildVersionTask) gradleUtil.getTask("buildversion");
+			versionTask = (BuildVersionTask) gradleUtil.getTask(BuildVersionPlugin.VERSION_TASK_NAME);
 			versionTask.doTask();
 
 			new File(repoUtil.getOriginFile().getAbsolutePath() + "/foo.txt").createNewFile();
-			task = (BuildVersionTagTask) gradleUtil.getTask("buildversiontag");
+			task = (BuildVersionTagTask) gradleUtil.getTask(BuildVersionPlugin.TAG_TASK_NAME);
 			task.setOnlyifclean(true);
 			task.setComment("Testing only if clean");
 			try
@@ -109,7 +106,8 @@ public class BuildVersionTaskTest
 				.withProjectDir(repoUtil.getOriginFile()).build();
 			applyBuildVersionPlugin(project);
 			final GradleUtil gradleUtil = new GradleUtil(project);
-			final BuildVersionTask task = (BuildVersionTask) gradleUtil.getTask("buildversion");
+			final BuildVersionTask task = (BuildVersionTask) gradleUtil
+				.getTask(BuildVersionPlugin.VERSION_TASK_NAME);
 
 			Assert.assertNotNull(task);
 			task.doTask();
