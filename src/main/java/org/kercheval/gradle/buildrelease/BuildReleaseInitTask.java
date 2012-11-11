@@ -22,19 +22,6 @@ public class BuildReleaseInitTask
 	private static final boolean DEFAULT_ONLYIFCLEAN = true;
 
 	//
-	// The upload task is the normal publish task for the build artifacts. This
-	// task will be hooked at task graph completion so that tagging and project
-	// validation will occur prior to publication.
-	//
-	private String uploadtask = DEFAULT_UPLOAD_TASK;
-
-	//
-	// if onlyifclean is true, then the release will only occur
-	// if the workspace is clean (no files checked out or modified).
-	//
-	private boolean onlyifclean = DEFAULT_ONLYIFCLEAN;
-
-	//
 	// The releasebranch variable defines the target branch for
 	// release code promotion. This is the merge point and tag
 	// target line for the project.
@@ -68,6 +55,19 @@ public class BuildReleaseInitTask
 	//
 	private boolean ignoreorigin = DEFAULT_IGNORE_ORIGIN;
 
+	//
+	// The upload task is the normal publish task for the build artifacts. This
+	// task will be hooked at task graph completion so that tagging and project
+	// validation will occur prior to publication.
+	//
+	private String uploadtask = DEFAULT_UPLOAD_TASK;
+
+	//
+	// if onlyifclean is true, then the release will only occur
+	// if the workspace is clean (no files checked out or modified).
+	//
+	private boolean onlyifclean = DEFAULT_ONLYIFCLEAN;
+
 	@TaskAction
 	public void doTask()
 	{
@@ -78,6 +78,14 @@ public class BuildReleaseInitTask
 
 		try
 		{
+			//
+			// Verify the current workspace is clean
+			//
+			if (isOnlyifclean())
+			{
+				vcsUtil.validateWorkspaceIsClean(this);
+			}
+
 			vcsUtil.getVCS().createBranch(getMainlinebranch(), getRemoteorigin(), isIgnoreorigin());
 			vcsUtil.getVCS().createBranch(getReleasebranch(), getRemoteorigin(), isIgnoreorigin());
 		}
