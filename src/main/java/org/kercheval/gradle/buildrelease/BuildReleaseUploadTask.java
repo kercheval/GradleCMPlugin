@@ -83,8 +83,10 @@ public class BuildReleaseUploadTask
 	@TaskAction
 	public void doTask()
 	{
-		// TODO Shift the test for on branch to here (for task execution stop) Only do
-		// tagging if on the right branch. Always do VCS clean check.
+		//
+		// This task has no direct action, it is all done through the doFirst()
+		// closure on the upload task.
+		//
 	}
 
 	public String getUploadtask()
@@ -129,15 +131,7 @@ public class BuildReleaseUploadTask
 				// Verify we are on the right branch to perform this task.
 				//
 				vcsUtil.validateWorkspaceBranchName(thisTask, initTask.getReleasebranch());
-
-				//
-				// Verify the current workspace is clean
-				//
-				if (isOnlyifclean())
-				{
-					vcsUtil.validateWorkspaceIsClean(thisTask);
-				}
-
+				isOnBranch = true;
 			}
 			else
 			{
@@ -146,6 +140,14 @@ public class BuildReleaseUploadTask
 
 			if (isOnBranch)
 			{
+				//
+				// Verify the current workspace is clean
+				//
+				if (isOnlyifclean())
+				{
+					vcsUtil.validateWorkspaceIsClean(thisTask);
+				}
+
 				//
 				// Get the tag task to tag the repository
 				//
