@@ -42,26 +42,12 @@ import org.kercheval.gradle.util.SortedProperties;
 public class VCSGitImpl
 	implements IVCSAccess
 {
-	static Object singletonLock = new Object();
-	static VCSGitImpl singleton = null;
-
 	public static IVCSAccess getInstance(final File srcRootDir, final Logger logger)
 	{
-		synchronized (singletonLock)
-		{
-			VCSGitImpl rVal = singleton;
-
-			if (null == rVal)
-			{
-				rVal = new VCSGitImpl(srcRootDir, logger);
-			}
-
-			return rVal;
-		}
+		return new VCSGitImpl(srcRootDir, logger);
 	}
 
 	private final File srcRootDir;
-
 	private final Logger logger;
 
 	private VCSGitImpl(final File srcRootDir, final Logger logger)
@@ -632,6 +618,5 @@ public class VCSGitImpl
 				repository.close();
 			}
 		}
-
 	}
 }
