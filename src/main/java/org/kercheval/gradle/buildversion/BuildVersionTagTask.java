@@ -94,7 +94,7 @@ public class BuildVersionTagTask
 			throw new TaskExecutionException(
 				this,
 				new IllegalStateException(
-					"Project version is not of type BuildVersion: ensure buildversion task has been run or set project version to an object of type BuildVersion."));
+					"Project version is not of type BuildVersion: ensure buildversion type task has been run or set project version to an object of type BuildVersion."));
 		}
 	}
 
