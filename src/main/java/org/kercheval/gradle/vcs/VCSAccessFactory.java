@@ -1,8 +1,8 @@
 package org.kercheval.gradle.vcs;
 
-import org.gradle.api.logging.Logger;
-
 import java.io.File;
+
+import org.gradle.api.logging.Logger;
 
 //
 // This is a simple factory class that supports the return of a vcs access
@@ -13,8 +13,15 @@ import java.io.File;
 //
 public class VCSAccessFactory
 {
-	public static IVCSAccess getCurrentVCS(final File srcRootDir, final Logger logger)
+	public static IVCSAccess getCurrentVCS(final String type, final File srcRootDir,
+		final Logger logger)
 	{
-		return VCSGitImpl.getInstance(srcRootDir, logger);
+		final IVCSAccess rVal = new VCSNoneImpl(srcRootDir, logger);
+		final String desiredType = type.toLowerCase();
+		if (desiredType.equals(IVCSAccess.Type.GIT.toString().toLowerCase()))
+		{
+			return new VCSGitImpl(srcRootDir, logger);
+		}
+		return rVal;
 	}
 }

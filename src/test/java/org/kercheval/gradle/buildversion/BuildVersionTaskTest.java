@@ -66,7 +66,8 @@ public class BuildVersionTaskTest
 			applyBuildVersionPlugin(project);
 			gradleUtil = new GradleUtil(project);
 
-			versionTask = (BuildVersionTask) gradleUtil.getTask(BuildVersionPlugin.VERSION_TASK_NAME);
+			versionTask = (BuildVersionTask) gradleUtil
+				.getTask(BuildVersionPlugin.VERSION_TASK_NAME);
 			versionTask.doTask();
 
 			new File(repoUtil.getOriginFile().getAbsolutePath() + "/foo.txt").createNewFile();
@@ -130,8 +131,7 @@ public class BuildVersionTaskTest
 		throws VCSException
 	{
 		final BuildVersion version = ((BuildVersion) project.getVersion());
-		final VCSGitImpl git = (VCSGitImpl) VCSGitImpl.getInstance(repoUtil.getOriginFile(),
-			project.getLogger());
+		final VCSGitImpl git = new VCSGitImpl(repoUtil.getOriginFile(), project.getLogger());
 		final List<VCSTag> tagList = git.getTags(version.getValidatePattern());
 		boolean found = false;
 		for (final VCSTag tag : tagList)

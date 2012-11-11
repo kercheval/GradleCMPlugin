@@ -4,8 +4,12 @@ import java.io.File;
 import java.util.Map;
 
 import org.gradle.api.DefaultTask;
+import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
+import org.kercheval.gradle.buildvcs.BuildVCSPlugin;
+import org.kercheval.gradle.buildvcs.BuildVCSTask;
+import org.kercheval.gradle.util.GradleUtil;
 import org.kercheval.gradle.vcs.VCSException;
 import org.kercheval.gradle.vcs.VCSTag;
 import org.kercheval.gradle.vcs.VCSTaskUtil;
@@ -38,11 +42,14 @@ public class BuildVersionTagTask
 	@TaskAction
 	public void doTask()
 	{
-		if (getProject().getVersion() instanceof BuildVersion)
+		final Project project = getProject();
+		if (project.getVersion() instanceof BuildVersion)
 		{
-			final Map<String, ?> props = getProject().getProperties();
-			final VCSTaskUtil vcsUtil = new VCSTaskUtil((File) props.get("rootDir"), getProject()
-				.getLogger());
+			final Map<String, ?> props = project.getProperties();
+			final BuildVCSTask vcsTask = (BuildVCSTask) new GradleUtil(project)
+				.getTask(BuildVCSPlugin.VCS_TASK_NAME);
+			final VCSTaskUtil vcsUtil = new VCSTaskUtil(vcsTask.getType(),
+				(File) props.get("rootDir"), project.getLogger());
 
 			if (isOnlyifclean())
 			{
@@ -57,10 +64,10 @@ public class BuildVersionTagTask
 			//
 			try
 			{
-				final VCSTag tag = new VCSTag(getProject().getVersion().toString(), getComment());
+				final VCSTag tag = new VCSTag(project.getVersion().toString(), getComment());
 
 				vcsUtil.getVCS().createTag(tag);
-				getProject().getLogger().info(
+				project.getLogger().info(
 					"Tag '" + tag.getName() + "' written to VCS with comment '" + tag.getComment()
 						+ "'");
 			}

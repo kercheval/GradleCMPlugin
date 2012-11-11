@@ -23,10 +23,13 @@ import org.gradle.api.file.CopySpec;
 import org.gradle.api.tasks.AbstractCopyTask;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
+import org.kercheval.gradle.buildvcs.BuildVCSPlugin;
+import org.kercheval.gradle.buildvcs.BuildVCSTask;
 import org.kercheval.gradle.util.GradleUtil;
 import org.kercheval.gradle.util.JenkinsUtil;
 import org.kercheval.gradle.util.MachineUtil;
 import org.kercheval.gradle.util.SortedProperties;
+import org.kercheval.gradle.vcs.IVCSAccess;
 import org.kercheval.gradle.vcs.VCSAccessFactory;
 import org.kercheval.gradle.vcs.VCSException;
 
@@ -240,6 +243,8 @@ public class BuildInfoTask
 		//
 		final Project project = getProject();
 		final Map<String, ?> props = project.getProperties();
+		final BuildVCSTask vcsTask = (BuildVCSTask) new GradleUtil(project)
+			.getTask(BuildVCSPlugin.VCS_TASK_NAME);
 
 		try
 		{
@@ -335,8 +340,11 @@ public class BuildInfoTask
 			new GradleUtil(project).getGradleInfo().store(out, "Gradle Info");
 			out.write(EOL);
 			out.write(EOL);
-			VCSAccessFactory.getCurrentVCS((File) props.get("rootDir"), project.getLogger())
-				.getInfo().store(out, "VCS Info");
+			final IVCSAccess vcs = VCSAccessFactory.getCurrentVCS(vcsTask.getType(),
+				(File) props.get("rootDir"), project.getLogger());
+			final Properties vcsprops = vcs.getInfo();
+			vcsprops.setProperty("vcs.type", vcs.getType().toString());
+			vcsprops.store(out, "VCS Info");
 			out.write(EOL);
 			out.write(EOL);
 			new JenkinsUtil().getJenkinsInfo().store(out, "Jenkins Info");

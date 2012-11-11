@@ -26,8 +26,7 @@ public class VCSGitImplTest
 		final boolean verifyOrigin)
 		throws VCSException
 	{
-		final VCSGitImpl git = (VCSGitImpl) VCSGitImpl
-			.getInstance(repoUtil.getStandardFile(), null);
+		final VCSGitImpl git = new VCSGitImpl(repoUtil.getStandardFile(), null);
 		git.createBranch(branchName, originName, ignoreOrigin);
 		Map<String, Ref> refMap = repoUtil.getStandardRepo().getAllRefs();
 		Assert.assertTrue(refMap.containsKey("refs/heads/" + branchName));
@@ -49,7 +48,7 @@ public class VCSGitImplTest
 		final String branchName, final String originName, final boolean ignoreOrigin)
 		throws VCSException
 	{
-		final VCSGitImpl git = (VCSGitImpl) VCSGitImpl.getInstance(repoUtil.getOriginFile(), null);
+		final VCSGitImpl git = new VCSGitImpl(repoUtil.getOriginFile(), null);
 		git.createBranch(branchName, originName, ignoreOrigin);
 		final Map<String, Ref> refMap = repoUtil.getOriginRepo().getAllRefs();
 		Assert.assertTrue(refMap.containsKey("refs/heads/" + branchName));
@@ -92,8 +91,7 @@ public class VCSGitImplTest
 		final JGitTestRepository repoUtil = new JGitTestRepository();
 		try
 		{
-			final VCSGitImpl git = (VCSGitImpl) VCSGitImpl.getInstance(repoUtil.getOriginFile(),
-				null);
+			final VCSGitImpl git = new VCSGitImpl(repoUtil.getOriginFile(), null);
 			final String branchName = git.getBranchName();
 			System.out.println("Found branch - " + branchName);
 			Assert.assertNotNull(branchName);
@@ -114,8 +112,8 @@ public class VCSGitImplTest
 		try
 		{
 			final Project project = ProjectBuilder.builder().build();
-			final SortedProperties props = VCSAccessFactory.getCurrentVCS(repoUtil.getOriginFile(),
-				project.getLogger()).getInfo();
+			final SortedProperties props = VCSAccessFactory.getCurrentVCS("Git",
+				repoUtil.getOriginFile(), project.getLogger()).getInfo();
 
 			try
 			{
@@ -144,8 +142,7 @@ public class VCSGitImplTest
 		final JGitTestRepository repoUtil = new JGitTestRepository();
 		try
 		{
-			final VCSGitImpl git = (VCSGitImpl) VCSGitImpl.getInstance(repoUtil.getOriginFile(),
-				null);
+			final VCSGitImpl git = new VCSGitImpl(repoUtil.getOriginFile(), null);
 			VCSStatus status = git.getStatus();
 			Assert.assertNotNull(status);
 			Assert.assertTrue(status.isClean());
@@ -173,8 +170,7 @@ public class VCSGitImplTest
 		final JGitTestRepository repoUtil = new JGitTestRepository();
 		try
 		{
-			final VCSGitImpl git = (VCSGitImpl) VCSGitImpl.getInstance(repoUtil.getOriginFile(),
-				null);
+			final VCSGitImpl git = new VCSGitImpl(repoUtil.getOriginFile(), null);
 			List<VCSTag> tagList = git.getAllTags();
 			Assert.assertFalse(tagList.isEmpty());
 

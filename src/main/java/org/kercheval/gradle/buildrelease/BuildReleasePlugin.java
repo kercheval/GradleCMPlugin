@@ -13,10 +13,13 @@ import org.gradle.api.execution.TaskExecutionGraph;
 import org.gradle.api.execution.TaskExecutionGraphListener;
 import org.gradle.api.internal.AbstractTask;
 import org.gradle.api.tasks.TaskExecutionException;
+import org.kercheval.gradle.buildvcs.BuildVCSPlugin;
+import org.kercheval.gradle.buildvcs.BuildVCSTask;
 import org.kercheval.gradle.buildversion.BuildVersionPlugin;
 import org.kercheval.gradle.buildversion.BuildVersionTagTask;
 import org.kercheval.gradle.gradlecm.GradleCMPlugin;
 import org.kercheval.gradle.util.GradleUtil;
+import org.kercheval.gradle.vcs.IVCSAccess;
 import org.kercheval.gradle.vcs.VCSException;
 import org.kercheval.gradle.vcs.VCSTaskUtil;
 
@@ -99,62 +102,73 @@ public class BuildReleasePlugin
 		try
 		{
 			final Map<String, ?> props = project.getProperties();
-			final VCSTaskUtil vcsUtil = new VCSTaskUtil((File) props.get("rootDir"),
-				project.getLogger());
+			final BuildVCSTask vcsTask = (BuildVCSTask) new GradleUtil(project)
+				.getTask(BuildVCSPlugin.VCS_TASK_NAME);
 
 			//
-			// Get the current release init task to obtain the branch and origin
-			// variables
+			// We cannot tag and push when we have no VCS. Silently fail...
 			//
-			final BuildReleaseInitTask initTask = (BuildReleaseInitTask) new GradleUtil(project)
-				.getTask(BuildReleasePlugin.INIT_TASK_NAME);
+			if (!IVCSAccess.Type.NONE.toString().toLowerCase()
+				.equals(vcsTask.getType().toLowerCase()))
+			{
+				final VCSTaskUtil vcsUtil = new VCSTaskUtil(vcsTask.getType(),
+					(File) props.get("rootDir"), project.getLogger());
 
-			boolean isOnBranch = false;
-			if (forceOnBranch)
-			{
 				//
-				// Verify we are on the right branch to perform this task.
+				// Get the current release init task to obtain the branch and origin
+				// variables
 				//
-				vcsUtil.validateWorkspaceBranchName(currentTask, initTask.getReleasebranch());
-				isOnBranch = true;
-			}
-			else
-			{
-				isOnBranch = vcsUtil.getVCS().getBranchName().equals(initTask.getReleasebranch());
-			}
+				final BuildReleaseInitTask initTask = (BuildReleaseInitTask) new GradleUtil(project)
+					.getTask(BuildReleasePlugin.INIT_TASK_NAME);
 
-			if (isOnBranch)
-			{
-				//
-				// Verify the current workspace is clean
-				//
-				if (currentTask.isOnlyifclean())
+				boolean isOnBranch = false;
+				if (forceOnBranch)
 				{
-					vcsUtil.validateWorkspaceIsClean(currentTask);
+					//
+					// Verify we are on the right branch to perform this task.
+					//
+					vcsUtil.validateWorkspaceBranchName(currentTask, initTask.getReleasebranch());
+					isOnBranch = true;
+				}
+				else
+				{
+					isOnBranch = vcsUtil.getVCS().getBranchName()
+						.equals(initTask.getReleasebranch());
 				}
 
-				//
-				// Get the tag task to tag the repository
-				//
-				final BuildVersionTagTask tagTask = (BuildVersionTagTask) new GradleUtil(project)
-					.getTask(BuildVersionPlugin.TAG_TASK_NAME);
-				tagTask.execute();
-
-				//
-				// Push the new created tags back to origin
-				//
-				if (!initTask.isIgnoreorigin())
+				if (isOnBranch)
 				{
-					vcsUtil.getVCS().pushBranch(initTask.getReleasebranch(),
-						initTask.getRemoteorigin(), true);
+					//
+					// Verify the current workspace is clean
+					//
+					if (currentTask.isOnlyifclean())
+					{
+						vcsUtil.validateWorkspaceIsClean(currentTask);
+					}
+
+					//
+					// Get the tag task to tag the repository
+					//
+					final BuildVersionTagTask tagTask = (BuildVersionTagTask) new GradleUtil(
+						project).getTask(BuildVersionPlugin.TAG_TASK_NAME);
+					tagTask.execute();
+
+					//
+					// Push the new created tags back to origin
+					//
+					if (!initTask.isIgnoreorigin())
+					{
+						vcsUtil.getVCS().pushBranch(initTask.getReleasebranch(),
+							initTask.getRemoteorigin(), true);
+					}
 				}
-			}
-			else
-			{
-				project.getLogger().info(
-					"Workspace is not on branch '" + initTask.getReleasebranch()
-						+ "'.  Build release tagging deactivated this execution of "
-						+ currentTask.getUploadtask());
+				else
+				{
+					project.getLogger().info(
+						"Workspace is not on branch '" + initTask.getReleasebranch()
+							+ "'.  Build release tagging deactivated this execution of "
+							+ currentTask.getUploadtask());
+				}
 			}
 		}
 		catch (final VCSException e)

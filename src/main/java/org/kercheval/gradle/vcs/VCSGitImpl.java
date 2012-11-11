@@ -42,15 +42,10 @@ import org.kercheval.gradle.util.SortedProperties;
 public class VCSGitImpl
 	implements IVCSAccess
 {
-	public static IVCSAccess getInstance(final File srcRootDir, final Logger logger)
-	{
-		return new VCSGitImpl(srcRootDir, logger);
-	}
-
 	private final File srcRootDir;
 	private final Logger logger;
 
-	private VCSGitImpl(final File srcRootDir, final Logger logger)
+	public VCSGitImpl(final File srcRootDir, final Logger logger)
 	{
 		this.srcRootDir = srcRootDir;
 		this.logger = logger;
@@ -303,7 +298,6 @@ public class VCSGitImpl
 		{
 			repository = new RepositoryBuilder().readEnvironment().findGitDir(getSrcRootDir())
 				.build();
-			props.addProperty("vcs.type", IVCSAccess.Type.GIT);
 			props.addProperty("vcs.git.basedir", repository.getDirectory().getCanonicalPath());
 			props.addProperty("vcs.git.branch", repository.getBranch());
 

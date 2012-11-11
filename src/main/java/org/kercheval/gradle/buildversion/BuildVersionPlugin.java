@@ -1,8 +1,11 @@
 package org.kercheval.gradle.buildversion;
 
+import java.util.LinkedHashMap;
+
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.kercheval.gradle.gradlecm.GradleCMPlugin;
 import org.kercheval.gradle.util.GradleUtil;
 
 public class BuildVersionPlugin
@@ -14,6 +17,15 @@ public class BuildVersionPlugin
 	@Override
 	public void apply(final Project project)
 	{
+		//
+		// We need the VCS plugin for this
+		//
+		project.apply(new LinkedHashMap<String, String>()
+		{
+			{
+				put("plugin", GradleCMPlugin.BUILD_VCS_PLUGIN);
+			}
+		});
 
 		//
 		// Create the actual task that will be executed

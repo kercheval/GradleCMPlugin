@@ -1,7 +1,12 @@
 package org.kercheval.gradle.buildvcs;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
+import org.kercheval.gradle.vcs.IVCSAccess;
 
 public class BuildVCSTask
 	extends DefaultTask
@@ -15,7 +20,9 @@ public class BuildVCSTask
 	@TaskAction
 	public void doTask()
 	{
-		System.out.println("vcstask has executed");
+		getProject().getLogger().info(
+			"Current VCS Type is set to " + getType() + ".  The task '" + getName()
+				+ "' does not need direct execution and can be removed as a dependency.");
 	}
 
 	public String getType()
@@ -25,7 +32,27 @@ public class BuildVCSTask
 
 	public void setType(final String type)
 	{
-		// TODO: Validate the type value here and throw illegal argument exception with acceptable values as message
+		//
+		// Validate the input type and give a nasty gram if specifying
+		// an invalid VCS type.
+		//
+		final String desiredType = type.toLowerCase();
+		boolean foundType = false;
+		for (final IVCSAccess.Type iterType : IVCSAccess.Type.values())
+		{
+			if (desiredType.equals(iterType.toString().toLowerCase()))
+			{
+				foundType = true;
+			}
+		}
+		if (!foundType)
+		{
+			final Set<IVCSAccess.Type> typeSet = new HashSet<IVCSAccess.Type>();
+			Collections.addAll(typeSet, IVCSAccess.Type.values());
+
+			throw new IllegalArgumentException("The type '" + type + "' is invalid for task "
+				+ getName() + ".  Valid values are one of " + typeSet);
+		}
 
 		this.type = type;
 	}

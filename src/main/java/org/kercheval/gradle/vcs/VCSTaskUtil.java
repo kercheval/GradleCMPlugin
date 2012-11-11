@@ -10,9 +10,9 @@ public class VCSTaskUtil
 {
 	final IVCSAccess vcs;
 
-	public VCSTaskUtil(final File rootDir, final Logger logger)
+	public VCSTaskUtil(final String type, final File rootDir, final Logger logger)
 	{
-		vcs = VCSAccessFactory.getCurrentVCS(rootDir, logger);
+		vcs = VCSAccessFactory.getCurrentVCS(type, rootDir, logger);
 	}
 
 	public IVCSAccess getVCS()

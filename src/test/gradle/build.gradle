@@ -31,6 +31,10 @@ buildreleaseinit {
 	uploadtask = "uploadArchives"
 }
 
+buildvcs {
+	type = "NONE"
+}
+
 task helloZip(type: Zip) {
 	classifier = 'hello'
 	from "." include "build.gradle"

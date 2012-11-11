@@ -11,6 +11,9 @@ import org.gradle.api.execution.TaskExecutionGraph;
 import org.gradle.api.execution.TaskExecutionGraphListener;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
+import org.kercheval.gradle.buildvcs.BuildVCSPlugin;
+import org.kercheval.gradle.buildvcs.BuildVCSTask;
+import org.kercheval.gradle.util.GradleUtil;
 import org.kercheval.gradle.vcs.VCSException;
 import org.kercheval.gradle.vcs.VCSTag;
 import org.kercheval.gradle.vcs.VCSTaskUtil;
@@ -100,6 +103,7 @@ public class BuildVersionTask
 		}
 
 		project.setVersion(getVersion());
+		project.getLogger().info("Version set to " + getVersion());
 	}
 
 	public BuildVersion getVersion()
@@ -118,8 +122,10 @@ public class BuildVersionTask
 			//
 			// Get the filtered list of tags from VCS and iterate to find the newest one.
 			//
-			final VCSTaskUtil vcsUtil = new VCSTaskUtil((File) props.get("rootDir"), getProject()
-				.getLogger());
+			final BuildVCSTask vcsTask = (BuildVCSTask) new GradleUtil(project)
+				.getTask(BuildVCSPlugin.VCS_TASK_NAME);
+			final VCSTaskUtil vcsUtil = new VCSTaskUtil(vcsTask.getType(),
+				(File) props.get("rootDir"), project.getLogger());
 			List<VCSTag> tagList;
 
 			try
