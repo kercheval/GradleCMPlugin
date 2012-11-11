@@ -19,6 +19,7 @@ public interface IVCSAccess
 	//
 	public enum Type
 	{
+		NONE,
 		GIT
 	}
 

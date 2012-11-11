@@ -43,8 +43,6 @@ public class BuildReleaseUploadTask
 		final Project project = getProject();
 		final Task thisTask = this;
 
-		dependsOn(":" + getUploadtask());
-
 		//
 		// The magic happens in a doFirst installed at task graph completion.
 		// We are assuming the build is a dependency on the upload task and
@@ -59,22 +57,33 @@ public class BuildReleaseUploadTask
 					final AbstractTask uploadTask = (AbstractTask) new GradleUtil(project)
 						.getTask(getUploadtask());
 
-					if (null == uploadTask)
+					if (graph.hasTask(thisTask))
+					{
+						throw new TaskExecutionException(thisTask, new IllegalStateException(
+							"The task " + thisTask.getName()
+								+ " is not directly accessible.  The upload task '"
+								+ getUploadtask() + "' should be called instead."));
+
+					}
+					if (graph.hasTask(thisTask) && (null == uploadTask))
 					{
 						throw new TaskExecutionException(thisTask, new IllegalStateException(
 							"The upload task '" + getUploadtask()
 								+ "' specified for buildreleaseupdate does not exist"));
 					}
 
-					uploadTask.doFirst(new Closure<Task>(this, this)
+					if (null != uploadTask)
 					{
-						@SuppressWarnings("unused")
-						public Object doCall(final Task task)
+						uploadTask.doFirst(new Closure<Task>(this, this)
 						{
-							tagAndPush(project, thisTask, graph.hasTask(thisTask));
-							return task;
-						}
-					});
+							@SuppressWarnings("unused")
+							public Object doCall(final Task task)
+							{
+								tagAndPush(project, thisTask, graph.hasTask(thisTask));
+								return task;
+							}
+						});
+					}
 				}
 			});
 
@@ -84,8 +93,7 @@ public class BuildReleaseUploadTask
 	public void doTask()
 	{
 		//
-		// This task has no direct action, it is all done through the doFirst()
-		// closure on the upload task.
+		// This task is not executed directly
 		//
 	}
 

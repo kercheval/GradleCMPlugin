@@ -11,13 +11,21 @@ public class GradleCMPlugin
 	public static final String BUILD_INFO_PLUGIN = "buildinfo";
 	public static final String BUILD_VERSION_PLUGIN = "buildversion";
 	public static final String BUILD_RELEASE_PLUGIN = "buildrelease";
+	public static final String BUILD_VCS_PLUGIN = "buildvcs";
 
 	@Override
 	public void apply(final Project project)
 	{
 		//
-		// This plugin is a simple container to pull in all individual plugins
+		// This plugin is a simple container without tasks to pull in all
+		// individual plugins in the group.
 		//
+		project.apply(new LinkedHashMap<String, String>()
+		{
+			{
+				put("plugin", BUILD_VCS_PLUGIN);
+			}
+		});
 		project.apply(new LinkedHashMap<String, String>()
 		{
 			{
