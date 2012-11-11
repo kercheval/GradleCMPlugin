@@ -25,13 +25,16 @@ public class BuildReleaseUploadTask
 	private static final String DEFAULT_UPLOAD_TASK = "uploadArchives";
 	private static final boolean DEFAULT_ONLYIFCLEAN = true;
 
+	//
+	// The upload task is the normal publish task for the build artifacts. This
+	// task will be hooked at task graph completion so that tagging and project
+	// validation will occur prior to publication.
+	//
 	private String uploadtask = DEFAULT_UPLOAD_TASK;
 
 	//
-	// if onlyifclean is true, then tags are only written to the VCS system
-	// if the workspace is clean (no files checked out or modified). This
-	// will prevent tagging based on old commits or build releases that are not
-	// replicable.
+	// if onlyifclean is true, then the release will only occur
+	// if the workspace is clean (no files checked out or modified).
 	//
 	private boolean onlyifclean = DEFAULT_ONLYIFCLEAN;
 
@@ -68,53 +71,7 @@ public class BuildReleaseUploadTask
 						@SuppressWarnings("unused")
 						public Object doCall(final Task task)
 						{
-							try
-							{
-								final Map<String, ?> props = project.getProperties();
-								final VCSTaskUtil vcsUtil = new VCSTaskUtil((File) props
-									.get("rootDir"), getProject().getLogger());
-
-								//
-								// Get the current release init task to obtain the branch and origin
-								// variables
-								//
-								final BuildReleaseInitTask initTask = (BuildReleaseInitTask) new GradleUtil(
-									getProject()).getTask(BuildReleasePlugin.INIT_TASK_NAME);
-
-								//
-								// Verify we are on the right branch to perform this task.
-								//
-								vcsUtil.validateWorkspaceBranchName(thisTask,
-									initTask.getReleasebranch());
-
-								//
-								// Verify the current workspace is clean
-								//
-								if (isOnlyifclean())
-								{
-									vcsUtil.validateWorkspaceIsClean(thisTask);
-								}
-
-								//
-								// Get the tag task to tag the repository
-								//
-								final BuildVersionTagTask tagTask = (BuildVersionTagTask) new GradleUtil(
-									getProject()).getTask(BuildVersionPlugin.TAG_TASK_NAME);
-								tagTask.execute();
-
-								//
-								// Push the new created tags back to origin
-								//
-								if (!initTask.isIgnoreorigin())
-								{
-									vcsUtil.getVCS().pushBranch(initTask.getReleasebranch(),
-										initTask.getRemoteorigin(), true);
-								}
-							}
-							catch (final VCSException e)
-							{
-								throw new TaskExecutionException(thisTask, e);
-							}
+							tagAndPush(project, thisTask, graph.hasTask(thisTask));
 							return task;
 						}
 					});
@@ -125,7 +82,10 @@ public class BuildReleaseUploadTask
 
 	@TaskAction
 	public void doTask()
-	{}
+	{
+		// TODO Shift the test for on branch to here (for task execution stop) Only do
+		// tagging if on the right branch. Always do VCS clean check.
+	}
 
 	public String getUploadtask()
 	{
@@ -145,6 +105,68 @@ public class BuildReleaseUploadTask
 	public void setUploadtask(final String uploadtask)
 	{
 		this.uploadtask = uploadtask;
+	}
+
+	private void tagAndPush(final Project project, final Task thisTask, final boolean forceOnBranch)
+	{
+		try
+		{
+			final Map<String, ?> props = project.getProperties();
+			final VCSTaskUtil vcsUtil = new VCSTaskUtil((File) props.get("rootDir"), getProject()
+				.getLogger());
+
+			//
+			// Get the current release init task to obtain the branch and origin
+			// variables
+			//
+			final BuildReleaseInitTask initTask = (BuildReleaseInitTask) new GradleUtil(
+				getProject()).getTask(BuildReleasePlugin.INIT_TASK_NAME);
+
+			boolean isOnBranch = false;
+			if (forceOnBranch)
+			{
+				//
+				// Verify we are on the right branch to perform this task.
+				//
+				vcsUtil.validateWorkspaceBranchName(thisTask, initTask.getReleasebranch());
+
+				//
+				// Verify the current workspace is clean
+				//
+				if (isOnlyifclean())
+				{
+					vcsUtil.validateWorkspaceIsClean(thisTask);
+				}
+
+			}
+			else
+			{
+				isOnBranch = vcsUtil.getVCS().getBranchName().equals(initTask.getReleasebranch());
+			}
+
+			if (isOnBranch)
+			{
+				//
+				// Get the tag task to tag the repository
+				//
+				final BuildVersionTagTask tagTask = (BuildVersionTagTask) new GradleUtil(
+					getProject()).getTask(BuildVersionPlugin.TAG_TASK_NAME);
+				tagTask.execute();
+
+				//
+				// Push the new created tags back to origin
+				//
+				if (!initTask.isIgnoreorigin())
+				{
+					vcsUtil.getVCS().pushBranch(initTask.getReleasebranch(),
+						initTask.getRemoteorigin(), true);
+				}
+			}
+		}
+		catch (final VCSException e)
+		{
+			throw new TaskExecutionException(thisTask, e);
+		}
 	}
 
 }
