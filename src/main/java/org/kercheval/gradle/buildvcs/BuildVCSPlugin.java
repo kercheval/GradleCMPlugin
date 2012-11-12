@@ -13,7 +13,6 @@ public class BuildVCSPlugin
 	@Override
 	public void apply(final Project project)
 	{
-
 		//
 		// Create the actual task that will be executed
 		//
