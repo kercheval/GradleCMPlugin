@@ -132,8 +132,7 @@ public class BuildReleasePlugin
 				}
 				else
 				{
-					isOnBranch = vcsUtil.getVCS().getBranchName()
-						.equals(initTask.getReleasebranch());
+					isOnBranch = vcsTask.getBranchName().equals(initTask.getReleasebranch());
 				}
 
 				if (isOnBranch)

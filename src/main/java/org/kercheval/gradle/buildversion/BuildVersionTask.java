@@ -1,9 +1,7 @@
 package org.kercheval.gradle.buildversion;
 
-import java.io.File;
 import java.text.ParseException;
 import java.util.List;
-import java.util.Map;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
@@ -16,7 +14,6 @@ import org.kercheval.gradle.buildvcs.BuildVCSTask;
 import org.kercheval.gradle.util.GradleUtil;
 import org.kercheval.gradle.vcs.VCSException;
 import org.kercheval.gradle.vcs.VCSTag;
-import org.kercheval.gradle.vcs.VCSTaskUtil;
 
 public class BuildVersionTask
 	extends DefaultTask
@@ -117,20 +114,16 @@ public class BuildVersionTask
 
 		if (isUsetag())
 		{
-			final Map<String, ?> props = project.getProperties();
-
 			//
 			// Get the filtered list of tags from VCS and iterate to find the newest one.
 			//
 			final BuildVCSTask vcsTask = (BuildVCSTask) new GradleUtil(project)
 				.getTask(BuildVCSPlugin.VCS_TASK_NAME);
-			final VCSTaskUtil vcsUtil = new VCSTaskUtil(vcsTask.getType(),
-				(File) props.get("rootDir"), project.getLogger());
 			List<VCSTag> tagList;
 
 			try
 			{
-				tagList = vcsUtil.getVCS().getTags(getVersion().getValidatePattern());
+				tagList = vcsTask.getTags(getVersion().getValidatePattern());
 			}
 			catch (final VCSException e)
 			{

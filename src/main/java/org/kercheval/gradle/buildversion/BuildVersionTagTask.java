@@ -11,7 +11,6 @@ import org.kercheval.gradle.buildvcs.BuildVCSPlugin;
 import org.kercheval.gradle.buildvcs.BuildVCSTask;
 import org.kercheval.gradle.util.GradleUtil;
 import org.kercheval.gradle.vcs.VCSException;
-import org.kercheval.gradle.vcs.VCSTag;
 import org.kercheval.gradle.vcs.VCSTaskUtil;
 
 public class BuildVersionTagTask
@@ -64,12 +63,10 @@ public class BuildVersionTagTask
 			//
 			try
 			{
-				final VCSTag tag = new VCSTag(project.getVersion().toString(), getComment());
-
-				vcsUtil.getVCS().createTag(tag);
+				vcsTask.createTag(project.getVersion().toString(), getComment());
 				project.getLogger().info(
-					"Tag '" + tag.getName() + "' written to VCS with comment '" + tag.getComment()
-						+ "'");
+					"Tag '" + project.getVersion() + "' written to VCS with comment '"
+						+ getComment() + "'");
 			}
 			catch (final VCSException e)
 			{
