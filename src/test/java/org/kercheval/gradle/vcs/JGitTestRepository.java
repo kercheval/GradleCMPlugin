@@ -1,10 +1,11 @@
 package org.kercheval.gradle.vcs;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
@@ -66,7 +67,7 @@ public class JGitTestRepository
 
 		try
 		{
-			FileUtils.deleteDirectory(getOriginFile());
+// FileUtils.deleteDirectory(getOriginFile());
 		}
 		catch (final Exception e)
 		{
@@ -74,7 +75,7 @@ public class JGitTestRepository
 		}
 		try
 		{
-			FileUtils.deleteDirectory(getStandardFile());
+// FileUtils.deleteDirectory(getStandardFile());
 		}
 		catch (final Exception e)
 		{
@@ -117,9 +118,8 @@ public class JGitTestRepository
 		// Create an empty file and commit it
 		//
 		final Git originGit = new Git(originRepo);
-		final File newFile = new File(getOriginFile().getAbsolutePath() + "/EmptyFile.txt");
-		newFile.createNewFile();
-		System.out.println(newFile);
+		File newFile = new File(getOriginFile().getAbsolutePath() + "/EmptyFile.txt");
+		writeRandomContentFile(newFile);
 		originGit.add().addFilepattern(".").call();
 		originGit.commit().setCommitter(new PersonIdent("JUNIT", "JUNIT@dev.build"))
 			.setMessage("First commit into origin repository").call();
@@ -150,5 +150,29 @@ public class JGitTestRepository
 			.setStartPoint("refs/remotes/myOrigin/OriginBranch2").setForce(false).call();
 		standardGit.branchCreate().setName("StandardBranch1").setForce(false).call();
 		standardGit.branchCreate().setName("StandardBranch2").setForce(false).call();
+
+		//
+		// Add another file to the origin
+		//
+		newFile = new File(getOriginFile().getAbsolutePath() + "/EmptySecondFile.txt");
+		writeRandomContentFile(newFile);
+		originGit.add().addFilepattern(".").call();
+		originGit.commit().setCommitter(new PersonIdent("JUNIT", "JUNIT@dev.build"))
+			.setMessage("First commit into origin repository").call();
+	}
+
+	public void writeRandomContentFile(final File file)
+		throws IOException
+	{
+		final FileOutputStream fileOutputStream = new FileOutputStream(file);
+
+		if (!file.exists())
+		{
+			file.createNewFile();
+		}
+
+		fileOutputStream.write(("FileCreated: " + new Date().getTime() + Math.random()).getBytes());
+		fileOutputStream.flush();
+		fileOutputStream.close();
 	}
 }

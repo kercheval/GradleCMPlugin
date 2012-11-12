@@ -44,7 +44,7 @@ public interface IVCSAccess
 	//
 	// Obtain from the branch and origin the current content for that branch.
 	//
-	public void fetchBranch(final String branchName, final String remoteOrigin)
+	public void fetch(final String remoteOrigin)
 		throws VCSException;
 
 	//
@@ -86,7 +86,7 @@ public interface IVCSAccess
 	// update must be the equivalent of a git fast-forward merge.
 	// Failure will throw a VCSException.
 	//
-	public void mergeBranch(final String fromBranch)
+	public void mergeBranch(final String remoteOrigin)
 		throws VCSException;
 
 	//

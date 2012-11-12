@@ -31,11 +31,11 @@ public class VCSNoneImpl
 	}
 
 	@Override
-	public void fetchBranch(final String branchName, final String remoteOrigin)
+	public void fetch(final String remoteOrigin)
 		throws VCSException
 	{
-		throw new VCSException("Unable to fetch branch " + branchName, new IllegalStateException(
-			"No VCS associated with this build"));
+		throw new VCSException("Unable to fetch from origin: " + remoteOrigin,
+			new IllegalStateException("No VCS associated with this build"));
 	}
 
 	@Override
@@ -81,10 +81,10 @@ public class VCSNoneImpl
 	}
 
 	@Override
-	public void mergeBranch(final String fromBranch)
+	public void mergeBranch(final String remoteOrigin)
 		throws VCSException
 	{
-		throw new VCSException("Unable to merge branch " + fromBranch, new IllegalStateException(
+		throw new VCSException("Unable to merge branch " + remoteOrigin, new IllegalStateException(
 			"No VCS associated with this build"));
 
 	}

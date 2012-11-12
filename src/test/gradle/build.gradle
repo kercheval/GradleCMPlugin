@@ -31,8 +31,12 @@ buildreleaseinit {
 	uploadtask = "uploadArchives"
 }
 
-buildvcs {
-	type = "NONE"
+task isClean << {
+	if (buildvcs.isClean()) {
+		println("Workspace is clean");
+	} else {
+		println("Workspace is dirty");
+	}
 }
 
 task helloZip(type: Zip) {

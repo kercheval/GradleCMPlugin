@@ -9,10 +9,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
 import org.gradle.api.Project;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.Assert;
@@ -52,6 +55,12 @@ public class VCSGitImplTest
 		git.createBranch(branchName, originName, ignoreOrigin);
 		final Map<String, Ref> refMap = repoUtil.getOriginRepo().getAllRefs();
 		Assert.assertTrue(refMap.containsKey("refs/heads/" + branchName));
+	}
+
+	private Ref getRef(final Repository repository, final String refName)
+	{
+		final Map<String, Ref> refMap = repository.getAllRefs();
+		return refMap.get(refName);
 	}
 
 	@Test
@@ -96,6 +105,67 @@ public class VCSGitImplTest
 			System.out.println("Found branch - " + branchName);
 			Assert.assertNotNull(branchName);
 			Assert.assertEquals("master", branchName);
+		}
+		finally
+		{
+			repoUtil.close();
+		}
+	}
+
+	@Test
+	public void testGetFetchAndMergeAndPush()
+		throws VCSException, InvalidRemoteException, TransportException, IOException,
+		GitAPIException
+	{
+		final JGitTestRepository repoUtil = new JGitTestRepository();
+		try
+		{
+
+			Ref originHead = getRef(repoUtil.getStandardRepo(), "refs/remotes/myOrigin/master");
+			Ref localHead = getRef(repoUtil.getStandardRepo(), "refs/heads/master");
+			Assert.assertEquals(localHead.getObjectId().getName(), originHead.getObjectId()
+				.getName());
+			final VCSGitImpl git = new VCSGitImpl(repoUtil.getStandardFile(), null);
+
+			git.fetch("myOrigin");
+			originHead = getRef(repoUtil.getStandardRepo(), "refs/remotes/myOrigin/master");
+			localHead = getRef(repoUtil.getStandardRepo(), "refs/heads/master");
+			Assert.assertNotEquals(localHead.getObjectId().getName(), originHead.getObjectId()
+				.getName());
+
+			git.mergeBranch("myOrigin");
+			originHead = getRef(repoUtil.getStandardRepo(), "refs/remotes/myOrigin/master");
+			localHead = getRef(repoUtil.getStandardRepo(), "refs/heads/master");
+			Assert.assertEquals(localHead.getObjectId().getName(), originHead.getObjectId()
+				.getName());
+
+			final File newFile = new File(repoUtil.getStandardFile().getAbsolutePath()
+				+ "/EmptyThirdFile.txt");
+			repoUtil.writeRandomContentFile(newFile);
+			new Git(repoUtil.getStandardRepo()).add().addFilepattern(".").call();
+			new Git(repoUtil.getStandardRepo()).commit()
+				.setCommitter(new PersonIdent("JUNIT", "JUNIT@dev.build"))
+				.setMessage("First commit into origin repository").call();
+			getRef(repoUtil.getStandardRepo(), "refs/heads/master");
+			final Ref newLocalHead = getRef(repoUtil.getStandardRepo(), "refs/heads/master");
+			Assert.assertNotEquals(localHead.getObjectId().getName(), newLocalHead.getObjectId()
+				.getName());
+			new Git(repoUtil.getStandardRepo()).tag().setName("NEW_TAG").setMessage("Test of Push")
+				.call();
+			Assert.assertNotNull(getRef(repoUtil.getStandardRepo(), "refs/tags/NEW_TAG"));
+			Assert.assertNull(getRef(repoUtil.getOriginRepo(), "refs/tags/NEW_TAG"));
+
+			git.pushBranch("master", "myOrigin", true);
+			originHead = getRef(repoUtil.getStandardRepo(), "refs/remotes/myOrigin/master");
+			localHead = getRef(repoUtil.getStandardRepo(), "refs/heads/master");
+			Assert.assertEquals(localHead.getObjectId().getName(), originHead.getObjectId()
+				.getName());
+			Assert.assertNotNull(getRef(repoUtil.getOriginRepo(), "refs/tags/NEW_TAG"));
+			new Git(repoUtil.getStandardRepo()).tag().setName("ANOTHER_NEW_TAG")
+				.setMessage("Test of Push").call();
+			Assert.assertNull(getRef(repoUtil.getOriginRepo(), "refs/tags/ANOTHER_NEW_TAG"));
+			git.pushBranch("master", "myOrigin", false);
+			Assert.assertNull(getRef(repoUtil.getOriginRepo(), "refs/tags/ANOTHER_NEW_TAG"));
 		}
 		finally
 		{
@@ -179,6 +249,53 @@ public class VCSGitImplTest
 			git.createTag(new VCSTag("JUNIT_Tag_Filter", "Test tag add"));
 			tagList = git.getTags("^JUNIT_Tag_Filter$");
 			Assert.assertTrue(tagList.size() == 1);
+		}
+		finally
+		{
+			repoUtil.close();
+		}
+	}
+
+	@Test
+	public void testMergeFail()
+		throws VCSException, InvalidRemoteException, TransportException, IOException,
+		GitAPIException
+	{
+		final JGitTestRepository repoUtil = new JGitTestRepository();
+		try
+		{
+
+			Ref originHead = getRef(repoUtil.getStandardRepo(), "refs/remotes/myOrigin/master");
+			Ref localHead = getRef(repoUtil.getStandardRepo(), "refs/heads/master");
+			Assert.assertEquals(localHead.getObjectId().getName(), originHead.getObjectId()
+				.getName());
+			final VCSGitImpl git = new VCSGitImpl(repoUtil.getStandardFile(), null);
+			git.fetch("myOrigin");
+			originHead = getRef(repoUtil.getStandardRepo(), "refs/remotes/myOrigin/master");
+			localHead = getRef(repoUtil.getStandardRepo(), "refs/heads/master");
+			Assert.assertNotEquals(localHead.getObjectId().getName(), originHead.getObjectId()
+				.getName());
+
+			final File newFile = new File(repoUtil.getStandardFile().getAbsolutePath()
+				+ "/EmptySecondFile.txt");
+			repoUtil.writeRandomContentFile(newFile);
+			new Git(repoUtil.getStandardRepo()).add().addFilepattern(".").call();
+			new Git(repoUtil.getStandardRepo()).commit()
+				.setCommitter(new PersonIdent("JUNIT", "JUNIT@dev.build"))
+				.setMessage("First commit into origin repository").call();
+			final Ref oldLocalHead = getRef(repoUtil.getStandardRepo(), "refs/heads/master");
+
+			try
+			{
+				git.mergeBranch("myOrigin");
+				fail("Merge conflict expected");
+			}
+			catch (final VCSException e)
+			{
+				localHead = getRef(repoUtil.getStandardRepo(), "refs/heads/master");
+				Assert.assertEquals(localHead.getObjectId().getName(), oldLocalHead.getObjectId()
+					.getName());
+			}
 		}
 		finally
 		{

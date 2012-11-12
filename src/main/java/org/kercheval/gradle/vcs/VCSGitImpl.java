@@ -203,29 +203,16 @@ public class VCSGitImpl
 	}
 
 	@Override
-	public void fetchBranch(final String branchName, final String remoteOrigin)
+	public void fetch(final String remoteOrigin)
 		throws VCSException
 	{
-		final String refLocalBranch = "refs/heads/" + branchName;
-		final String refRemoteOrigin = "refs/remotes/" + remoteOrigin;
-
 		Repository repository = null;
 
 		try
 		{
 			repository = new RepositoryBuilder().readEnvironment().findGitDir(getSrcRootDir())
 				.build();
-
-			final Map<String, Ref> refMap = repository.getAllRefs();
-			final boolean localBranchExists = refMap.containsKey(refLocalBranch);
-			final boolean remoteExists = refMap.containsKey(refRemoteOrigin);
-
-			if (localBranchExists && remoteExists)
-			{
-
-				final Git git = new Git(repository);
-				git.fetch().setRemote(remoteOrigin).setRefSpecs(new RefSpec(refLocalBranch)).call();
-			}
+			new Git(repository).fetch().setRemote(remoteOrigin).call();
 		}
 		catch (final IOException e)
 		{
@@ -233,15 +220,15 @@ public class VCSGitImpl
 		}
 		catch (final InvalidRemoteException e)
 		{
-			throw new VCSException("Unable to fetch branch: " + branchName, e);
+			throw new VCSException("Unable to fetch from origin: " + remoteOrigin, e);
 		}
 		catch (final TransportException e)
 		{
-			throw new VCSException("Unable to fetch branch: " + branchName, e);
+			throw new VCSException("Unable to fetch from origin: " + remoteOrigin, e);
 		}
 		catch (final GitAPIException e)
 		{
-			throw new VCSException("Unable to fetch branch: " + branchName, e);
+			throw new VCSException("Unable to fetch from origin: " + remoteOrigin, e);
 		}
 		finally
 		{
@@ -487,10 +474,9 @@ public class VCSGitImpl
 	}
 
 	@Override
-	public void mergeBranch(final String fromBranch)
+	public void mergeBranch(final String remoteOrigin)
 		throws VCSException
 	{
-		final String refLocalBranch = "refs/heads/" + fromBranch;
 
 		Repository repository = null;
 
@@ -498,6 +484,7 @@ public class VCSGitImpl
 		{
 			repository = new RepositoryBuilder().readEnvironment().findGitDir(getSrcRootDir())
 				.build();
+			final String refLocalBranch = remoteOrigin + "/" + repository.getBranch();
 			final Git git = new Git(repository);
 			final MergeResult mergeResult = git.merge().include(repository.getRef(refLocalBranch))
 				.call();
@@ -520,31 +507,31 @@ public class VCSGitImpl
 		}
 		catch (final NoHeadException e)
 		{
-			throw new VCSException("Unable to merge branch: " + fromBranch, e);
+			throw new VCSException("Unable to merge branch: " + remoteOrigin, e);
 		}
 		catch (final ConcurrentRefUpdateException e)
 		{
-			throw new VCSException("Unable to merge branch: " + fromBranch, e);
+			throw new VCSException("Unable to merge branch: " + remoteOrigin, e);
 		}
 		catch (final CheckoutConflictException e)
 		{
-			throw new VCSException("Unable to merge branch: " + fromBranch, e);
+			throw new VCSException("Unable to merge branch: " + remoteOrigin, e);
 		}
 		catch (final InvalidMergeHeadsException e)
 		{
-			throw new VCSException("Unable to merge branch: " + fromBranch, e);
+			throw new VCSException("Unable to merge branch: " + remoteOrigin, e);
 		}
 		catch (final WrongRepositoryStateException e)
 		{
-			throw new VCSException("Unable to merge branch: " + fromBranch, e);
+			throw new VCSException("Unable to merge branch: " + remoteOrigin, e);
 		}
 		catch (final NoMessageException e)
 		{
-			throw new VCSException("Unable to merge branch: " + fromBranch, e);
+			throw new VCSException("Unable to merge branch: " + remoteOrigin, e);
 		}
 		catch (final GitAPIException e)
 		{
-			throw new VCSException("Unable to merge branch: " + fromBranch, e);
+			throw new VCSException("Unable to merge branch: " + remoteOrigin, e);
 		}
 		finally
 		{
@@ -561,32 +548,22 @@ public class VCSGitImpl
 		throws VCSException
 	{
 		final String refLocalBranch = "refs/heads/" + fromBranch;
-		final String refRemoteOrigin = "refs/remotes/" + remoteOrigin;
-
 		Repository repository = null;
 
 		try
 		{
 			repository = new RepositoryBuilder().readEnvironment().findGitDir(getSrcRootDir())
 				.build();
-			final Map<String, Ref> refMap = repository.getAllRefs();
-			final boolean localBranchExists = refMap.containsKey(refLocalBranch);
-			final boolean remoteExists = refMap.containsKey(refRemoteOrigin);
 
-			if (localBranchExists && remoteExists)
+			if (pushTags)
 			{
-
-				final Git git = new Git(repository);
-				if (pushTags)
-				{
-					git.push().setRemote(remoteOrigin).setRefSpecs(new RefSpec(refLocalBranch))
-						.setPushTags().call();
-				}
-				else
-				{
-					git.push().setRemote(remoteOrigin).setRefSpecs(new RefSpec(refLocalBranch))
-						.call();
-				}
+				new Git(repository).push().setRemote(remoteOrigin)
+					.setRefSpecs(new RefSpec(refLocalBranch)).setPushTags().call();
+			}
+			else
+			{
+				new Git(repository).push().setRemote(remoteOrigin)
+					.setRefSpecs(new RefSpec(refLocalBranch)).call();
 			}
 		}
 		catch (final IOException e)
@@ -595,15 +572,15 @@ public class VCSGitImpl
 		}
 		catch (final InvalidRemoteException e)
 		{
-			throw new VCSException("Unable to push branch: " + fromBranch, e);
+			throw new VCSException("Unable to push branch " + fromBranch + " to " + remoteOrigin, e);
 		}
 		catch (final TransportException e)
 		{
-			throw new VCSException("Unable to push branch: " + fromBranch, e);
+			throw new VCSException("Unable to push branch " + fromBranch + " to " + remoteOrigin, e);
 		}
 		catch (final GitAPIException e)
 		{
-			throw new VCSException("Unable to push branch: " + fromBranch, e);
+			throw new VCSException("Unable to push branch " + fromBranch + " to " + remoteOrigin, e);
 		}
 		finally
 		{

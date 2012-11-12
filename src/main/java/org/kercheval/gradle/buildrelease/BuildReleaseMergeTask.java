@@ -51,14 +51,13 @@ public class BuildReleaseMergeTask
 			//
 			if (!initTask.isIgnoreorigin())
 			{
-				vcsUtil.getVCS().fetchBranch(initTask.getReleasebranch(),
-					initTask.getRemoteorigin());
+				vcsUtil.getVCS().fetch(initTask.getRemoteorigin());
 			}
 
 			//
 			// Merge the current branch to the release branch
 			//
-			vcsUtil.getVCS().mergeBranch(initTask.getMainlinebranch());
+			vcsUtil.getVCS().mergeBranch(initTask.getRemoteorigin());
 
 			//
 			// Push the new merge changes back to origin
