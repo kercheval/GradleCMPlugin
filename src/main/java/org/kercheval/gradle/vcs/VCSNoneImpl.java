@@ -49,8 +49,8 @@ public class VCSNoneImpl
 	public String getBranchName()
 		throws VCSException
 	{
-		throw new VCSException("Unable to get branch name", new IllegalStateException(
-			"No VCS associated with this build"));
+		throw new VCSException("Unable to get branch name from workspace",
+			new IllegalStateException("No VCS associated with this build"));
 	}
 
 	@Override
@@ -84,7 +84,7 @@ public class VCSNoneImpl
 	public void mergeBranch(final String remoteOrigin)
 		throws VCSException
 	{
-		throw new VCSException("Unable to merge branch " + remoteOrigin, new IllegalStateException(
+		throw new VCSException("Unable to merge from " + remoteOrigin, new IllegalStateException(
 			"No VCS associated with this build"));
 
 	}
@@ -94,8 +94,8 @@ public class VCSNoneImpl
 		final boolean pushTags)
 		throws VCSException
 	{
-		throw new VCSException("Unable to push branch " + fromBranch, new IllegalStateException(
-			"No VCS associated with this build"));
+		throw new VCSException("Unable to push branch " + fromBranch + " to " + remoteOrigin,
+			new IllegalStateException("No VCS associated with this build"));
 	}
 
 }
