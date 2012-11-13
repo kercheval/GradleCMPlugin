@@ -1,18 +1,25 @@
 package org.kercheval.gradle.vcs;
 
 import java.io.File;
+import java.util.Map;
 
-import org.gradle.api.Task;
-import org.gradle.api.logging.Logger;
+import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskExecutionException;
+import org.kercheval.gradle.buildvcs.BuildVCSPlugin;
+import org.kercheval.gradle.buildvcs.BuildVCSTask;
+import org.kercheval.gradle.util.GradleUtil;
 
 public class VCSTaskUtil
 {
+	final BuildVCSTask vcsTask;
 	final IVCSAccess vcs;
 
-	public VCSTaskUtil(final String type, final File rootDir, final Logger logger)
+	public VCSTaskUtil(final Project project)
 	{
-		vcs = VCSAccessFactory.getCurrentVCS(type, rootDir, logger);
+		final Map<String, ?> props = project.getProperties();
+		vcsTask = (BuildVCSTask) new GradleUtil(project).getTask(BuildVCSPlugin.VCS_TASK_NAME);
+		vcs = VCSAccessFactory.getCurrentVCS(vcsTask.getType(), (File) props.get("rootDir"),
+			project.getLogger());
 	}
 
 	public IVCSAccess getVCS()
@@ -20,25 +27,30 @@ public class VCSTaskUtil
 		return vcs;
 	}
 
-	public void validateWorkspaceBranchName(final Task task, final String validateBranchName)
+	public BuildVCSTask getVCSTask()
+	{
+		return vcsTask;
+	}
+
+	public void validateWorkspaceBranchName(final String validateBranchName)
 	{
 		try
 		{
 			final String branchName = getVCS().getBranchName();
 			if (!branchName.equals(validateBranchName))
 			{
-				throw new TaskExecutionException(task, new IllegalStateException(
+				throw new TaskExecutionException(vcsTask, new IllegalStateException(
 					"The current workspace is using the incorrect source branch.  Please checkout the '"
 						+ validateBranchName + "' branch to continue."));
 			}
 		}
 		catch (final VCSException e)
 		{
-			throw new TaskExecutionException(task, e);
+			throw new TaskExecutionException(vcsTask, e);
 		}
 	}
 
-	public void validateWorkspaceIsClean(final Task task)
+	public void validateWorkspaceIsClean()
 	{
 		try
 		{
@@ -46,14 +58,14 @@ public class VCSTaskUtil
 			if (!status.isClean())
 			{
 				throw new TaskExecutionException(
-					task,
+					vcsTask,
 					new IllegalStateException(
 						"The current workspace is not clean.  Please ensure you have committed all outstanding work."));
 			}
 		}
 		catch (final VCSException e)
 		{
-			throw new TaskExecutionException(task, e);
+			throw new TaskExecutionException(vcsTask, e);
 		}
 	}
 }

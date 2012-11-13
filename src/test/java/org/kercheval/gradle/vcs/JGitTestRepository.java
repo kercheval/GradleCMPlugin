@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
@@ -67,7 +68,7 @@ public class JGitTestRepository
 
 		try
 		{
-// FileUtils.deleteDirectory(getOriginFile());
+			FileUtils.deleteDirectory(getOriginFile());
 		}
 		catch (final Exception e)
 		{
@@ -75,7 +76,7 @@ public class JGitTestRepository
 		}
 		try
 		{
-// FileUtils.deleteDirectory(getStandardFile());
+			FileUtils.deleteDirectory(getStandardFile());
 		}
 		catch (final Exception e)
 		{

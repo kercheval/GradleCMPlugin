@@ -12,10 +12,7 @@ import org.gradle.api.tasks.TaskExecutionException;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.Assert;
 import org.junit.Test;
-import org.kercheval.gradle.buildversion.BuildVersionPlugin;
-import org.kercheval.gradle.buildversion.BuildVersionTask;
 import org.kercheval.gradle.gradlecm.GradleCMPlugin;
-import org.kercheval.gradle.util.GradleUtil;
 
 public class VCSTaskUtilTest
 {
@@ -27,7 +24,6 @@ public class VCSTaskUtilTest
 		try
 		{
 			Assert.assertEquals("master", repoUtil.getStandardRepo().getBranch());
-			final VCSTaskUtil vcsUtil = new VCSTaskUtil("git", repoUtil.getStandardFile(), null);
 
 			final Project project = ProjectBuilder.builder()
 				.withProjectDir(repoUtil.getOriginFile()).build();
@@ -37,14 +33,10 @@ public class VCSTaskUtilTest
 					put("plugin", GradleCMPlugin.BUILD_VERSION_PLUGIN);
 				}
 			});
-			final GradleUtil gradleUtil = new GradleUtil(project);
-
-			final BuildVersionTask versionTask = (BuildVersionTask) gradleUtil
-				.getTask(BuildVersionPlugin.VERSION_TASK_NAME);
-
+			final VCSTaskUtil vcsUtil = new VCSTaskUtil(project);
 			try
 			{
-				vcsUtil.validateWorkspaceBranchName(versionTask, "master");
+				vcsUtil.validateWorkspaceBranchName("master");
 			}
 			catch (final Exception e)
 			{
@@ -53,7 +45,7 @@ public class VCSTaskUtilTest
 
 			try
 			{
-				vcsUtil.validateWorkspaceBranchName(versionTask, "failbranch");
+				vcsUtil.validateWorkspaceBranchName("failbranch");
 				Assert.fail("Exception expected");
 			}
 			catch (final TaskExecutionException e)
@@ -73,24 +65,18 @@ public class VCSTaskUtilTest
 		try
 		{
 			Assert.assertEquals("master", repoUtil.getStandardRepo().getBranch());
-			final VCSTaskUtil vcsUtil = new VCSTaskUtil("git", repoUtil.getStandardFile(), null);
-
 			final Project project = ProjectBuilder.builder()
-				.withProjectDir(repoUtil.getOriginFile()).build();
+				.withProjectDir(repoUtil.getStandardFile()).build();
 			project.apply(new LinkedHashMap<String, String>()
 			{
 				{
 					put("plugin", GradleCMPlugin.BUILD_VERSION_PLUGIN);
 				}
 			});
-			final GradleUtil gradleUtil = new GradleUtil(project);
-
-			final BuildVersionTask versionTask = (BuildVersionTask) gradleUtil
-				.getTask(BuildVersionPlugin.VERSION_TASK_NAME);
-
+			final VCSTaskUtil vcsUtil = new VCSTaskUtil(project);
 			try
 			{
-				vcsUtil.validateWorkspaceIsClean(versionTask);
+				vcsUtil.validateWorkspaceIsClean();
 			}
 			catch (final Exception e)
 			{
@@ -103,7 +89,7 @@ public class VCSTaskUtilTest
 
 			try
 			{
-				vcsUtil.validateWorkspaceIsClean(versionTask);
+				vcsUtil.validateWorkspaceIsClean();
 				Assert.fail("Exception expected");
 			}
 			catch (final TaskExecutionException e)

@@ -1,8 +1,5 @@
 package org.kercheval.gradle.buildversion;
 
-import java.io.File;
-import java.util.Map;
-
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskAction;
@@ -44,18 +41,16 @@ public class BuildVersionTagTask
 		final Project project = getProject();
 		if (project.getVersion() instanceof BuildVersion)
 		{
-			final Map<String, ?> props = project.getProperties();
 			final BuildVCSTask vcsTask = (BuildVCSTask) new GradleUtil(project)
 				.getTask(BuildVCSPlugin.VCS_TASK_NAME);
-			final VCSTaskUtil vcsUtil = new VCSTaskUtil(vcsTask.getType(),
-				(File) props.get("rootDir"), project.getLogger());
+			final VCSTaskUtil vcsUtil = new VCSTaskUtil(project);
 
 			if (isOnlyifclean())
 			{
 				//
 				// Tags should be written only if the workspace is clean.
 				//
-				vcsUtil.validateWorkspaceIsClean(this);
+				vcsUtil.validateWorkspaceIsClean();
 			}
 
 			//

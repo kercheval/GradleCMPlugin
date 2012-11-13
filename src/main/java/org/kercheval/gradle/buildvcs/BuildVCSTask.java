@@ -1,10 +1,8 @@
 package org.kercheval.gradle.buildvcs;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -80,9 +78,7 @@ public class BuildVCSTask
 	private IVCSAccess getVCS()
 	{
 		final Project project = getProject();
-		final Map<String, ?> props = project.getProperties();
-		final VCSTaskUtil vcsUtil = new VCSTaskUtil(getType(), (File) props.get("rootDir"),
-			project.getLogger());
+		final VCSTaskUtil vcsUtil = new VCSTaskUtil(project);
 		return vcsUtil.getVCS();
 	}
 

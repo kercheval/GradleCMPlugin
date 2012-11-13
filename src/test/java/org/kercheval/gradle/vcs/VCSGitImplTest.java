@@ -302,4 +302,37 @@ public class VCSGitImplTest
 			repoUtil.close();
 		}
 	}
+
+	@Test
+	public void testPushFail()
+		throws InvalidRemoteException, TransportException, IOException, GitAPIException
+	{
+		final JGitTestRepository repoUtil = new JGitTestRepository();
+		try
+		{
+
+			final File newFile = new File(repoUtil.getStandardFile().getAbsolutePath()
+				+ "/EmptySecondFile.txt");
+			repoUtil.writeRandomContentFile(newFile);
+			new Git(repoUtil.getStandardRepo()).add().addFilepattern(".").call();
+			new Git(repoUtil.getStandardRepo()).commit()
+				.setCommitter(new PersonIdent("JUNIT", "JUNIT@dev.build"))
+				.setMessage("First commit into origin repository").call();
+			final VCSGitImpl git = new VCSGitImpl(repoUtil.getStandardFile(), null);
+			try
+			{
+				git.pushBranch("master", "myOrigin", true);
+				Assert.fail("Expected exception");
+			}
+			catch (final VCSException e)
+			{
+				// Expected
+			}
+		}
+		finally
+		{
+			repoUtil.close();
+		}
+	}
+
 }

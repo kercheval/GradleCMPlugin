@@ -31,6 +31,10 @@ buildreleaseinit {
 	uploadtask = "uploadArchives"
 }
 
+task buildmergeandrelease {
+	dependsOn buildreleasemerge, uploadArchives
+}
+
 task isClean << {
 	if (buildvcs.isClean()) {
 		println("Workspace is clean");

@@ -45,7 +45,6 @@ public class BuildVersionTaskTest
 				.build();
 			applyBuildVersionPlugin(project);
 			GradleUtil gradleUtil = new GradleUtil(project);
-
 			BuildVersionTask versionTask = (BuildVersionTask) gradleUtil
 				.getTask(BuildVersionPlugin.VERSION_TASK_NAME);
 			Assert.assertNotNull(versionTask);

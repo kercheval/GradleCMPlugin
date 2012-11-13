@@ -32,7 +32,9 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.gradle.api.logging.Logger;
 import org.kercheval.gradle.util.SortedProperties;
 
@@ -495,10 +497,9 @@ public class VCSGitImpl
 				// Need to bail on merge failure.
 				//
 				git.reset().setMode(ResetType.HARD).setRef(repository.getFullBranch()).call();
-				throw new VCSException(
-					"Unable to merge branch: " + mergeResult.getMergeStatus(),
+				throw new VCSException("Unable to merge branch: " + mergeResult.getMergeStatus(),
 					new IllegalStateException(
-						"The release branch must be merged or manually corrected before continuing"));
+						"The branch must be merged or manually corrected before continuing"));
 			}
 		}
 		catch (final IOException e)
@@ -555,15 +556,45 @@ public class VCSGitImpl
 			repository = new RepositoryBuilder().readEnvironment().findGitDir(getSrcRootDir())
 				.build();
 
+			Iterable<PushResult> pushResult;
 			if (pushTags)
 			{
-				new Git(repository).push().setRemote(remoteOrigin)
+				pushResult = new Git(repository).push().setRemote(remoteOrigin)
 					.setRefSpecs(new RefSpec(refLocalBranch)).setPushTags().call();
 			}
 			else
 			{
-				new Git(repository).push().setRemote(remoteOrigin)
+				pushResult = new Git(repository).push().setRemote(remoteOrigin)
 					.setRefSpecs(new RefSpec(refLocalBranch)).call();
+			}
+
+			RemoteRefUpdate.Status refStatus = null;
+			for (final PushResult result : pushResult)
+			{
+				refStatus = result.getRemoteUpdate(refLocalBranch).getStatus();
+				if (refStatus != null)
+				{
+					break;
+				}
+			}
+			if (null == refStatus)
+			{
+				throw new VCSException("Unable to push branch with reason: unknown",
+					new IllegalStateException(
+						"The branch must be merged or manually corrected before continuing"));
+			}
+			switch (refStatus)
+			{
+			case OK:
+			case UP_TO_DATE:
+				// Success, do nothing
+				break;
+
+			default:
+				throw new VCSException("Unable to push branch with reason: " + refStatus,
+					new IllegalStateException(
+						"The branch must be merged or manually corrected before continuing"));
+
 			}
 		}
 		catch (final IOException e)

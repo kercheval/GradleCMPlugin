@@ -2,9 +2,7 @@ package org.kercheval.gradle.buildrelease;
 
 import groovy.lang.Closure;
 
-import java.io.File;
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -96,12 +94,11 @@ public class BuildReleasePlugin
 
 	}
 
-	private void tagAndPush(final Project project, final BuildReleaseInitTask currentTask,
+	protected void tagAndPush(final Project project, final BuildReleaseInitTask currentTask,
 		final boolean forceOnBranch)
 	{
 		try
 		{
-			final Map<String, ?> props = project.getProperties();
 			final BuildVCSTask vcsTask = (BuildVCSTask) new GradleUtil(project)
 				.getTask(BuildVCSPlugin.VCS_TASK_NAME);
 
@@ -111,8 +108,7 @@ public class BuildReleasePlugin
 			if (!IVCSAccess.Type.NONE.toString().toLowerCase()
 				.equals(vcsTask.getType().toLowerCase()))
 			{
-				final VCSTaskUtil vcsUtil = new VCSTaskUtil(vcsTask.getType(),
-					(File) props.get("rootDir"), project.getLogger());
+				final VCSTaskUtil vcsUtil = new VCSTaskUtil(project);
 
 				//
 				// Get the current release init task to obtain the branch and origin
@@ -127,7 +123,7 @@ public class BuildReleasePlugin
 					//
 					// Verify we are on the right branch to perform this task.
 					//
-					vcsUtil.validateWorkspaceBranchName(currentTask, initTask.getReleasebranch());
+					vcsUtil.validateWorkspaceBranchName(initTask.getReleasebranch());
 					isOnBranch = true;
 				}
 				else
@@ -142,7 +138,7 @@ public class BuildReleasePlugin
 					//
 					if (currentTask.isOnlyifclean())
 					{
-						vcsUtil.validateWorkspaceIsClean(currentTask);
+						vcsUtil.validateWorkspaceIsClean();
 					}
 
 					//

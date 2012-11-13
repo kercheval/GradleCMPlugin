@@ -28,66 +28,73 @@ public class BuildVCSTaskTest
 		VCSException
 	{
 		final JGitTestRepository repoUtil = new JGitTestRepository();
-		final Project project = ProjectBuilder.builder().withProjectDir(repoUtil.getOriginFile())
-			.build();
-		final GradleUtil gradleUtil = new GradleUtil(project);
-
-		project.apply(new LinkedHashMap<String, String>()
+		try
 		{
+			final Project project = ProjectBuilder.builder()
+				.withProjectDir(repoUtil.getOriginFile()).build();
+			final GradleUtil gradleUtil = new GradleUtil(project);
+
+			project.apply(new LinkedHashMap<String, String>()
 			{
-				put("plugin", "buildvcs");
+				{
+					put("plugin", "buildvcs");
+				}
+			});
+			final BuildVCSTask task = (BuildVCSTask) gradleUtil.getTask("buildvcs");
+
+			try
+			{
+				task.setType("Blat");
+				Assert.fail("Expected Exception");
 			}
-		});
-		final BuildVCSTask task = (BuildVCSTask) gradleUtil.getTask("buildvcs");
+			catch (final IllegalArgumentException e)
+			{
+				// expected
+			}
 
-		try
-		{
-			task.setType("Blat");
-			Assert.fail("Expected Exception");
+			task.setType("none");
+
+			Assert.assertEquals(IVCSAccess.Type.NONE.toString().toLowerCase(), task.getType());
+			Assert.assertTrue(task.isClean());
+
+			final VCSStatus status = task.getStatus();
+			Assert.assertNotNull(status);
+			Assert.assertTrue(status.isClean());
+
+			List<VCSTag> tagList = task.getAllTags();
+			Assert.assertNotNull(tagList);
+			Assert.assertTrue(tagList.isEmpty());
+
+			tagList = task.getTags(".*");
+			Assert.assertNotNull(tagList);
+			Assert.assertTrue(tagList.isEmpty());
+
+			final Properties props = task.getInfo();
+			Assert.assertNotNull(props);
+			Assert.assertTrue(props.isEmpty());
+
+			try
+			{
+				task.createTag("name", "comment");
+				Assert.fail("Expected exception");
+			}
+			catch (final VCSException e)
+			{
+				// expected
+			}
+			try
+			{
+				task.getBranchName();
+				Assert.fail("Expected exception");
+			}
+			catch (final VCSException e)
+			{
+				// expected
+			}
 		}
-		catch (final IllegalArgumentException e)
+		finally
 		{
-			// expected
-		}
-
-		task.setType("none");
-
-		Assert.assertEquals(IVCSAccess.Type.NONE.toString().toLowerCase(), task.getType());
-		Assert.assertTrue(task.isClean());
-
-		final VCSStatus status = task.getStatus();
-		Assert.assertNotNull(status);
-		Assert.assertTrue(status.isClean());
-
-		List<VCSTag> tagList = task.getAllTags();
-		Assert.assertNotNull(tagList);
-		Assert.assertTrue(tagList.isEmpty());
-
-		tagList = task.getTags(".*");
-		Assert.assertNotNull(tagList);
-		Assert.assertTrue(tagList.isEmpty());
-
-		final Properties props = task.getInfo();
-		Assert.assertNotNull(props);
-		Assert.assertTrue(props.isEmpty());
-
-		try
-		{
-			task.createTag("name", "comment");
-			Assert.fail("Expected exception");
-		}
-		catch (final VCSException e)
-		{
-			// expected
-		}
-		try
-		{
-			task.getBranchName();
-			Assert.fail("Expected exception");
-		}
-		catch (final VCSException e)
-		{
-			// expected
+			repoUtil.close();
 		}
 	}
 }
