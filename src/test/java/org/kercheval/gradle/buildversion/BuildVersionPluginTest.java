@@ -1,7 +1,8 @@
-package org.kercheval.gradle.gradlecm;
+package org.kercheval.gradle.buildversion;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.Set;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
@@ -13,11 +14,10 @@ import org.junit.Test;
 import org.kercheval.gradle.util.GradleUtil;
 import org.kercheval.gradle.vcs.JGitTestRepository;
 
-public class GradleCMPluginTest
+public class BuildVersionPluginTest
 {
-
 	@Test
-	public void testGradleCMPlugin()
+	public void testPlugin()
 		throws InvalidRemoteException, TransportException, IOException, GitAPIException
 	{
 		final JGitTestRepository repoUtil = new JGitTestRepository();
@@ -27,21 +27,29 @@ public class GradleCMPluginTest
 				.withProjectDir(repoUtil.getOriginFile()).build();
 			final GradleUtil gradleUtil = new GradleUtil(project);
 
-			Assert.assertNull(gradleUtil.getTask("buildinfo"));
+			Assert.assertNull(gradleUtil.getTask("buildversion"));
 
 			project.apply(new LinkedHashMap<String, String>()
 			{
 				{
-					put("plugin", "gradlecm");
+					put("plugin", "buildversion");
 				}
 			});
 
-			Assert.assertNotNull(gradleUtil.getTask("buildinfo"));
-			Assert.assertNotNull(gradleUtil.getTask("buildversion"));
-			Assert.assertNotNull(gradleUtil.getTask("buildversiontag"));
-			Assert.assertNotNull(gradleUtil.getTask("buildreleaseinit"));
-			Assert.assertNotNull(gradleUtil.getTask("buildreleasemerge"));
 			Assert.assertNotNull(gradleUtil.getTask("buildvcs"));
+
+			final BuildVersionTask versionTask = (BuildVersionTask) gradleUtil
+				.getTask("buildversion");
+			Assert.assertNotNull(versionTask);
+
+			final BuildVersionTagTask tagTask = (BuildVersionTagTask) gradleUtil
+				.getTask("buildversiontag");
+			Assert.assertNotNull(tagTask);
+
+			final Set<Object> dependsSet = tagTask.getDependsOn();
+			System.out.println(dependsSet);
+			Assert.assertEquals(2, dependsSet.size());
+			Assert.assertTrue(dependsSet.contains(":buildversion"));
 		}
 		finally
 		{
