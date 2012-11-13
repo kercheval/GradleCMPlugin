@@ -29,10 +29,7 @@ buildreleaseinit {
 	mainlinebranch = "mainline"
 	releasebranch = "releasetestbranch"
 	uploadtask = "uploadArchives"
-}
-
-task buildmergeandrelease {
-	dependsOn buildreleasemerge, uploadArchives
+	ignoreorigin = true
 }
 
 task isClean << {

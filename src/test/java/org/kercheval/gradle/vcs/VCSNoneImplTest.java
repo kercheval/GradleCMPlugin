@@ -72,7 +72,7 @@ public class VCSNoneImplTest
 		}
 		try
 		{
-			vcs.mergeBranch("origin");
+			vcs.mergeBranch("master", "origin");
 			Assert.fail("Expected exception");
 		}
 		catch (final VCSException e)
