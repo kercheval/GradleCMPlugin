@@ -1,9 +1,5 @@
 package org.kercheval.gradle.vcs;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -130,8 +126,8 @@ public class VCSGitImplTest
 			git.fetch("myOrigin");
 			originHead = getRef(repoUtil.getStandardRepo(), "refs/remotes/myOrigin/master");
 			localHead = getRef(repoUtil.getStandardRepo(), "refs/heads/master");
-			Assert.assertNotEquals(localHead.getObjectId().getName(), originHead.getObjectId()
-				.getName());
+			Assert.assertFalse(localHead.getObjectId().getName()
+				.equals(originHead.getObjectId().getName()));
 
 			git.mergeBranch("myOrigin");
 			originHead = getRef(repoUtil.getStandardRepo(), "refs/remotes/myOrigin/master");
@@ -148,8 +144,8 @@ public class VCSGitImplTest
 				.setMessage("First commit into origin repository").call();
 			getRef(repoUtil.getStandardRepo(), "refs/heads/master");
 			final Ref newLocalHead = getRef(repoUtil.getStandardRepo(), "refs/heads/master");
-			Assert.assertNotEquals(localHead.getObjectId().getName(), newLocalHead.getObjectId()
-				.getName());
+			Assert.assertFalse(localHead.getObjectId().getName()
+				.equals(newLocalHead.getObjectId().getName()));
 			new Git(repoUtil.getStandardRepo()).tag().setName("NEW_TAG").setMessage("Test of Push")
 				.call();
 			Assert.assertNotNull(getRef(repoUtil.getStandardRepo(), "refs/tags/NEW_TAG"));
@@ -191,11 +187,11 @@ public class VCSGitImplTest
 			}
 			catch (final IOException e)
 			{
-				fail();
+				Assert.fail();
 			}
 
-			assertNotNull(props);
-			assertTrue(props.size() > 0);
+			Assert.assertNotNull(props);
+			Assert.assertTrue(props.size() > 0);
 		}
 		finally
 		{
@@ -273,8 +269,8 @@ public class VCSGitImplTest
 			git.fetch("myOrigin");
 			originHead = getRef(repoUtil.getStandardRepo(), "refs/remotes/myOrigin/master");
 			localHead = getRef(repoUtil.getStandardRepo(), "refs/heads/master");
-			Assert.assertNotEquals(localHead.getObjectId().getName(), originHead.getObjectId()
-				.getName());
+			Assert.assertFalse(localHead.getObjectId().getName()
+				.equals(originHead.getObjectId().getName()));
 
 			final File newFile = new File(repoUtil.getStandardFile().getAbsolutePath()
 				+ "/EmptySecondFile.txt");
@@ -288,7 +284,7 @@ public class VCSGitImplTest
 			try
 			{
 				git.mergeBranch("myOrigin");
-				fail("Merge conflict expected");
+				Assert.fail("Merge conflict expected");
 			}
 			catch (final VCSException e)
 			{

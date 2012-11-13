@@ -65,8 +65,6 @@ public class BuildReleaseInitTask
 	//
 	private boolean onlyifclean = DEFAULT_ONLYIFCLEAN;
 
-	// TODO Unit tests
-
 	@TaskAction
 	public void doTask()
 	{

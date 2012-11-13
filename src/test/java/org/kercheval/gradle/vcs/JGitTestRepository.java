@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
@@ -14,6 +13,7 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
+import org.eclipse.jgit.util.FileUtils;
 
 public class JGitTestRepository
 {
@@ -65,10 +65,9 @@ public class JGitTestRepository
 
 	private void deleteTemporaryDirectories()
 	{
-
 		try
 		{
-			FileUtils.deleteDirectory(getOriginFile());
+			FileUtils.delete(getOriginFile(), FileUtils.RECURSIVE);
 		}
 		catch (final Exception e)
 		{
@@ -76,7 +75,7 @@ public class JGitTestRepository
 		}
 		try
 		{
-			FileUtils.deleteDirectory(getStandardFile());
+			FileUtils.delete(getStandardFile(), FileUtils.RECURSIVE);
 		}
 		catch (final Exception e)
 		{
@@ -136,8 +135,6 @@ public class JGitTestRepository
 		//
 		originGit.branchCreate().setName("OriginBranch1").setForce(false).call();
 		originGit.branchCreate().setName("OriginBranch2").setForce(false).call();
-		originGit.branchCreate().setName("OriginBranch3").setForce(false).call();
-		originGit.branchCreate().setName("OriginBranch4").setForce(false).call();
 
 		//
 		// Clone the origin
@@ -151,6 +148,12 @@ public class JGitTestRepository
 			.setStartPoint("refs/remotes/myOrigin/OriginBranch2").setForce(false).call();
 		standardGit.branchCreate().setName("StandardBranch1").setForce(false).call();
 		standardGit.branchCreate().setName("StandardBranch2").setForce(false).call();
+
+		//
+		// Branches origin not on standard
+		//
+		originGit.branchCreate().setName("OriginBranch3").setForce(false).call();
+		originGit.branchCreate().setName("OriginBranch4").setForce(false).call();
 
 		//
 		// Add another file to the origin
