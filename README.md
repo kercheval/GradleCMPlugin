@@ -6,6 +6,9 @@ This project is a set of plugins intended to support standard
 configuration management practices that are not necessarily well
 supported in gradle.  
 
+The [GradleCM Plugin](#gradlecm-plugin) is a simple plugin that
+applies all the plugins that are a part of this plugin package.
+
 The [Build Info Plugin](#build-info-plugin) supports creation of a build time 
 info properties file which is a part of the build artifacts.
 
@@ -36,6 +39,20 @@ buildscript {
 	}
 }
 ```
+
+##GradleCM Plugin
+
+After ensuring the plugin is in your script dependencies, add an apply
+line to your gradle build file.
+
+```
+apply plugin: 'gradlecm'
+```
+
+This will cause all plugins from this plugin set to be applied in the
+gradle file and will result in default behaviors (suggested).  All
+plugin variables are accessed as described in the plugin specific
+sections below.
 
 ##Build Info Plugin
 
@@ -187,7 +204,7 @@ an empty map (see example below).
 
 ###Build Info Examples
 
-*Example 1* To automatically add build info into a zip file in the directory
+`Example 1` To automatically add build info into a zip file in the directory
 'testingdir' you can add the specific task to the task map (overriding
 the defaults).  In this example we preserve the copy of
 buildinfo.properties into newly created jar files.
