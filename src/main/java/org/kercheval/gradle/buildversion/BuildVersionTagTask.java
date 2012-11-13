@@ -13,7 +13,7 @@ import org.kercheval.gradle.vcs.VCSTaskUtil;
 public class BuildVersionTagTask
 	extends DefaultTask
 {
-	public static final String DEFAULT_COMMENT = "Tag created by "
+	public static final String DEFAULT_COMMENT = "Tag created by task "
 		+ BuildVersionPlugin.TAG_TASK_NAME;
 	public static final boolean DEFAULT_ONLYIFCLEAN = true;
 	//

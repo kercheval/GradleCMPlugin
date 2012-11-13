@@ -20,9 +20,20 @@ The [Build Version Plugin](#build-version-plugin) supports the tracking,
 update and tagging for version numbers in your project and artifacts.
 
 - [Quick Start](#build-version-quick-start)
-- [Variables for 'buildversion'](#the-buildversion-task)
-- [Variables for 'buildversiontag'](#the-buildversiontag-task)
+- [Variables for `buildversion`](#the-buildversion-task)
+- [Variables for `buildversiontag`](#the-buildversiontag-task)
 - [Examples](#build-version-examples)
+
+The [Build Release Plugin](#build-release-plugin) supports the
+maintenance of a release branch and hooks into the publication tasks
+for gradle to ensure correct source merge and version tagging when
+doing a release artifact publication.
+
+- [Quick Start](#build-release-quick-start)
+- [Variables for `buildreleaseinit`](#the-buildreleaseinit-task)
+- [Variables for `buildreleasemerge`](#the-buildreleasemerge-task)
+- [Variables for `buildrelease`](#the-buildrelease-task)
+- [Examples](#build-release-examples)
 
 To use these plugins, add a buildscript section for the plugin
 dependency in your build gradle file.  Note that the example below
@@ -53,6 +64,9 @@ This will cause all plugins from this plugin set to be applied in the
 gradle file and will result in default behaviors (suggested).  All
 plugin variables are accessed as described in the plugin specific
 sections below.
+
+Note:  If you apply the gradlecm plugin, you need not apply any of the
+following plugin as described in their quick summary sections.
 
 ##Build Info Plugin
 
@@ -88,7 +102,7 @@ jar, war and ear files.
 ###Build Info Variables
 
 Most behaviors of this plugin are modifiable by setting custom
-variables in your gradle build file in the 'buildinfo' task
+variables in your gradle build file in the `buildinfo` task
 configuration as illustrated in the examples below.
 
 <table style="border: 1px solid black;">
@@ -204,7 +218,7 @@ an empty map (see example below).
 
 ###Build Info Examples
 
-`Example 1` To automatically add build info into a zip file in the directory
+**Example 1** To automatically add build info into a zip file in the directory
 'testingdir' you can add the specific task to the task map (overriding
 the defaults).  In this example we preserve the copy of
 buildinfo.properties into newly created jar files.
@@ -223,7 +237,7 @@ task helloZip(type: Zip) {
 }
 ```
 
-*Example 2* To add the build info file into other files (such as a zip, sync or
+**Example 2** To add the build info file into other files (such as a zip, sync or
 other location), you can add your target to the buildinfo taskmap
 variable or just do a standard copy as follows.  This is the approach
 you would take for tasks that are not derived somehow from a
@@ -245,7 +259,7 @@ task myZip (type: Zip) {
 }
 ```
 
-*Example 3* To add some custom data to your build info file, add the custom info
+**Example 3** To add some custom data to your build info file, add the custom info
 map variable to the buildinfo configuration section.  Remember the map
 values can be any object at all and the value will be derived from
 the default toString() behavior of the object.
@@ -260,7 +274,7 @@ buildinfo {
 }
 ```
 
-*Example 4* To prevent automatic injection into any tasks, assign an empty map to
+**Example 4** To prevent automatic injection into any tasks, assign an empty map to
 the taskmap.
 
 ```
@@ -269,7 +283,7 @@ buildinfo {
 }
 ```
 
-*Example 5* To customize the location and name of the build info file use the
+**Example 5** To customize the location and name of the build info file use the
 filedir and filename variables
 
 ```
@@ -368,8 +382,9 @@ current version format.  This tag is written to the local repository
 for the vcs, so if you wish these tags published in a central
 repository, you will need to push the tags to the origin repository
 explicitly (this would be 'git push origin --tags' for git users).
-The buildversiontag task always depends on the buildversion task and
-will use variables created in buildversion task for tag output.
+The `buildversiontag` task always depends on the `buildversion` task
+and will use variables created in the `buildversion` configuration
+block for tag output.
 
 The tag and comment inserted into VCS will be output when the --info
 command line option is used on the gradle command line.
@@ -386,7 +401,7 @@ apply plugin: 'buildversion'
 This will automatically cause the tag list to be parsed and the
 version object to be placed in project.version.  
 
-The buildversiontag task must be executed seperately by an explicit
+The `buildversiontag` task must be executed seperately by an explicit
 gradle call 
 
 ```
@@ -404,14 +419,14 @@ task doTag(dependsOn: buildversiontag) << {
 
 ###Build Version Variables
 
-####The 'buildversion' task
+####The `buildversion` task
 
-The primary output of the buildversion task is to place an
+The primary output of the `buildversion` task is to place an
 org.kercheval.gradle.buildversion.BuildVersion object as the
 project.version object.  This object can be referenced by using
-'project.version' or 'buildversion.version'.
+`project.version` or `buildversion.version`.
 
-The buildversion task behavior can be modified by the following
+The `buildversion` task behavior can be modified by the following
 variables.
 
 <table style="border: 1px solid black;">
@@ -455,9 +470,9 @@ on the most recent tag which matches the version pattern.  If a tag
 matching the pattern does not exist, then the values initially set in
 the version variable will be used (these values all default to zero).
 See the version variable for details on the pattern set and default
-values.  When set to false, the buildversion task will not do any tag
+values.  When set to false, the `buildversion` task will not do any tag
 list evaluation at all and will only use the values set in the
-buildversion configuration block.
+`buildversion` configuration block.
 </p>
 		</td>
 	</tr>
@@ -525,10 +540,10 @@ shown in the examples section.
 <p>
 There are a few useful methods that can be used on the version object.
 Normally, these methods should be used only after the initial
-buildversion task has been run.  This is most easily accomplished by
+`buildversion` task has been run.  This is most easily accomplished by
 the use of a doLast closure in the configuration block for
-buildversion (see examples) or usage on any task run after
-buildversion.
+`buildversion` (see examples) or usage on any task run after
+`buildversion`.
 </p>
 <p>
 <strong>version.setPattern(String pattern)</strong> - This method will set the version
@@ -592,17 +607,17 @@ form of later task execution (and thus late project.version binding).
 	</tr>
 </table>
 
-####The 'buildversiontag' task
+####The `buildversiontag` task
 
-By default the buildversiontag task will generate a tag in the current
+By default the `buildversiontag` task will generate a tag in the current
 branch of your VCS using the pattern for the version specified by the
-buildversion task.  Normally, this will only be allowed when the
+`buildversion` task.  Normally, this will only be allowed when the
 current workspace is considered clean (no modified/added/deleted
 files).  The intent of the written tag is to represent a reproducible
 build point so the tag will be attached to the current checkout commit
 (usually the HEAD in git).
  
-The buildversiontag task behavior can be modified by the following
+The `buildversiontag` task behavior can be modified by the following
 variables.
 
 <table style="border: 1px solid black;">
@@ -614,7 +629,7 @@ variables.
 		<td>comment</td>
 		<td>
 <p>
-Default: <strong>"Tag created by buildversiontag"</strong>
+Default: <strong>"Tag created by task buildversiontag"</strong>
 </p>
 <p>
 The comment variable determines the comment or description field for
@@ -632,7 +647,7 @@ Default: <strong>true</strong>
 </p>
 <p>
 When the onlyifclean variable is set to true, the build will fail if
-the buildversiontag task is run when the current workspace is not
+the `buildversiontag` task is run when the current workspace is not
 clean.  To be clean, all modified/added/deleted files must be
 committed and the current workspace must represent a specific commit
 of the vcs system (note it is NOT necessary that the tag be at the
@@ -653,7 +668,7 @@ should normally remain true.
 
 ###Build Version Examples
 
-*Example 1* To prevent the version from auto incrementing so that the version
+**Example 1** To prevent the version from auto incrementing so that the version
 reflects the last tag value (rather than the 'next' version).
 
 ```
@@ -662,7 +677,7 @@ buildversion {
 }
 ```
 
-*Example 2* To set a specific major version after the initial revision
+**Example 2** To set a specific major version after the initial revision
 has been obtained from tags.  Note the use of the doLast closure
 (should be used anytime you are explicitly setting a value when usetag
 is true).  Note that this example could use the updateMajor() method
@@ -677,7 +692,7 @@ buildversion {
 }
 ```
 
-*Example 3* To use a specific version number that is controlled only by gradle
+**Example 3** To use a specific version number that is controlled only by gradle
 variables (this example will result in version 3.3).  (Use autoincrement
 set to false to have the version match exactly).
 
@@ -689,7 +704,7 @@ buildversion {
 }
 ```
 
-*Example 4* To use a 'classic' major.minor.build version scheme that is set via
+**Example 4** To use a 'classic' major.minor.build version scheme that is set via
 gradle variable usage.
 
 ```
@@ -702,7 +717,7 @@ buildversion {
 }
 ```
 
-*Example 5* To create a version string that has only a major and minor version
+**Example 5** To create a version string that has only a major and minor version
 
 ```
 buildversion {
@@ -710,7 +725,7 @@ buildversion {
 }
 ```
 
-*Example 6* To create a branch specific version pattern
+**Example 6** To create a branch specific version pattern
 
 ```
 def currentBranch = 'mainline'
@@ -720,7 +735,7 @@ buildversion {
 }
 ```
 
-*Example 7* To create a validation pattern and version pattern to
+**Example 7** To create a validation pattern and version pattern to
 create a branch specific version (useful for hotfix branches, parallel
 development, etc.) but will grab the most recent tag from any branch
 (named without numbers).  Note that the regex can be arbitrarily
@@ -735,7 +750,7 @@ buildversion {
 }
 ```
 
-*Example 8* To explicitly increment the version in a task through the project
+**Example 8** To explicitly increment the version in a task through the project
 variable (note the << is the same as using a doFirst closure)
 
 ```
@@ -744,7 +759,8 @@ task doIncrementBeforeAction << {
 }
 ```
 
-*Example 9* To set a comment for the tag created by the buildversiontag task
+**Example 9** To set a comment for the tag created by the
+`buildversiontag` task
 
 ```
 buildversiontag {
@@ -752,7 +768,7 @@ buildversiontag {
 }
 ```
 
-*Example 10* To allow tags to be generated even when the workspace has uncommitted
+**Example 10** To allow tags to be generated even when the workspace has uncommitted
 changes.
 
 ```
@@ -761,7 +777,7 @@ buildversiontag {
 }
 ```
 
-*Example 11* To set a comment and increment the version prior to writing a version
+**Example 11** To set a comment and increment the version prior to writing a version
 tag.
 
 ```
@@ -773,7 +789,7 @@ buildversiontag {
 }
 ```
 
-*Example 12* To create a version based on the year, a minor version and
+**Example 12** To create a version based on the year, a minor version and
 the current build number (ie r2012.1.345)
 
 ```
@@ -792,7 +808,7 @@ buildversion {
 }  
 ```
 
-*Example 13* To create a version based on build type (release does a
+**Example 13** To create a version based on build type (release does a
 full version, but dev mainline creates snapshot builds).  In this
 example the major version is part of the configuration file as well.
 
@@ -834,7 +850,7 @@ buildversion {
 }
 ```
 
-*Example 14* To ensure that on every update to a repository (via the
+**Example 14** To ensure that on every update to a repository (via the
 maven plugin) you get a valid tag in the current branch.  This is done
 by adding a doFirst closure to the maven upload target.  The tag is
 created whenever you are not doing a snapshot upload in this example.
@@ -855,6 +871,309 @@ This plugin hooks task graph completion (which occurs right after the
 configuration phase of a gradle run).  Note that the version variable
 will not be referencable as described in the variable section via the
 project until after this task has run.
+
+##Build Release Plugin
+
+###Summary
+
+The buildrelease plugin supports the consistent promotion and
+publication of release artifacts.  This plugin maintains a knowledge
+of your mainline branch, release branch, remote origin repository and
+upload target and ensures that when artifacts are published a consisten
+merge occurs to the release branch, a version specific tag is created
+and that those changed are pushed to your remote repository prior to
+artifact upload.  This plugin also supports these functions for those
+using repositories without remote origins (local only development).
+
+This plugin will interact with the local and remote repositories, but
+will not change branches in the current workspace.  See the details
+regarding this behavior in the task description for
+`buildreleasemerge`.
+
+This plugin explicitly uses the buildversion plugin and the
+`buildversiontag` task.
+
+This plugin is designed to optimize repository use for both
+development and build/deploy.  The default development mainline is
+assumed to be the 'master' branch and the release branch is assumed to
+be the branch named 'release'.  These can be changed in the variables
+defined for the `buildreleaseinit` target.
+
+There are three tasks defined in this plugin:
+
+####buildreleaseinit
+
+This task initializes the build environment necessary to use the
+release plugin.  This task is typically used only once for a project,
+but the variables defined by this task are used by the other release
+plugin components.
+
+At the completion of this task, the release and development branches
+will exist in the local and remote repositories.
+
+####buildreleasemerge
+
+This task is responsible for ensuring that all changes from the remote
+origin are merged to the local repository and merging the changes
+from the development mainline into the release branch.
+
+This task will push the local repository updates and any tags
+generated to the remote origin repository.
+
+####buildrelease
+
+This is simple task build and release task that has no variables or
+custom behavior except that defined by the other release tasks.
+
+###Build Version Quick Start
+
+After ensuring the plugin is in your script dependencies, add an apply
+line to your gradle build file.
+
+```
+apply plugin: 'buildrelease'
+```
+
+This will ensure the upload target specified in the configuration
+block for `buildreleaseinit` is hooked to ensure that release artifact
+publication results in appropriately updated repositories and tags
+being set for the publication.
+
+###Build Release Variables
+
+####The `buildreleaseinit` task
+
+The primary purpose and result of the `buildreleaseinit` task is to
+create the branches required for code promotion and artifact
+publication.  This task is a dependency for the `buildreleasemerge`
+task.
+
+Running this task will synchronize the local and remote repository
+branch structure for the two branches in question.  This allows for
+clones taking over the role of release delivery and simpler trasfer of
+the role of different repositories.
+
+In particular there are several initial conditions for each branch
+
+- Both the local and remote already have the branch (no changes are
+made).
+- The local has the branch but the remote does not (the remote is
+created)
+- The remote has the branch but the local does not (the local is
+created)
+- Both the local and the remote do not have the branch (the branch is
+created on both repositories)
+
+In all cases, the result is that both the release and mainline
+branches will exist on both the local and remote repositories and will
+relate to each other as local and origin.
+
+**Note:** If the local and remote branches are found to exist it is
+assumed that they are on related code lines.  No validation is made
+by this task to ensure that the same named branches on remote and
+origin are connected.
+
+If this system is being setup without a remote repository this plugin
+will operate in a local repository only mode (see the ignoreorigin
+variable description)
+
+The `buildrelease` task behavior can be modified by the following
+variables.
+
+<table style="border: 1px solid black;">
+	<tr>
+		<th>Variable</td>
+		<th>Description</td>
+	</tr>
+	<tr>
+		<td>releasebranch</td>
+		<td>
+<p>
+Default: <strong>release</strong>
+</p>
+<p>
+This represents the release branch line for artifact upload.  During
+release artifact upload, it is this branch that will receive the
+merge from the mainline and this branch that will receive the target
+tag (though in git this distinction has very little meaning). 
+</p>
+<p>
+This variable should normally be different than that used for the mainline
+branch, however this is not enforced.  If you have a specific reason
+to do all development and release on a single branch, this is
+supported (though not necessarily recommended).
+</p>
+<p>
+The default name is the natural one for promotion and is, importantly, not
+the master branch.  The master branch is the normal default branch for
+remote repositories and should explicitly **not** be used for release
+activity (the chances for accidental modification are quite high).
+</p>
+		</td>
+	</tr>
+	<tr>
+		<td>mainlinebranch</td>
+		<td>
+<p>
+Default: <strong>master</strong>
+</p>
+<p>
+This variable represents the primary mainline branch in the system.
+This branch is the source of all code promoted to the release branch
+for artifact upload and publication.  While this branch may not be the
+chosen day to day development branch (depending on your teams needs)
+it is the reference source that should normally be be the source of
+snapshots and current potentially releasable source.
+</p>
+<p>
+The choice of the name 'master' for this branch is intentional.  By
+default, most repository clones (in git anyway) will possess this
+branch and that branch will be the default.  Individuals needing to
+make changes to your project will typically wish to clone your
+repository, make some changes and push back the changes (or create a
+pull request) without the overhead or worry of dealing with local
+branch/merge strategies.  This is not to say that local branches or
+more sophisticated usage is not normal or desirable, just that this
+variable default was chosen to make the task of update as simple and
+as straightforward as possible for the broadest demographic possible.
+</p>
+		</td>
+	</tr>
+	<tr>
+		<td>remoteorigin</td>
+		<td>
+<p>
+Default: <strong>origin</strong>
+</p>
+<p>
+This variable represents the remote repository origin.  In git this is
+typically called 'origin', but a remote can be pulled in from numerous
+sources.  Using a primary remote other than the default origin is not
+highly recommended, but supported by this plugin.  You will typically
+not change this value.
+</p>
+		</td>
+	</tr>
+	<tr>
+		<td>ignoreorigin</td>
+		<td>
+<p>
+Default: <strong>false</strong>
+</p>
+<p>
+Single repository workflows are a bit unusual when using a DVCS (like
+Git or Mercurial), but there are some use cases for this.  When true,
+the init and merge targets will not attempt to synchronize
+repositories with origins (present or not).  When this variable is set
+to false, all changes to repositories made by this plugin will be
+synchronized with the origin repository (fetch, merge, push and tag
+operations).
+</p>
+		</td>
+	</tr>
+	<tr>
+		<td>uploadtask</td>
+		<td>
+<p>
+Default: <strong>uploadArchives</strong>
+</p>
+<p>
+This variable represents the standard upload target you are using for
+publication.  The publication default target for Gradle is
+'uploadArchives' and this is the default value for this variable.
+</p>
+<p>
+This plugin does not actually do any publication of artifacts.  You
+may be using Ivy or Maven repositories (Nexus, Artifactory, etc) or
+you may be publishing to a machine folder or network drive.  The
+specific target that you are using for this purpose should be the
+value of this variable.
+</p>
+<p>
+As a point of practice, you should not normally need to set this
+variable as long as you have configured your uploadArchives
+configuration correctly.
+</p>
+<p>
+When the task graph has completed, the upload task is modified to
+first perform the following steps:
+
+<ol>
+<li>Determine if the workspace is on the release branch.  If not, just
+execute the upload task normally.  Otherwise complete the next steps.</li>
+<li>If the variable onlyifclean is set to true, determine if the
+workspace is clean.  If not, build execution is stopped.</li>
+<li>Tag the current branch with a tag named for the current gradle
+version (project.version).  This is accomplished by explicit execution
+of the <code>buildversiontag</code> task.</li>
+<li>If the variable ignoreorigin is false, the tag is pushed to the
+origin repository.  Failure to push the tag to the origin will result
+in build execution being stopped.</li>
+</ol>
+
+<strong>Note:</strong> The task hook is accomplished via a doFirst()
+closure.  If other doFirst() closures are created for your upload task
+(particularly if they are done dynamically), they may may be executed
+prior to tagging and push.  Be aware of this timing if you have
+additional customization to your upload task.
+</p>
+<p>
+Normally, the task `buildreleasemerge` should have been run prior to
+running the uploadArchive task, but there is no explicit dependency
+placed on the uploadArchive task.  Normally, artifact publication
+should be done via the use of the `buildreleaseupload` target which
+has appropriately ordered dependencies to ensure the repository
+merging occurs before build and upload.
+</p>
+		</td>
+	</tr>
+	<tr>
+		<td>onlyifclean</td>
+		<td>
+<p>
+Default: <strong>true</strong>
+</p>
+<p>
+</p>
+		</td>
+	</tr>
+</table>
+
+####The `buildreleasemerge` task
+
+This task is at the core of the buildrelease plugin.  When run, the
+following actions are taken:
+
+1. Verify the current branch is the release branch. 
+1. Verify the current workspace is clean.
+1. Fetch the origin content (when origin in use)
+1. Merge the origin release branch (when origin in use)
+1. Merge the mainline branch to the release branch
+1. Push the changes to the origin (when origin in use)
+
+Any failure at any step will result in build execution being stopped.
+
+**Note:** The merges both from the remote origin and from the mainline
+must be fast forward or no collision merges.  A merge failure at this
+point will result in a hard reset of the current branch and branch
+merges will need to be done manually.  All activity done on the
+release branch should be manually merged back into the mainline to
+prevent problems in this area.
+
+There are no variables supported by this task.
+
+####The `buildrelease` task
+
+This task is combines the merge and upload tasks via a dependsOn
+relationship.  This task depends on the buildreleasemerge and the
+upload task (defined in buildreleaseinit).  This task simplifies
+release semantics (particularly when using CI servers).
+
+There are no variables supported by this task.
+
+###Build Release Examples
+
+**Examples needed**
 
 ##Project Specifics
 
