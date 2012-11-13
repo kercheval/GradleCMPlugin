@@ -11,8 +11,6 @@ import org.kercheval.gradle.vcs.VCSTaskUtil;
 public class BuildReleaseMergeTask
 	extends DefaultTask
 {
-	// TODO Unit tests
-
 	@TaskAction
 	public void doTask()
 	{

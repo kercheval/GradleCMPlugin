@@ -162,6 +162,5 @@ public class BuildReleaseInitTaskTest
 		{
 			repoUtil.close();
 		}
-
 	}
 }

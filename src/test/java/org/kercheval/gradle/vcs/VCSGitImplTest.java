@@ -11,7 +11,6 @@ import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.Repository;
 import org.gradle.api.Project;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.Assert;
@@ -51,12 +50,6 @@ public class VCSGitImplTest
 		git.createBranch(branchName, originName, ignoreOrigin);
 		final Map<String, Ref> refMap = repoUtil.getOriginRepo().getAllRefs();
 		Assert.assertTrue(refMap.containsKey("refs/heads/" + branchName));
-	}
-
-	private Ref getRef(final Repository repository, final String refName)
-	{
-		final Map<String, Ref> refMap = repository.getAllRefs();
-		return refMap.get(refName);
 	}
 
 	@Test
@@ -116,22 +109,21 @@ public class VCSGitImplTest
 		final JGitTestRepository repoUtil = new JGitTestRepository();
 		try
 		{
-
-			Ref originHead = getRef(repoUtil.getStandardRepo(), "refs/remotes/myOrigin/master");
-			Ref localHead = getRef(repoUtil.getStandardRepo(), "refs/heads/master");
+			Ref originHead = repoUtil.getStandardRepo().getRef("refs/remotes/myOrigin/master");
+			Ref localHead = repoUtil.getStandardRepo().getRef("refs/heads/master");
 			Assert.assertEquals(localHead.getObjectId().getName(), originHead.getObjectId()
 				.getName());
 			final VCSGitImpl git = new VCSGitImpl(repoUtil.getStandardFile(), null);
 
 			git.fetch("myOrigin");
-			originHead = getRef(repoUtil.getStandardRepo(), "refs/remotes/myOrigin/master");
-			localHead = getRef(repoUtil.getStandardRepo(), "refs/heads/master");
+			originHead = repoUtil.getStandardRepo().getRef("refs/remotes/myOrigin/master");
+			localHead = repoUtil.getStandardRepo().getRef("refs/heads/master");
 			Assert.assertFalse(localHead.getObjectId().getName()
 				.equals(originHead.getObjectId().getName()));
 
 			git.mergeBranch("myOrigin");
-			originHead = getRef(repoUtil.getStandardRepo(), "refs/remotes/myOrigin/master");
-			localHead = getRef(repoUtil.getStandardRepo(), "refs/heads/master");
+			originHead = repoUtil.getStandardRepo().getRef("refs/remotes/myOrigin/master");
+			localHead = repoUtil.getStandardRepo().getRef("refs/heads/master");
 			Assert.assertEquals(localHead.getObjectId().getName(), originHead.getObjectId()
 				.getName());
 
@@ -142,26 +134,26 @@ public class VCSGitImplTest
 			new Git(repoUtil.getStandardRepo()).commit()
 				.setCommitter(new PersonIdent("JUNIT", "JUNIT@dev.build"))
 				.setMessage("First commit into origin repository").call();
-			getRef(repoUtil.getStandardRepo(), "refs/heads/master");
-			final Ref newLocalHead = getRef(repoUtil.getStandardRepo(), "refs/heads/master");
+			repoUtil.getStandardRepo().getRef("refs/heads/master");
+			final Ref newLocalHead = repoUtil.getStandardRepo().getRef("refs/heads/master");
 			Assert.assertFalse(localHead.getObjectId().getName()
 				.equals(newLocalHead.getObjectId().getName()));
 			new Git(repoUtil.getStandardRepo()).tag().setName("NEW_TAG").setMessage("Test of Push")
 				.call();
-			Assert.assertNotNull(getRef(repoUtil.getStandardRepo(), "refs/tags/NEW_TAG"));
-			Assert.assertNull(getRef(repoUtil.getOriginRepo(), "refs/tags/NEW_TAG"));
+			Assert.assertNotNull(repoUtil.getStandardRepo().getRef("refs/tags/NEW_TAG"));
+			Assert.assertNull(repoUtil.getOriginRepo().getRef("refs/tags/NEW_TAG"));
 
 			git.pushBranch("master", "myOrigin", true);
-			originHead = getRef(repoUtil.getStandardRepo(), "refs/remotes/myOrigin/master");
-			localHead = getRef(repoUtil.getStandardRepo(), "refs/heads/master");
+			originHead = repoUtil.getStandardRepo().getRef("refs/remotes/myOrigin/master");
+			localHead = repoUtil.getStandardRepo().getRef("refs/heads/master");
 			Assert.assertEquals(localHead.getObjectId().getName(), originHead.getObjectId()
 				.getName());
-			Assert.assertNotNull(getRef(repoUtil.getOriginRepo(), "refs/tags/NEW_TAG"));
+			Assert.assertNotNull(repoUtil.getOriginRepo().getRef("refs/tags/NEW_TAG"));
 			new Git(repoUtil.getStandardRepo()).tag().setName("ANOTHER_NEW_TAG")
 				.setMessage("Test of Push").call();
-			Assert.assertNull(getRef(repoUtil.getOriginRepo(), "refs/tags/ANOTHER_NEW_TAG"));
+			Assert.assertNull(repoUtil.getOriginRepo().getRef("refs/tags/ANOTHER_NEW_TAG"));
 			git.pushBranch("master", "myOrigin", false);
-			Assert.assertNull(getRef(repoUtil.getOriginRepo(), "refs/tags/ANOTHER_NEW_TAG"));
+			Assert.assertNull(repoUtil.getOriginRepo().getRef("refs/tags/ANOTHER_NEW_TAG"));
 		}
 		finally
 		{
@@ -261,14 +253,14 @@ public class VCSGitImplTest
 		try
 		{
 
-			Ref originHead = getRef(repoUtil.getStandardRepo(), "refs/remotes/myOrigin/master");
-			Ref localHead = getRef(repoUtil.getStandardRepo(), "refs/heads/master");
+			Ref originHead = repoUtil.getStandardRepo().getRef("refs/remotes/myOrigin/master");
+			Ref localHead = repoUtil.getStandardRepo().getRef("refs/heads/master");
 			Assert.assertEquals(localHead.getObjectId().getName(), originHead.getObjectId()
 				.getName());
 			final VCSGitImpl git = new VCSGitImpl(repoUtil.getStandardFile(), null);
 			git.fetch("myOrigin");
-			originHead = getRef(repoUtil.getStandardRepo(), "refs/remotes/myOrigin/master");
-			localHead = getRef(repoUtil.getStandardRepo(), "refs/heads/master");
+			originHead = repoUtil.getStandardRepo().getRef("refs/remotes/myOrigin/master");
+			localHead = repoUtil.getStandardRepo().getRef("refs/heads/master");
 			Assert.assertFalse(localHead.getObjectId().getName()
 				.equals(originHead.getObjectId().getName()));
 
@@ -279,7 +271,7 @@ public class VCSGitImplTest
 			new Git(repoUtil.getStandardRepo()).commit()
 				.setCommitter(new PersonIdent("JUNIT", "JUNIT@dev.build"))
 				.setMessage("First commit into origin repository").call();
-			final Ref oldLocalHead = getRef(repoUtil.getStandardRepo(), "refs/heads/master");
+			final Ref oldLocalHead = repoUtil.getStandardRepo().getRef("refs/heads/master");
 
 			try
 			{
@@ -288,7 +280,7 @@ public class VCSGitImplTest
 			}
 			catch (final VCSException e)
 			{
-				localHead = getRef(repoUtil.getStandardRepo(), "refs/heads/master");
+				localHead = repoUtil.getStandardRepo().getRef("refs/heads/master");
 				Assert.assertEquals(localHead.getObjectId().getName(), oldLocalHead.getObjectId()
 					.getName());
 			}
