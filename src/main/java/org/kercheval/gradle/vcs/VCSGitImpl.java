@@ -476,7 +476,7 @@ public class VCSGitImpl
 	}
 
 	@Override
-	public void mergeBranch(final String fromBranch, final String remoteOrigin)
+	public void mergeBranch(final String remoteOrigin)
 		throws VCSException
 	{
 
@@ -486,21 +486,10 @@ public class VCSGitImpl
 		{
 			repository = new RepositoryBuilder().readEnvironment().findGitDir(getSrcRootDir())
 				.build();
+			final String refLocalBranch = remoteOrigin + "/" + repository.getBranch();
 			final Git git = new Git(repository);
-			final MergeResult mergeResult;
-			String refBranchName = "refs/heads/" + fromBranch;
-			if (null != remoteOrigin)
-			{
-				refBranchName = remoteOrigin + "/" + fromBranch;
-			}
-
-			final Ref refBranch = repository.getRef(refBranchName);
-			if (null == refBranch)
-			{
-				throw new VCSException("Unable to merge branch: " + refBranchName,
-					new IllegalStateException("Branch does not exist"));
-			}
-			mergeResult = git.merge().include(refBranch).call();
+			final MergeResult mergeResult = git.merge().include(repository.getRef(refLocalBranch))
+				.call();
 
 			if (!mergeResult.getMergeStatus().isSuccessful())
 			{
@@ -519,31 +508,31 @@ public class VCSGitImpl
 		}
 		catch (final NoHeadException e)
 		{
-			throw new VCSException("Unable to merge branch: " + fromBranch, e);
+			throw new VCSException("Unable to merge branch: " + remoteOrigin, e);
 		}
 		catch (final ConcurrentRefUpdateException e)
 		{
-			throw new VCSException("Unable to merge branch: " + fromBranch, e);
+			throw new VCSException("Unable to merge branch: " + remoteOrigin, e);
 		}
 		catch (final CheckoutConflictException e)
 		{
-			throw new VCSException("Unable to merge branch: " + fromBranch, e);
+			throw new VCSException("Unable to merge branch: " + remoteOrigin, e);
 		}
 		catch (final InvalidMergeHeadsException e)
 		{
-			throw new VCSException("Unable to merge branch: " + fromBranch, e);
+			throw new VCSException("Unable to merge branch: " + remoteOrigin, e);
 		}
 		catch (final WrongRepositoryStateException e)
 		{
-			throw new VCSException("Unable to merge branch: " + fromBranch, e);
+			throw new VCSException("Unable to merge branch: " + remoteOrigin, e);
 		}
 		catch (final NoMessageException e)
 		{
-			throw new VCSException("Unable to merge branch: " + fromBranch, e);
+			throw new VCSException("Unable to merge branch: " + remoteOrigin, e);
 		}
 		catch (final GitAPIException e)
 		{
-			throw new VCSException("Unable to merge branch: " + fromBranch, e);
+			throw new VCSException("Unable to merge branch: " + remoteOrigin, e);
 		}
 		finally
 		{

@@ -121,7 +121,7 @@ public class VCSGitImplTest
 			Assert.assertFalse(localHead.getObjectId().getName()
 				.equals(originHead.getObjectId().getName()));
 
-			git.mergeBranch("master", "myOrigin");
+			git.mergeBranch("myOrigin");
 			originHead = repoUtil.getStandardRepo().getRef("refs/remotes/myOrigin/master");
 			localHead = repoUtil.getStandardRepo().getRef("refs/heads/master");
 			Assert.assertEquals(localHead.getObjectId().getName(), originHead.getObjectId()
@@ -275,7 +275,7 @@ public class VCSGitImplTest
 
 			try
 			{
-				git.mergeBranch("master", "myOrigin");
+				git.mergeBranch("myOrigin");
 				Assert.fail("Merge conflict expected");
 			}
 			catch (final VCSException e)
@@ -284,32 +284,6 @@ public class VCSGitImplTest
 				Assert.assertEquals(localHead.getObjectId().getName(), oldLocalHead.getObjectId()
 					.getName());
 			}
-		}
-		finally
-		{
-			repoUtil.close();
-		}
-	}
-
-	@Test
-	public void testMergeLocal()
-		throws VCSException, InvalidRemoteException, TransportException, IOException,
-		GitAPIException
-	{
-		final JGitTestRepository repoUtil = new JGitTestRepository();
-		try
-		{
-			final VCSGitImpl git = new VCSGitImpl(repoUtil.getStandardFile(), null);
-			try
-			{
-				git.mergeBranch("OriginalBranchNotPresent", null);
-				Assert.fail("Expected Exception");
-			}
-			catch (final VCSException e)
-			{
-				// Expected
-			}
-			git.mergeBranch("OriginBranch1", null);
 		}
 		finally
 		{

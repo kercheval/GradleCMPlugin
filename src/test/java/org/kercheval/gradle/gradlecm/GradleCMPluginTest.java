@@ -10,10 +10,6 @@ import org.gradle.api.Project;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.Assert;
 import org.junit.Test;
-import org.kercheval.gradle.buildinfo.BuildInfoPlugin;
-import org.kercheval.gradle.buildrelease.BuildReleasePlugin;
-import org.kercheval.gradle.buildvcs.BuildVCSPlugin;
-import org.kercheval.gradle.buildversion.BuildVersionPlugin;
 import org.kercheval.gradle.util.GradleUtil;
 import org.kercheval.gradle.vcs.JGitTestRepository;
 
@@ -31,22 +27,21 @@ public class GradleCMPluginTest
 				.withProjectDir(repoUtil.getOriginFile()).build();
 			final GradleUtil gradleUtil = new GradleUtil(project);
 
-			Assert.assertNull(gradleUtil.getTask(BuildInfoPlugin.INFO_TASK_NAME));
+			Assert.assertNull(gradleUtil.getTask("buildinfo"));
 
 			project.apply(new LinkedHashMap<String, String>()
 			{
 				{
-					put("plugin", GradleCMPlugin.GRADLE_CM_PLUGIN);
+					put("plugin", "gradlecm");
 				}
 			});
 
-			Assert.assertNotNull(gradleUtil.getTask(BuildInfoPlugin.INFO_TASK_NAME));
-			Assert.assertNotNull(gradleUtil.getTask(BuildVersionPlugin.VERSION_TASK_NAME));
-			Assert.assertNotNull(gradleUtil.getTask(BuildVersionPlugin.TAG_TASK_NAME));
-			Assert.assertNotNull(gradleUtil.getTask(BuildReleasePlugin.INIT_TASK_NAME));
-			Assert.assertNotNull(gradleUtil.getTask(BuildReleasePlugin.MERGE_TASK_NAME));
-			Assert.assertNotNull(gradleUtil.getTask(BuildReleasePlugin.RELEASE_TASK_NAME));
-			Assert.assertNotNull(gradleUtil.getTask(BuildVCSPlugin.VCS_TASK_NAME));
+			Assert.assertNotNull(gradleUtil.getTask("buildinfo"));
+			Assert.assertNotNull(gradleUtil.getTask("buildversion"));
+			Assert.assertNotNull(gradleUtil.getTask("buildversiontag"));
+			Assert.assertNotNull(gradleUtil.getTask("buildreleaseinit"));
+			Assert.assertNotNull(gradleUtil.getTask("buildreleasemerge"));
+			Assert.assertNotNull(gradleUtil.getTask("buildvcs"));
 		}
 		finally
 		{

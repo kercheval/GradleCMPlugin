@@ -3,7 +3,6 @@ package org.kercheval.gradle.buildrelease;
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashMap;
-import java.util.Set;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -43,36 +42,16 @@ public class BuildReleasePluginTest
 			project.apply(new LinkedHashMap<String, String>()
 			{
 				{
-					put("plugin", GradleCMPlugin.BUILD_RELEASE_PLUGIN);
+					put("plugin", "buildrelease");
 				}
 			});
-
-			final GradleUtil gradleUtil = new GradleUtil(project);
-
-			final BuildReleaseInitTask initTask = (BuildReleaseInitTask) gradleUtil
-				.getTask(BuildReleasePlugin.INIT_TASK_NAME);
-			final BuildReleaseTask releaseTask = (BuildReleaseTask) gradleUtil
-				.getTask(BuildReleasePlugin.RELEASE_TASK_NAME);
-			Assert.assertNotNull(releaseTask);
-
-			final Set<Object> dependsSet = releaseTask.getDependsOn();
-			Assert.assertEquals(3, dependsSet.size());
-			Assert.assertTrue(dependsSet.contains(":" + BuildReleasePlugin.MERGE_TASK_NAME));
-			Assert.assertTrue(dependsSet.contains(":" + initTask.getUploadtask()));
-
-			Assert.assertNotNull(gradleUtil.getTask(BuildVersionPlugin.VERSION_TASK_NAME));
-			Assert.assertNotNull(gradleUtil.getTask(BuildVersionPlugin.TAG_TASK_NAME));
-			Assert.assertNotNull(gradleUtil.getTask(BuildReleasePlugin.INIT_TASK_NAME));
-			Assert.assertNotNull(gradleUtil.getTask(BuildReleasePlugin.MERGE_TASK_NAME));
-			Assert.assertNotNull(gradleUtil.getTask(BuildVCSPlugin.VCS_TASK_NAME));
-
 			final BuildReleasePlugin plugin = (BuildReleasePlugin) project.getPlugins().findPlugin(
 				GradleCMPlugin.BUILD_RELEASE_PLUGIN);
-			final BuildReleaseInitTask releaseInitTask = (BuildReleaseInitTask) gradleUtil
-				.getTask(BuildReleasePlugin.INIT_TASK_NAME);
-			final BuildVersionTask versionTask = (BuildVersionTask) gradleUtil
+			final BuildReleaseInitTask releaseInitTask = (BuildReleaseInitTask) new GradleUtil(
+				project).getTask(BuildReleasePlugin.INIT_TASK_NAME);
+			final BuildVersionTask versionTask = (BuildVersionTask) new GradleUtil(project)
 				.getTask(BuildVersionPlugin.VERSION_TASK_NAME);
-			final BuildVCSTask vcsTask = (BuildVCSTask) gradleUtil
+			final BuildVCSTask vcsTask = (BuildVCSTask) new GradleUtil(project)
 				.getTask(BuildVCSPlugin.VCS_TASK_NAME);
 
 			//

@@ -84,10 +84,9 @@ public interface IVCSAccess
 	// Merge one branch into another. This will fail if there are
 	// any conflicts or merge changes required. To succeed the branch
 	// update must be the equivalent of a git fast-forward merge.
-	// Failure will throw a VCSException. If remoteOrigin is null
-	// the merge will be from the local branch 'fromBranch'.
+	// Failure will throw a VCSException.
 	//
-	public void mergeBranch(final String fromBranch, String remoteOrigin)
+	public void mergeBranch(final String remoteOrigin)
 		throws VCSException;
 
 	//

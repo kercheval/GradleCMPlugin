@@ -13,7 +13,6 @@ import org.gradle.api.tasks.TaskExecutionException;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.Assert;
 import org.junit.Test;
-import org.kercheval.gradle.gradlecm.GradleCMPlugin;
 import org.kercheval.gradle.util.GradleUtil;
 import org.kercheval.gradle.vcs.JGitTestRepository;
 
@@ -33,13 +32,13 @@ public class BuildReleaseMergeTaskTest
 			project.apply(new LinkedHashMap<String, String>()
 			{
 				{
-					put("plugin", GradleCMPlugin.BUILD_RELEASE_PLUGIN);
+					put("plugin", "buildrelease");
 				}
 			});
 			final BuildReleaseInitTask initTask = (BuildReleaseInitTask) gradleUtil
-				.getTask(BuildReleasePlugin.INIT_TASK_NAME);
+				.getTask("buildreleaseinit");
 			final BuildReleaseMergeTask mergeTask = (BuildReleaseMergeTask) gradleUtil
-				.getTask(BuildReleasePlugin.MERGE_TASK_NAME);
+				.getTask("buildreleasemerge");
 
 			initTask.setIgnoreorigin(true);
 
@@ -63,8 +62,8 @@ public class BuildReleaseMergeTaskTest
 
 			final Ref originHead = repoUtil.getOriginRepo().getRef("refs/heads/master");
 			Ref localHead = repoUtil.getStandardRepo().getRef("refs/heads/master");
-			Assert.assertFalse(localHead.getObjectId().getName()
-				.equals(originHead.getObjectId().getName()));
+			Assert.assertNotEquals(localHead.getObjectId().getName(), originHead.getObjectId()
+				.getName());
 
 			mergeTask.doTask();
 

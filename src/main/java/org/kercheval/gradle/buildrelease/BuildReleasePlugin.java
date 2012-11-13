@@ -26,7 +26,6 @@ public class BuildReleasePlugin
 {
 	public static final String INIT_TASK_NAME = "buildreleaseinit";
 	public static final String MERGE_TASK_NAME = "buildreleasemerge";
-	public static final String RELEASE_TASK_NAME = "buildrelease";
 
 	@Override
 	public void apply(final Project project)
@@ -54,10 +53,6 @@ public class BuildReleasePlugin
 		buildMergeTask
 			.setDescription("Update the release branch with changes made to the mainline branch");
 		buildMergeTask.setGroup(GradleUtil.PLUGIN_GROUP_NAME);
-		final BuildReleaseTask buildReleaseTask = project.getTasks().add(RELEASE_TASK_NAME,
-			BuildReleaseTask.class);
-		buildReleaseTask.setDescription("Run the " + MERGE_TASK_NAME + " and upload targets");
-		buildReleaseTask.setGroup(GradleUtil.PLUGIN_GROUP_NAME);
 
 		//
 		// The magic happens in a doFirst installed at task graph completion.

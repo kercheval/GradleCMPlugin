@@ -12,7 +12,6 @@ import org.gradle.api.tasks.TaskExecutionException;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.Assert;
 import org.junit.Test;
-import org.kercheval.gradle.gradlecm.GradleCMPlugin;
 import org.kercheval.gradle.util.GradleUtil;
 import org.kercheval.gradle.vcs.JGitTestRepository;
 
@@ -32,11 +31,11 @@ public class BuildReleaseInitTaskTest
 			project.apply(new LinkedHashMap<String, String>()
 			{
 				{
-					put("plugin", GradleCMPlugin.BUILD_RELEASE_PLUGIN);
+					put("plugin", "buildrelease");
 				}
 			});
 			final BuildReleaseInitTask task = (BuildReleaseInitTask) gradleUtil
-				.getTask(BuildReleasePlugin.INIT_TASK_NAME);
+				.getTask("buildreleaseinit");
 
 			String mainline = "testmainlinebranch";
 			String release = "testreleasebranch";

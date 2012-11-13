@@ -8,7 +8,6 @@ import org.gradle.api.Project;
 public class GradleCMPlugin
 	implements Plugin<Project>
 {
-	public static final String GRADLE_CM_PLUGIN = "gradlecm";
 	public static final String BUILD_INFO_PLUGIN = "buildinfo";
 	public static final String BUILD_VERSION_PLUGIN = "buildversion";
 	public static final String BUILD_RELEASE_PLUGIN = "buildrelease";

@@ -11,8 +11,6 @@ import org.gradle.api.Project;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.Assert;
 import org.junit.Test;
-import org.kercheval.gradle.buildvcs.BuildVCSPlugin;
-import org.kercheval.gradle.gradlecm.GradleCMPlugin;
 import org.kercheval.gradle.util.GradleUtil;
 import org.kercheval.gradle.vcs.JGitTestRepository;
 
@@ -29,28 +27,29 @@ public class BuildVersionPluginTest
 				.withProjectDir(repoUtil.getOriginFile()).build();
 			final GradleUtil gradleUtil = new GradleUtil(project);
 
-			Assert.assertNull(gradleUtil.getTask(BuildVersionPlugin.VERSION_TASK_NAME));
+			Assert.assertNull(gradleUtil.getTask("buildversion"));
 
 			project.apply(new LinkedHashMap<String, String>()
 			{
 				{
-					put("plugin", GradleCMPlugin.BUILD_VERSION_PLUGIN);
+					put("plugin", "buildversion");
 				}
 			});
 
-			Assert.assertNotNull(gradleUtil.getTask(BuildVCSPlugin.VCS_TASK_NAME));
+			Assert.assertNotNull(gradleUtil.getTask("buildvcs"));
 
 			final BuildVersionTask versionTask = (BuildVersionTask) gradleUtil
-				.getTask(BuildVersionPlugin.VERSION_TASK_NAME);
+				.getTask("buildversion");
 			Assert.assertNotNull(versionTask);
 
 			final BuildVersionTagTask tagTask = (BuildVersionTagTask) gradleUtil
-				.getTask(BuildVersionPlugin.TAG_TASK_NAME);
+				.getTask("buildversiontag");
 			Assert.assertNotNull(tagTask);
 
 			final Set<Object> dependsSet = tagTask.getDependsOn();
+			System.out.println(dependsSet);
 			Assert.assertEquals(2, dependsSet.size());
-			Assert.assertTrue(dependsSet.contains(":" + BuildVersionPlugin.VERSION_TASK_NAME));
+			Assert.assertTrue(dependsSet.contains(":buildversion"));
 		}
 		finally
 		{
