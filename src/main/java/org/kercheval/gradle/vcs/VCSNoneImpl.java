@@ -81,10 +81,10 @@ public class VCSNoneImpl
 	}
 
 	@Override
-	public void mergeBranch(final String remoteOrigin)
+	public void mergeBranch(final String fromBranch, String remoteOrigin)
 		throws VCSException
 	{
-		throw new VCSException("Unable to merge from " + remoteOrigin, new IllegalStateException(
+		throw new VCSException("Unable to merge from " + fromBranch, new IllegalStateException(
 			"No VCS associated with this build"));
 
 	}

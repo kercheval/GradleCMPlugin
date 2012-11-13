@@ -12,6 +12,7 @@ import org.gradle.api.Project;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.Assert;
 import org.junit.Test;
+import org.kercheval.gradle.gradlecm.GradleCMPlugin;
 import org.kercheval.gradle.util.GradleUtil;
 import org.kercheval.gradle.vcs.IVCSAccess;
 import org.kercheval.gradle.vcs.JGitTestRepository;
@@ -37,10 +38,11 @@ public class BuildVCSTaskTest
 			project.apply(new LinkedHashMap<String, String>()
 			{
 				{
-					put("plugin", "buildvcs");
+					put("plugin", GradleCMPlugin.BUILD_VCS_PLUGIN);
 				}
 			});
-			final BuildVCSTask task = (BuildVCSTask) gradleUtil.getTask("buildvcs");
+			final BuildVCSTask task = (BuildVCSTask) gradleUtil
+				.getTask(BuildVCSPlugin.VCS_TASK_NAME);
 
 			try
 			{
