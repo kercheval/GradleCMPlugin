@@ -1306,6 +1306,17 @@ merging occurs before build and upload.
 Default: <strong>true</strong>
 </p>
 <p>
+When false, the tag and merge steps in the `buildreleasemerge' task
+will allow the use of a dirty workspace.  This may be useful if
+intermediate files are added during build sequencing that are not part
+of your ignore file.  When true, this clean workspaces will be
+required for that target.
+</p>
+<p>
+<strong>Note:</strong> This variable setting will have no affect on
+the tagging and push actions associated with the specified upload
+task.  Setting this variable to false should be considered an error in
+usage normally and is highly discouraged.
 </p>
 		</td>
 	</tr>
@@ -1345,7 +1356,44 @@ There are no variables supported by this task.
 
 ###Build Release Examples
 
-**Examples needed**
+**Example 1** To set the mainline (development) branch to 'dev' and
+the release branch to 'prod'.
+
+```
+buildreleaseinit {
+	mainlinebranch = 'dev'
+	releasebranch = 'prod'
+}
+```
+
+**Example 2** To set the remote origin to 'myOrigin' (in a repository
+with multiple remotes) using the same mainline and release branch as
+Example 1.
+
+```
+buildreleaseinit {
+	mainlinebranch = 'dev'
+	releasebranch = 'prod'
+	remoteorigin = 'myOrigin'
+}
+```
+
+**Example 3** To ensure that origins will not be updated (working in a
+local repository environment)
+
+```
+buildreleaseinit {
+	ignoreorigin = true
+}
+```
+
+**Example 4** To use a custom artifact release task.
+
+```
+buildreleaseinit {
+	uploadtask = myUploadTask
+}
+```
 
 ##Project Specifics
 
@@ -1421,6 +1469,8 @@ relatively simple to accomplish.
 Do you like this plugin and just need a new information source, or
 have a useful plugin to contribute that surrounds configuration
 managment?  I welcome any contributions and pull requests.
+
+John Kercheval (kercheval@gmail.com)
 
 ##Licensing
 
