@@ -9,6 +9,16 @@ apply plugin: 'gradlecm'
 
 description = 'Gradle CM Plugin test build file'
 
+def branchName = buildvcs.getBranchName()
+
+buildversion {
+	version.pattern = "%M%.%m%-${branchName}"
+}
+
+task showVersion << {
+	project.println(version);
+}
+
 //
 // This illustrates how the plugin supported properties are set/modified
 //

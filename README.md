@@ -9,11 +9,21 @@ supported in gradle.
 The [GradleCM Plugin](#gradlecm-plugin) is a simple plugin that
 applies all the plugins that are a part of this plugin package.
 
+The [Build VCS Plugin](#build-vcs-plugin) supports interaction with
+your local revision control system.  This plugin exposes methods to
+determine status, branch names and tags in your project.  This plugin
+is used by many of the other plugins in this set of plugins.
+
+- [Quick Start](#build-vcs-quick-start)
+- [Variables for `buildvcs`](#the-buildvcs-variables)
+- [Methods for `buildvcs`](#the-buildvcs-methods)
+- [Examples](#build-vcs-examples)
+
 The [Build Info Plugin](#build-info-plugin) supports creation of a build time 
 info properties file which is a part of the build artifacts.
 
 - [Quick Start](#build-info-quick-start)
-- [Variables](#build-info-variables)
+- [Variables for `buildinfo`](#build-info-variables)
 - [Examples](#build-info-examples)
 
 The [Build Version Plugin](#build-version-plugin) supports the tracking, 
@@ -51,6 +61,25 @@ buildscript {
 }
 ```
 
+**Note:** In this documentation, I have attempted to give many examples
+that are useful and usually reasonable.  I use the long form of
+display such as
+
+```
+buildinfo {
+	autowrite = false
+}
+```
+
+rather than the shorter (and equally acceptable) form such as
+
+```
+buildinfo.autowrite = false
+```
+
+This is for consistency and simplicity.  You may choose one form or
+another depending on your preferences and needs.
+
 ##GradleCM Plugin
 
 After ensuring the plugin is in your script dependencies, add an apply
@@ -67,6 +96,149 @@ sections below.
 
 Note:  If you apply the gradlecm plugin, you need not apply any of the
 following plugin as described in their quick summary sections.
+
+##Build VCS Plugin
+
+###Summary
+
+The buildvcs plugin support build script and plugin integration to
+your version control system.  This plugin has a task which is present
+purely to allow a simple introduction into the gradle namespace and to
+set a variable to determine the type of VCS in use for your
+environment.
+
+The `buildvcs` task accomplishes no work and should never be called.
+
+###Build VCS Quick Start
+
+After ensuring the plugin is in your script dependencies, add an apply
+line to your gradle build file.
+
+```
+apply plugin: 'buildvcs'
+```
+
+The methods of the buildvcs plugin are immediately available for use
+and do not require the execution of the buildvcs task.
+
+###Build VCS Variables
+
+This plugin supports the following variables:
+
+<table style="border: 1px solid black;">
+	<tr>
+		<th>Variable</td>
+		<th>Description</td>
+	</tr>
+	<tr>
+		<td>type</td>
+		<td>
+<p>
+Default: <strong>git</strong>
+</p>
+<p>
+This variable is set to the supported VCS type for the workspace.  The
+VCS type is validated at assignment to ensure a valid type was
+specified.
+</p>
+<p>
+The special type 'none' may be used to specify that no version control
+system is in use.  This type will disable the user of the buildrelease
+plugin and the tagging functionality of the buildversion plugin, but
+will still allow use of the buildinfo and version portion of the
+buildversion plugin.
+</p>
+		</td>
+	</tr>
+</table>
+
+###Build VCS Methods
+
+The buildvcs plugin exposes several useful method that are available
+to your script.  
+
+**String buildvcs.getType()** - This method returns current VCS type.  This
+is an alternate form if the variable referenced at buildvcs.type.
+
+**boolean buildvcs.isClean()** - This method returns true if the current
+workspace is clean.  This means that there are no modified, delete or
+added files in the system (staged or not).  This method allows the
+validation of the workspace prior to starting process that would not
+be appropriate with changes in the system (like release build
+uploads).  This method will return true if the buildvcs.type value is
+set to 'none'.
+
+**String buildvcs.getBranchName()** - This method returns the current
+workspace branch.  This method is useful for validation or for use on
+variable and comment creation.  This method will return a VCSException
+if the buildvcs.type value is set to 'none'.
+
+**List<VCSTag> buildvcs.getAllTags()** - This method will return all
+tags in the VCS system.  The list elements are of type
+org.kercheval.gradle.vcs.VCSTag.  This method will return an empty
+list if the buildvcs.type value is set to 'none'.
+
+**List<VCSTag> buildvcs.getTags(String regex)** - This method will
+return all tags that match a particular regular expression.  This
+method is used to obtain branch and string specific tags for
+particular uses.  The buildversion plugin uses this method to obtain
+tags based on the version patterns.  This method will return an empty
+list if the buildvcs.type value is set to 'none'.
+
+**VCSStatus buildvcs.getStatus()** - This method returns an extended
+status for the current workspace.  This method returns an object of
+type org.kercheval.gradle.vcs.VCSStatus which can be used to determine
+specific files that are modified, delete, changed and staged.  The
+isClean() method uses this methods return object to report a clean
+state for the workspace.  This method will return an empty
+status if the buildvcs.type value is set to 'none'.
+
+**Properties buildvcs.getInfo()** - This method returns a Properties
+object that contains the VCS properties used by the buildinfo target.
+This method will return an empty Properties object if the
+buildvcs.type value is set to 'none'.
+
+###Build VCS Examples
+
+**Example 1** To disable the use of vcs by the gradlecm plugin set
+(used for standalone project without VCS or using a VCS which is not
+supported by this plugin).
+
+```
+buildvcs {
+	type = "none"
+}
+```
+
+**Example 2** To explicitly set the type of VCS in use by this plugin
+and workspace.
+
+```
+buildvcs {
+	type = 'git'
+}
+```
+
+**Example 3** To use the branch name as a basis for part of the
+version string.
+
+```
+def branchName = buildvcs.getBranchName()
+
+buildversion {
+	version.pattern = "%M%.%m%-${branchName}"
+}
+```
+
+**Example 4** To prevent an action based on if the target is clean
+
+```
+task myTask << {
+	if (buildvcs.isClean()) {
+		// Do something interesting
+	}
+}
+```
 
 ##Build Info Plugin
 
@@ -925,7 +1097,7 @@ generated to the remote origin repository.
 This is simple task build and release task that has no variables or
 custom behavior except that defined by the other release tasks.
 
-###Build Version Quick Start
+###Build Release Quick Start
 
 After ensuring the plugin is in your script dependencies, add an apply
 line to your gradle build file.
