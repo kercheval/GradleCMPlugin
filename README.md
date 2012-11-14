@@ -1430,6 +1430,8 @@ The sources here demonstrate the following
 
 ### Release History
 
+- 1.5 - Nov 13, 2012 - The initial completion of the buildrelease,
+buildvcs and gradlecm plugins 
 - 1.0 - Nov 6, 2012 - The initial completion of the buildversion
 plugin 
 - 0.6 - Oct 20, 2012 - The initial completion of the buildinfo plugin
