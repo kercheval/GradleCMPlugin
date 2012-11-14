@@ -15,8 +15,8 @@ determine status, branch names and tags in your project.  This plugin
 is used by many of the other plugins in this set of plugins.
 
 - [Quick Start](#build-vcs-quick-start)
-- [Variables for `buildvcs`](#the-buildvcs-variables)
-- [Methods for `buildvcs`](#the-buildvcs-methods)
+- [Variables for `buildvcs`](#build-vcs-variables)
+- [Methods for `buildvcs`](#build-vcs-methods)
 - [Examples](#build-vcs-examples)
 
 The [Build Info Plugin](#build-info-plugin) supports creation of a build time 
@@ -101,7 +101,7 @@ following plugin as described in their quick summary sections.
 
 ###Summary
 
-The buildvcs plugin support build script and plugin integration to
+The buildvcs plugin supports build script and plugin integration to
 your version control system.  This plugin has a task which is present
 purely to allow a simple introduction into the gradle namespace and to
 set a variable to determine the type of VCS in use for your
@@ -143,9 +143,9 @@ specified.
 </p>
 <p>
 The special type 'none' may be used to specify that no version control
-system is in use.  This type will disable the user of the buildrelease
+system is in use.  This type will disable the use of the buildrelease
 plugin and the tagging functionality of the buildversion plugin, but
-will still allow use of the buildinfo and version portion of the
+will still allow use of the build info and version portion of the
 buildversion plugin.
 </p>
 		</td>
@@ -154,24 +154,24 @@ buildversion plugin.
 
 ###Build VCS Methods
 
-The buildvcs plugin exposes several useful method that are available
+The buildvcs plugin exposes several useful methods that are available
 to your script.  
 
-**String buildvcs.getType()** - This method returns current VCS type.  This
+**String buildvcs.getType()** - This method returns the current VCS type.  This
 is an alternate form if the variable referenced at buildvcs.type.
 
-**boolean buildvcs.isClean()** - This method returns true if the current
-workspace is clean.  This means that there are no modified, delete or
-added files in the system (staged or not).  This method allows the
-validation of the workspace prior to starting process that would not
-be appropriate with changes in the system (like release build
-uploads).  This method will return true if the buildvcs.type value is
-set to 'none'.
+**boolean buildvcs.isClean()** - This method returns true if the
+current workspace is clean.  This means that there are no modified,
+delete or added files in the system (staged or not).  This method
+allows the validation of the workspace prior to starting a process
+that would not be appropriate with changes present in the system (like
+release build uploads).  This method will return true if the
+buildvcs.type value is set to 'none'.
 
 **String buildvcs.getBranchName()** - This method returns the current
-workspace branch.  This method is useful for validation or for use on
-variable and comment creation.  This method will return a VCSException
-if the buildvcs.type value is set to 'none'.
+workspace branch name.  This method is useful for validation or for
+use on variable and comment creation.  This method will return a
+VCSException if the buildvcs.type value is set to 'none'.
 
 **List<VCSTag> buildvcs.getAllTags()** - This method will return all
 tags in the VCS system.  The list elements are of type
@@ -194,7 +194,7 @@ state for the workspace.  This method will return an empty
 status if the buildvcs.type value is set to 'none'.
 
 **Properties buildvcs.getInfo()** - This method returns a Properties
-object that contains the VCS properties used by the buildinfo target.
+object that contains the VCS properties used by the `buildinfo` task.
 This method will return an empty Properties object if the
 buildvcs.type value is set to 'none'.
 
@@ -230,7 +230,8 @@ buildversion {
 }
 ```
 
-**Example 4** To prevent an action based on if the target is clean
+**Example 4** To prevent an action based on if the current workspace
+is clean.
 
 ```
 task myTask << {
@@ -254,7 +255,7 @@ gathered includes:
 - Jenkins CI build system information
 - Gradle property information
 
-In addition to the information above, the buildinfo configuration
+In addition to the information above, the `buildinfo` configuration
 block can be used to add custom information to the build file.
 
 ###Build Info Quick Start
@@ -331,15 +332,15 @@ examples below for standard usage.
 Default: <strong>[jar: "META-INF", war: "META-INF", ear: "META-INF"]</strong>
 </p>
 <p>
-The taskmap variable holds a map of targets and the directory in the
-copy target that the build info file will be copied into.  If the info
-file should be at the root of the copy target, use an empty string as
-the target directory.
+The taskmap variable holds a map of tasks and the directory in the
+tasks target file that the build info file will be copied into.
+If the info file should be copied to the root of the target, use an
+empty string as the target directory.
 </p>
 <p>
 Note: when creating a taskmap variable, you are overriding the
 default values.  If you intend to simply add another task, you will
-need to supply the default values for jar/war/ear targets in your
+need to supply the default values for jar/war/ear tasks in your
 taskmap.  This behavior ensures you can override all the default
 behaviors.  Note that if you just want the info file built
 automatically but no task modification at all, you can set the
@@ -372,17 +373,17 @@ be done explicitly (see examples).
 </p>
 <p>
 Note that setting this variable true will also disable auto generation
-of the properties file.  The buildinfo target will need to be
+of the properties file.  The <code>buildinfo</code> task will need to be
 explicitly run or added as a dependency before the property file can
 be used in a task.
 </p>
 <p>
 This variable will typically not be used unless you have a specific
-need for the info file but do not want to move the file after
-generation.  Normally, if you just want the file placed elsewhere and
-do not want it included in artifacts, set the filedir/filename
-variable to your desired location and filename and set the taskmap to
-an empty map (see example below).
+need for the info file but do not want to add the file into your
+generated artifacts after generation.  Normally, if you just want the
+file placed elsewhere and do not want it included in artifacts, set
+the filedir/filename variable to your desired location and filename
+and set the taskmap to an empty map (see example below).
 </p>
 		</td>
 	</tr>
@@ -409,11 +410,11 @@ task helloZip(type: Zip) {
 }
 ```
 
-**Example 2** To add the build info file into other files (such as a zip, sync or
-other location), you can add your target to the buildinfo taskmap
-variable or just do a standard copy as follows.  This is the approach
-you would take for tasks that are not derived somehow from a
-copy/archive task.
+**Example 2** To add the build info file into other files (such as a
+zip, sync or other locations), you can add your task to the
+buildinfo taskmap variable or just do a standard copy as follows.
+This is the approach you would take for tasks that are not derived
+somehow from a copy/archive task.
 
 ```
 task myZip (type: Zip) {
@@ -432,7 +433,7 @@ task myZip (type: Zip) {
 ```
 
 **Example 3** To add some custom data to your build info file, add the custom info
-map variable to the buildinfo configuration section.  Remember the map
+map variable to the `buildinfo` configuration section.  Remember the map
 values can be any object at all and the value will be derived from
 the default toString() behavior of the object.
 
@@ -468,18 +469,18 @@ buildinfo {
 ###Lifecycle Considerations
 
 This plugin hooks task graph completion (which occurs right after the
-configuration phase of a gradle run).  If the variable autowrite is
+configuration phase of a gradle run).  If the variable 'autowrite' is
 true, then the build info file is created and task hooking is
 completed to copy the info file into specified (or default) tasks.
 
 This timing has several specific implications.
 
-- Any gradle variables used within the buildinfo configuration block must
-be assigned prior to the declaration of the buildinfo block.
+- Any gradle variables used within the `buildinfo` configuration block must
+be assigned prior to the declaration of the `buildinfo` block.
 
-- Any modification of the buildinfo variables will be ignored once the
-configuration phase has been completed and the buildinfo file has been
-created.  You can call the buildinfo target directly to recreate the
+- Any modification of the `buildinfo` variables will be ignored once the
+configuration phase has been completed and the build info file has been
+created.  You can call the `buildinfo` task directly to recreate the
 build info file with new information, but this should be done prior to
 any tasks being run which will use the info file for insertion into
 artifacts (jar/war/ear/etc) or the risk of inconsistent build
@@ -1024,7 +1025,7 @@ buildversion {
 
 **Example 14** To ensure that on every update to a repository (via the
 maven plugin) you get a valid tag in the current branch.  This is done
-by adding a doFirst closure to the maven upload target.  The tag is
+by adding a doFirst closure to the maven upload task.  The tag is
 created whenever you are not doing a snapshot upload in this example.
 
 ```
@@ -1051,7 +1052,7 @@ project until after this task has run.
 The buildrelease plugin supports the consistent promotion and
 publication of release artifacts.  This plugin maintains a knowledge
 of your mainline branch, release branch, remote origin repository and
-upload target and ensures that when artifacts are published a consisten
+upload task and ensures that when artifacts are published a consisten
 merge occurs to the release branch, a version specific tag is created
 and that those changed are pushed to your remote repository prior to
 artifact upload.  This plugin also supports these functions for those
@@ -1069,7 +1070,7 @@ This plugin is designed to optimize repository use for both
 development and build/deploy.  The default development mainline is
 assumed to be the 'master' branch and the release branch is assumed to
 be the branch named 'release'.  These can be changed in the variables
-defined for the `buildreleaseinit` target.
+defined for the `buildreleaseinit` task.
 
 There are three tasks defined in this plugin:
 
@@ -1106,7 +1107,7 @@ line to your gradle build file.
 apply plugin: 'buildrelease'
 ```
 
-This will ensure the upload target specified in the configuration
+This will ensure the upload task specified in the configuration
 block for `buildreleaseinit` is hooked to ensure that release artifact
 publication results in appropriately updated repositories and tags
 being set for the publication.
@@ -1166,7 +1167,7 @@ Default: <strong>release</strong>
 <p>
 This represents the release branch line for artifact upload.  During
 release artifact upload, it is this branch that will receive the
-merge from the mainline and this branch that will receive the target
+merge from the mainline and this branch that will receive the release
 tag (though in git this distinction has very little meaning). 
 </p>
 <p>
@@ -1235,7 +1236,7 @@ Default: <strong>false</strong>
 <p>
 Single repository workflows are a bit unusual when using a DVCS (like
 Git or Mercurial), but there are some use cases for this.  When true,
-the init and merge targets will not attempt to synchronize
+the init and merge tasks will not attempt to synchronize
 repositories with origins (present or not).  When this variable is set
 to false, all changes to repositories made by this plugin will be
 synchronized with the origin repository (fetch, merge, push and tag
@@ -1250,15 +1251,15 @@ operations).
 Default: <strong>uploadArchives</strong>
 </p>
 <p>
-This variable represents the standard upload target you are using for
-publication.  The publication default target for Gradle is
+This variable represents the standard upload task you are using for
+publication.  The publication default task for Gradle is
 'uploadArchives' and this is the default value for this variable.
 </p>
 <p>
 This plugin does not actually do any publication of artifacts.  You
 may be using Ivy or Maven repositories (Nexus, Artifactory, etc) or
 you may be publishing to a machine folder or network drive.  The
-specific target that you are using for this purpose should be the
+specific task that you are using for this purpose should be the
 value of this variable.
 </p>
 <p>
@@ -1293,7 +1294,7 @@ additional customization to your upload task.
 Normally, the task `buildreleasemerge` should have been run prior to
 running the uploadArchive task, but there is no explicit dependency
 placed on the uploadArchive task.  Normally, artifact publication
-should be done via the use of the `buildreleaseupload` target which
+should be done via the use of the `buildreleaseupload` task which
 has appropriately ordered dependencies to ensure the repository
 merging occurs before build and upload.
 </p>
@@ -1309,8 +1310,8 @@ Default: <strong>true</strong>
 When false, the tag and merge steps in the `buildreleasemerge' task
 will allow the use of a dirty workspace.  This may be useful if
 intermediate files are added during build sequencing that are not part
-of your ignore file.  When true, this clean workspaces will be
-required for that target.
+of your ignore file.  When true, the workspace will verified as been
+clean when running the `buildreleasemerge` task.
 </p>
 <p>
 <strong>Note:</strong> This variable setting will have no affect on
