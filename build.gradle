@@ -12,10 +12,12 @@ buildversion {
 		// Set the pattern after the tags have been used to set the initial 
 		// values.  Release gets the default pattern of the maven default 
 		//
-		if (buildType != "release") {
-			version.setPattern("%M%.%m%-${buildType}") 
+		def branchName = buildvcs.getBranchName()
+		if (branchName != "release") {
+			version.setPattern("%M%.%m%-SNAPSHOT") 
 		}
 		version.updateMajor(new Integer(buildMajorVersion)) 
+		println(version);
 	}
 }
 

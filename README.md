@@ -548,9 +548,6 @@ plugin.  Some common version schemes shown in the examples are:
 
 Extended patterns are supported to allow very flexible variations.
 
-The value set to the project version by this task will be displayed in
-the output when using the --info command line option in gradle.
-
 ####buildversiontag
 
 This task will take the current version and write a tag using the

@@ -100,7 +100,6 @@ public class BuildVersionTask
 		}
 
 		project.setVersion(getVersion());
-		project.getLogger().info("Version set to " + getVersion());
 	}
 
 	public BuildVersion getVersion()
