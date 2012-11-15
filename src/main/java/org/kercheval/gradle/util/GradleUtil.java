@@ -1,6 +1,7 @@
 package org.kercheval.gradle.util;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.gradle.api.Project;
@@ -15,6 +16,35 @@ public class GradleUtil
 	public GradleUtil(final Project project)
 	{
 		this.project = project;
+	}
+
+	//
+	// This method is called for tasks which depend on dynamic
+	// tasks (such as uploadArchives).
+	//
+	public boolean enableTask(final String taskName)
+	{
+		boolean rVal = true;
+
+		//
+		// TODO 11/14/2012 This odd little cantrip is necessary to avoid a concurrent
+		// modification exception for the 'tasks' task. This was logged as
+		// http://issues.gradle.org//browse/GRADLE-2023. This workaround can be removed
+		// as soon as the system is fixed in this area
+		//
+		final List<String> taskList = project.getGradle().getStartParameter().getTaskNames();
+		if (taskList.contains("tasks") || taskList.contains("task"))
+		{
+			project
+				.getLogger()
+				.info(
+					"The 'tasks' target has been specified.  The '"
+						+ taskName
+						+ "' task has been disabled to avoid gradle internal problems.  See http://issues.gradle.org//browse/GRADLE-2023 for details.");
+			rVal = false;
+		}
+
+		return rVal;
 	}
 
 	//

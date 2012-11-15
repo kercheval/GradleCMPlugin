@@ -1,8 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
-apply plugin: 'buildinfo'
-apply plugin: 'buildversion'
+apply plugin: 'gradlecm'
 
 //
 // Normal dev builds will typically get SNAPSHOT versions

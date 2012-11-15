@@ -11,10 +11,15 @@ public class BuildReleaseTask
 	public BuildReleaseTask()
 	{
 		final Project project = getProject();
-		final BuildReleaseInitTask initTask = (BuildReleaseInitTask) new GradleUtil(project)
+		final GradleUtil gradleUtil = new GradleUtil(project);
+		final BuildReleaseInitTask initTask = (BuildReleaseInitTask) gradleUtil
 			.getTask(BuildReleasePlugin.INIT_TASK_NAME);
-		dependsOn(":" + BuildReleasePlugin.MERGE_TASK_NAME);
-		dependsOn(":" + initTask.getUploadtask());
+
+		if (gradleUtil.enableTask(getName()))
+		{
+			dependsOn(":" + BuildReleasePlugin.MERGE_TASK_NAME);
+			dependsOn(":" + initTask.getUploadtask());
+		}
 	}
 
 	@TaskAction
