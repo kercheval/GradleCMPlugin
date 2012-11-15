@@ -6,6 +6,7 @@ apply plugin: 'gradlecm'
 //
 // Normal dev builds will typically get SNAPSHOT versions
 //
+def buildMajorVersion=1
 buildversion {
 	doLast {
 		//
