@@ -241,6 +241,68 @@ task myTask << {
 }
 ```
 
+###Security Considerations
+
+Somewhat independent of this plugin is the topic of remote repository
+security.  This description largely surrounds the specifics of using
+github, but the areas around SSH key usage are applicable to other VCS
+systems you may use.  In very broad terms, the ability to access a
+remote repository is independent of this plugin and any remote access
+should be secured and tested independently.
+
+####HTTPS vs SSH
+
+In github, the difference between HTTPS and SSH resides largely in the
+authentication method.  The HTTPS method requires the specification of
+your login credentials for github but with SSH, you use an SSH key
+which give access to your github repositories.  Note that the SSH key
+approach does not allow admin changes or access to your account, just
+the repositories.  In general, SSH is also more secure and you should
+clone your remotes using the SSH URI available from github.
+
+This plugin has no support for login credential usage and the HTTPS
+connection method.  This is not particulary hard to do, but I will
+leave that to a contributor if is important to someone.
+
+To ensure you are using the correct SSH key, a key must be generated
+and installed in github.  This is done by the current github clients
+automatically, but you can do it in a number of other ways (see
+https://help.github.com/articles/generating-ssh-keys).
+
+The main thing you must ensure when setting up your system is to add
+the github host to your <home>/.ssh/config file (see
+ttp://en.wikibooks.org/wiki/OpenSSH/Client_Configuration_Files for
+exhaustive details).
+
+Inside of the config file, add a section that looks similar to this
+
+```
+Host github.com
+    User githubusername
+    Hostname github.com
+    PreferredAuthentications publickey
+    IdentityFile ~/.ssh/github_rsa
+```
+
+You may have multiple IdentityFile blocks if you have deploy keys that
+are repository specific (like the following)
+
+```
+Host github.com
+    User githubusername
+    Hostname github.com
+    PreferredAuthentications publickey
+    IdentityFile ~/.ssh/repo1_rsa
+    IdentityFile ~/.ssh/repo2_rsa
+    IdentityFile ~/.ssh/repo3_rsa
+```
+
+Key generation is straight forward, but environment specific.  On
+windows, I would recommend puttygen
+(http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html) and
+copy/paste from the application for the public deploy key use the
+conversion menu to export the private key in standard form.
+
 ##Build Info Plugin
 
 ###Summary
@@ -986,9 +1048,31 @@ buildversion {
 }  
 ```
 
-**Example 13** To create a version based on build type (release does a
+**Example 13** To create a version that generates SNAPSHOT unless the
+release branch is in use.  This is an extremely convenient approach.
+
+```
+def buildMajorVersion=1
+buildversion {
+	doLast {
+		//
+		// Set the pattern after the tags have been used to set the initial 
+		// values.  Release gets the default pattern of the maven default 
+		//
+		def branchName = buildvcs.getBranchName()
+		if (branchName != "release") {
+			version.setPattern("%M%.%m%-SNAPSHOT") 
+		}
+		version.updateMajor(new Integer(buildMajorVersion)) 
+		println(version);
+	}
+}
+```
+
+**Example 14** To create a version based on build type (release does a
 full version, but dev mainline creates snapshot builds).  In this
 example the major version is part of the configuration file as well.
+This has some similarities to the last example.
 
 In gradle.properties set the build type
 
@@ -1028,7 +1112,7 @@ buildversion {
 }
 ```
 
-**Example 14** To ensure that on every update to a repository (via the
+**Example 15** To ensure that on every update to a repository (via the
 maven plugin) you get a valid tag in the current branch.  This is done
 by adding a doFirst closure to the maven upload task.  The tag is
 created whenever you are not doing a snapshot upload in this example.
@@ -1449,16 +1533,6 @@ for information sources and utility code
 acquired using the very well done JGit project code (used for the
 Eclipse project) 
 
-### Setting Build Type
-
-The build type is set in the gradle.properties file to default to
-'SNAPSHOT'.  To build a release version set the buildType property
-using the gradle command line (or IDE arguments)
-
-```
-> gradle build -PbuildType=release
-```
-
 ### Current Steps to Release Artifacts
 
 *Snapshot Upload*
@@ -1470,22 +1544,15 @@ using the gradle command line (or IDE arguments)
 *Release Upload*
 
 ```
+> git checkout release
 > gradle clean
-> gradle -PbuildType=release uploadArchive
-> git push origin --tags
+> gradle buildrelease
 ```
 
 ##Contributing
 
 I have explicitly built this plugin set for my local technology stack,
 but the intent is that additional support should be simple to add.
-
-The vcs interfaces completely abstracts the updates made from the
-internal logic so support for other systems (like SVN, Mercurial or
-Perforce) should be very straight forward.
-
-Support for additional information sources (Hudson, etc) should also
-relatively simple to accomplish.
 
 Do you like this plugin and just need a new information source, or
 have a useful plugin to contribute that surrounds configuration
