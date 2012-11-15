@@ -77,12 +77,6 @@ buildscript {
 group = 'org.kercheval'
 
 uploadArchives {
-	doFirst {
-		if (buildType != "SNAPSHOT") {
-			tasks.buildversiontag.execute()
-		}
-	}
-
 	repositories {
 		mavenDeployer {
 			//
