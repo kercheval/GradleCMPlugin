@@ -18,6 +18,7 @@ is used by many of the other plugins in this set of plugins.
 - [Variables for `buildvcs`](#build-vcs-variables)
 - [Methods for `buildvcs`](#build-vcs-methods)
 - [Examples](#build-vcs-examples)
+- [Security and SSH Keys](#security-considerations)
 
 The [Build Info Plugin](#build-info-plugin) supports creation of a build time 
 info properties file which is a part of the build artifacts.
