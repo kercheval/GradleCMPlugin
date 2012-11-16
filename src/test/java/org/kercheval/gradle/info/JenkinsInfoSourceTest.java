@@ -15,7 +15,7 @@ public class JenkinsInfoSourceTest
 	@Test
 	public void test()
 	{
-		final JenkinsInfoSource jenkinsUtil = new JenkinsInfoSource();
+		final BuildServerInfoSource jenkinsUtil = new JenkinsInfoSource();
 		final SortedProperties props = jenkinsUtil.getInfo();
 
 		try

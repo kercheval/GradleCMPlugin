@@ -1,33 +1,29 @@
 package org.kercheval.gradle.info;
 
-public class JenkinsInfoSource
+public class HudsonInfoSource
 	extends BuildServerInfoSource
 {
 	@Override
 	public String getDescription()
 	{
-		return "Jenkins (http://jenkins-ci.org/) continous integration server information";
+		return "Hudson (http://hudson-ci.org/) continous integration server information";
 	}
 
 	//
-	// The properties here are all found in the environment. Hudson supplies
-	// many of these variables as well.
-	//
-	// Recommendation--- Move to Jenkins and bail on Hudson.
+	// The properties here are all found in the environment.
 	//
 	@Override
 	public SortedProperties getInfo()
 	{
 		final SortedProperties props = new SortedProperties();
-		addProperty(props, "BASE");
 		addProperty(props, "BUILD_ID");
 		addProperty(props, "BUILD_NUMBER");
 		addProperty(props, "BUILD_TAG");
 		addProperty(props, "BUILD_URL");
 		addProperty(props, "EXECUTOR_NUMBER");
-		addProperty(props, "JENKINS_HOME");
-		addProperty(props, "JENKINS_SERVER_COOKIE");
-		addProperty(props, "JENKINS_URL");
+		addProperty(props, "HUDSON_HOME");
+		addProperty(props, "HUDSON_SERVER_COOKIE");
+		addProperty(props, "HUDSON_URL");
 		addProperty(props, "JOB_NAME");
 		addProperty(props, "JOB_URL");
 		addProperty(props, "NODE_LABELS");
@@ -40,12 +36,13 @@ public class JenkinsInfoSource
 	@Override
 	public String getPropertyPrefix()
 	{
-		return super.getPropertyPrefix() + ".jenkins";
+		return super.getPropertyPrefix() + ".hudson";
 	}
 
 	@Override
 	public boolean isActive()
 	{
-		return null != System.getenv("JENKINS_SERVER_COOKIE");
+		return (null == System.getenv("JENKINS_SERVER_COOKIE"))
+			&& (null != System.getenv("HUDSON_SERVER_COOKIE"));
 	}
 }

@@ -26,6 +26,7 @@ import org.gradle.api.tasks.TaskExecutionException;
 import org.kercheval.gradle.buildvcs.BuildVCSPlugin;
 import org.kercheval.gradle.buildvcs.BuildVCSTask;
 import org.kercheval.gradle.info.GradleInfoSource;
+import org.kercheval.gradle.info.HudsonInfoSource;
 import org.kercheval.gradle.info.InfoSource;
 import org.kercheval.gradle.info.JenkinsInfoSource;
 import org.kercheval.gradle.info.MachineInfoSource;
@@ -334,6 +335,7 @@ public class BuildInfoTask
 			maybeStoreProperties(out, new GradleInfoSource(project));
 			maybeStoreProperties(out, vcsTask.getInfoSource());
 			maybeStoreProperties(out, new JenkinsInfoSource());
+			maybeStoreProperties(out, new HudsonInfoSource());
 
 			out.close();
 		}

@@ -8,4 +8,9 @@ public abstract class BuildServerInfoSource
 	{
 		return "ci";
 	}
+
+	protected void addProperty(final SortedProperties props, final String name)
+	{
+		props.addProperty(getPropertyPrefix() + "." + name, System.getenv(name));
+	}
 }
