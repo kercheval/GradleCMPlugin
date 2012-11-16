@@ -25,6 +25,11 @@ public class VCSGitImplTest
 		throws VCSException
 	{
 		final VCSInfoSource git = new VCSGitImpl(repoUtil.getStandardFile(), null);
+
+		Assert.assertNotNull(git.getDescription());
+		Assert.assertEquals("vcs.GIT", git.getPropertyPrefix());
+		Assert.assertTrue(git.isActive());
+
 		git.createBranch(branchName, originName, ignoreOrigin);
 		Map<String, Ref> refMap = repoUtil.getStandardRepo().getAllRefs();
 		Assert.assertTrue(refMap.containsKey("refs/heads/" + branchName));

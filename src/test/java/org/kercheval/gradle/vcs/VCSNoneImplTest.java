@@ -16,6 +16,9 @@ public class VCSNoneImplTest
 	{
 		final VCSNoneImpl vcs = new VCSNoneImpl(new File("FooBlah"), null);
 
+		Assert.assertNotNull(vcs.getDescription());
+		Assert.assertEquals("vcs.NONE", vcs.getPropertyPrefix());
+		Assert.assertFalse(vcs.isActive());
 		Assert.assertEquals(VCSAccess.Type.NONE, vcs.getType());
 
 		final VCSStatus status = vcs.getStatus();

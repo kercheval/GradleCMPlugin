@@ -13,18 +13,6 @@ import java.util.TreeSet;
 public class SortedProperties
 	extends Properties
 {
-	@Override
-	public Set<Object> keySet()
-	{
-		return Collections.unmodifiableSet(new TreeSet<Object>(super.keySet()));
-	}
-
-	@Override
-	public synchronized Enumeration<Object> keys()
-	{
-		return Collections.enumeration(new TreeSet<Object>(super.keySet()));
-	}
-
 	public void addProperty(final String key, final Object value)
 	{
 		String insertValue = "";
@@ -35,5 +23,17 @@ public class SortedProperties
 		}
 
 		setProperty(key, insertValue);
+	}
+
+	@Override
+	public synchronized Enumeration<Object> keys()
+	{
+		return Collections.enumeration(keySet());
+	}
+
+	@Override
+	public Set<Object> keySet()
+	{
+		return Collections.unmodifiableSet(new TreeSet<Object>(super.keySet()));
 	}
 }

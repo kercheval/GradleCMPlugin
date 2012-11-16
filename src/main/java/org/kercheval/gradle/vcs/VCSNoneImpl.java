@@ -68,12 +68,6 @@ public class VCSNoneImpl
 	}
 
 	@Override
-	public String getPropertyPrefix()
-	{
-		return getType().toString();
-	}
-
-	@Override
 	public VCSStatus getStatus()
 		throws VCSException
 	{

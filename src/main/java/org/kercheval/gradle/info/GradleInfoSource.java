@@ -85,6 +85,7 @@ public class GradleInfoSource
 
 		for (final Task task : project.getAllTasks(false).get(project))
 		{
+			System.out.println(task.getName());
 			tasknameMap.put(task.getName(), task);
 		}
 
