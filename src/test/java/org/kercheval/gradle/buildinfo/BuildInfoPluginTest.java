@@ -40,12 +40,6 @@ public class BuildInfoPluginTest
 
 		final BuildInfoTask task = (BuildInfoTask) tasknameMap.get(BuildInfoPlugin.INFO_TASK_NAME);
 
-		final HashMap<String, Object> customMap = new HashMap<String, Object>();
-		customMap.put("CustomKey1", "CustomValue1");
-		customMap.put("CustomKey2", "CustomValue2");
-		customMap.put("CustomKey3", "CustomValue3");
-		task.setCustominfo(customMap);
-
 		return task;
 	}
 
@@ -66,6 +60,13 @@ public class BuildInfoPluginTest
 		final Project project = ProjectBuilder.builder()
 			.withProjectDir(new File(JUNIT_FILE_LOCATION)).build();
 		final BuildInfoTask task = getTask(project);
+
+		final HashMap<String, Object> customMap = new HashMap<String, Object>();
+		customMap.put("CustomKey1", "CustomValue1");
+		customMap.put("CustomKey2", "CustomValue2");
+		customMap.put("CustomKey3", "CustomValue3");
+		task.setCustominfo(customMap);
+
 		File outputFile = new File(JUNIT_FILE_NAME);
 
 		if (outputFile.exists())
@@ -78,7 +79,7 @@ public class BuildInfoPluginTest
 		outputFile = new File(JUNIT_FILE_NAME);
 		Assert.assertTrue(outputFile.exists());
 
-		final Properties props = new Properties();
+		Properties props = new Properties();
 		props.load(new FileInputStream(outputFile));
 
 		Assert.assertFalse(props.isEmpty());
@@ -87,7 +88,6 @@ public class BuildInfoPluginTest
 		// Validate expected sources
 		//
 		Assert.assertTrue(props.containsKey("custom.info.CustomKey2"));
-		Assert.assertTrue(props.containsKey("machine.hostname"));
 		Assert.assertTrue(props.containsKey("machine.hostname"));
 		Assert.assertTrue(props.containsKey("gradle.rootdir"));
 
@@ -103,6 +103,39 @@ public class BuildInfoPluginTest
 		// This project uses GIT
 		//
 		Assert.assertEquals("GIT", props.getProperty("vcs.type"));
+
+		task.setShowgradleinfo(false);
+		task.doTask();
+		props = new Properties();
+		props.load(new FileInputStream(outputFile));
+
+		Assert.assertFalse(props.isEmpty());
+		Assert.assertTrue(props.containsKey("custom.info.CustomKey2"));
+		Assert.assertTrue(props.containsKey("machine.hostname"));
+		Assert.assertTrue(props.containsKey("vcs.type"));
+		Assert.assertFalse(props.containsKey("gradle.rootdir"));
+
+		task.setShowmachineinfo(false);
+		task.doTask();
+		props = new Properties();
+		props.load(new FileInputStream(outputFile));
+
+		Assert.assertFalse(props.isEmpty());
+		Assert.assertTrue(props.containsKey("custom.info.CustomKey2"));
+		Assert.assertFalse(props.containsKey("machine.hostname"));
+		Assert.assertTrue(props.containsKey("vcs.type"));
+		Assert.assertFalse(props.containsKey("gradle.rootdir"));
+
+		task.setShowvscinfo(false);
+		task.doTask();
+		props = new Properties();
+		props.load(new FileInputStream(outputFile));
+
+		Assert.assertFalse(props.isEmpty());
+		Assert.assertTrue(props.containsKey("custom.info.CustomKey2"));
+		Assert.assertFalse(props.containsKey("machine.hostname"));
+		Assert.assertFalse(props.containsKey("vcs.type"));
+		Assert.assertFalse(props.containsKey("gradle.rootdir"));
 	}
 
 	@Test

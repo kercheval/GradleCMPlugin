@@ -47,6 +47,7 @@ public class BuildInfoTask
 	}
 	public static final Map<String, String> DEFAULT_TASKMAP = Collections
 		.unmodifiableMap(DEFAULT_TASKMAP_PRIVATE);
+	public static final boolean DEFAULT_SHOWINFO_SECTION = true;
 
 	static private final String EOL = System.getProperty("line.separator");
 
@@ -80,6 +81,14 @@ public class BuildInfoTask
 	private Map<String, Object> custominfo = new HashMap<String, Object>();
 
 	//
+	// These boolean values represent information to be enabled in output
+	//
+	private boolean showtaskinfo = DEFAULT_SHOWINFO_SECTION;
+	private boolean showgradleinfo = DEFAULT_SHOWINFO_SECTION;
+	private boolean showmachineinfo = DEFAULT_SHOWINFO_SECTION;
+	private boolean showvscinfo = DEFAULT_SHOWINFO_SECTION;
+	private boolean showciinfo = DEFAULT_SHOWINFO_SECTION;
+
 	// The filedirWasSet variable is used to determine if the filedir has
 	// explicitly been set in the build file. If not, we update our internal
 	// filedir variable to buildDir just in case it was changed last minute
@@ -278,34 +287,37 @@ public class BuildInfoTask
 			out.write("#");
 			out.write(EOL);
 
-			try
+			if (isShowtaskinfo())
 			{
-				final List<Task> taskList = project.getGradle().getTaskGraph().getAllTasks();
-
-				out.write("# Tasks executing in this build");
-				out.write(EOL);
-
-				//
-				// Include all the tasks that are to be executed in this build.
-				// These are scheduled tasks, there is no guarantee that the tasks
-				// will actually be run or will have succeeded if run
-				//
-				for (final Task task : taskList)
+				try
 				{
-					out.write("#   ");
-					out.write(task.getPath());
+					final List<Task> taskList = project.getGradle().getTaskGraph().getAllTasks();
+
+					out.write("# Tasks executing in this build");
+					out.write(EOL);
+
+					//
+					// Include all the tasks that are to be executed in this build.
+					// These are scheduled tasks, there is no guarantee that the tasks
+					// will actually be run or will have succeeded if run
+					//
+					for (final Task task : taskList)
+					{
+						out.write("#   ");
+						out.write(task.getPath());
+						out.write(EOL);
+					}
+
+					out.write("#");
+					out.write(EOL);
+					out.write("#");
 					out.write(EOL);
 				}
+				catch (final IllegalStateException e)
+				{
 
-				out.write("#");
-				out.write(EOL);
-				out.write("#");
-				out.write(EOL);
-			}
-			catch (final IllegalStateException e)
-			{
-
-				// Ignore if doTask called prior to task graph ready
+					// Ignore if doTask called prior to task graph ready
+				}
 			}
 
 			out.write(EOL);
@@ -332,13 +344,24 @@ public class BuildInfoTask
 			//
 			// Grab properties from our various information sources
 			//
-			maybeStoreProperties(out, new MachineInfoSource(project));
-			maybeStoreProperties(out, new GradleInfoSource(project));
-			maybeStoreProperties(out, vcsTask.getInfoSource());
-			maybeStoreProperties(out, new JenkinsInfoSource());
-			maybeStoreProperties(out, new HudsonInfoSource());
-			maybeStoreProperties(out, new TeamCityInfoSource());
-
+			if (isShowmachineinfo())
+			{
+				maybeStoreProperties(out, new MachineInfoSource(project));
+			}
+			if (isShowgradleinfo())
+			{
+				maybeStoreProperties(out, new GradleInfoSource(project));
+			}
+			if (isShowvscinfo())
+			{
+				maybeStoreProperties(out, vcsTask.getInfoSource());
+			}
+			if (isShowciinfo())
+			{
+				maybeStoreProperties(out, new JenkinsInfoSource());
+				maybeStoreProperties(out, new HudsonInfoSource());
+				maybeStoreProperties(out, new TeamCityInfoSource());
+			}
 			out.close();
 		}
 		catch (final IOException e)
@@ -372,6 +395,31 @@ public class BuildInfoTask
 		return autowrite;
 	}
 
+	public boolean isShowciinfo()
+	{
+		return showciinfo;
+	}
+
+	public boolean isShowgradleinfo()
+	{
+		return showgradleinfo;
+	}
+
+	public boolean isShowmachineinfo()
+	{
+		return showmachineinfo;
+	}
+
+	public boolean isShowtaskinfo()
+	{
+		return showtaskinfo;
+	}
+
+	public boolean isShowvscinfo()
+	{
+		return showvscinfo;
+	}
+
 	private void maybeStoreProperties(final BufferedWriter out, final InfoSource infoSource)
 		throws IOException
 	{
@@ -402,6 +450,31 @@ public class BuildInfoTask
 	public void setFilename(final String filename)
 	{
 		this.filename = filename;
+	}
+
+	public void setShowciinfo(final boolean showciinfo)
+	{
+		this.showciinfo = showciinfo;
+	}
+
+	public void setShowgradleinfo(final boolean showgradleinfo)
+	{
+		this.showgradleinfo = showgradleinfo;
+	}
+
+	public void setShowmachineinfo(final boolean showmachineinfo)
+	{
+		this.showmachineinfo = showmachineinfo;
+	}
+
+	public void setShowtaskinfo(final boolean showtaskinfo)
+	{
+		this.showtaskinfo = showtaskinfo;
+	}
+
+	public void setShowvscinfo(final boolean showvscinfo)
+	{
+		this.showvscinfo = showvscinfo;
 	}
 
 	public void setTaskmap(final Map<String, String> taskmap)

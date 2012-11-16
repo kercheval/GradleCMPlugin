@@ -365,7 +365,7 @@ and extension for your target systems.
 		<td>filedir</td>
 		<td>
 <p>
-Default: <strong>${buildDir}
+Default: <strong>${buildDir}</strong>
 </p>
 <p>
 The filedir variable determines the path to the build info properties
@@ -421,6 +421,72 @@ that are not found will be ignored from this list, though an info
 <p>
 Warning messages will be displayed if you attempt to specify an
 invalid task (a task of an invalid type) in the taskmap.
+</p>
+		</td>
+	</tr>
+	<tr>
+		<td>showgradleinfo</td>
+		<td>
+<p>
+Default: <strong>true</strong>
+</p>
+<p>
+Normally, some gradle environment state is placed in the info file.
+If this variable is set to false, that information will not be placed
+in the file.
+</p>
+		</td>
+	</tr>
+	<tr>
+		<td>showmachineinfo</td>
+		<td>
+<p>
+Default: <strong>true</strong>
+</p>
+<p>
+Normally, current machine and login information is place in the info
+file.  This information will not be placed in the file is this
+variable is set to false.
+</p>
+		</td>
+	</tr>
+	<tr>
+		<td>showvscinfo</td>
+		<td>
+<p>
+Default: <strong>true</strong>
+</p>
+<p>
+If this variable is set to false, the current VCS status will not be
+added to the info file.
+</p>
+		</td>
+	</tr>
+	<tr>
+		<td>showciinfo</td>
+		<td>
+<p>
+Default: <strong>true</strong>
+</p>
+<p>
+Normally, any detected continuous integration build system (Jenkins,
+Hudson or TeamCity) will trigger some information output in the info
+file.  This detection and information placement will not take place if
+this variable is set to false.
+</p>
+		</td>
+	</tr>
+	<tr>
+		<td>showtaskinfo</td>
+		<td>
+<p>
+Default: <strong>true</strong>
+</p>
+<p>
+The info file will normally show the tasks that were active in the
+task graph at the time the build info file was created.  Setting this
+variable to false will prevent that information from being placed in
+the file.
 </p>
 		</td>
 	</tr>
