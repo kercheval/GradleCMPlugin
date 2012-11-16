@@ -597,6 +597,16 @@ buildinfo {
 }
 ```
 
+
+**Example 6** To prevent the current machine information from being
+placed in the output file.
+
+```
+buildinfo {
+	showmachineinfo = false
+}
+```
+
 ###Lifecycle Considerations
 
 This plugin hooks task graph completion (which occurs right after the
