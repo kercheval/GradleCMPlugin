@@ -163,8 +163,7 @@ public class VCSGitImplTest
 
 	@Test
 	public void testGetInfo()
-		throws VCSException, InvalidRemoteException, TransportException, IOException,
-		GitAPIException
+		throws InvalidRemoteException, TransportException, IOException, GitAPIException
 	{
 		final JGitTestRepository repoUtil = new JGitTestRepository();
 		try

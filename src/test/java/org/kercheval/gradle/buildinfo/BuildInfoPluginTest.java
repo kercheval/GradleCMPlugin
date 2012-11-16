@@ -1,10 +1,13 @@
 package org.kercheval.gradle.buildinfo;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -37,6 +40,12 @@ public class BuildInfoPluginTest
 
 		final BuildInfoTask task = (BuildInfoTask) tasknameMap.get(BuildInfoPlugin.INFO_TASK_NAME);
 
+		final HashMap<String, Object> customMap = new HashMap<String, Object>();
+		customMap.put("CustomKey1", "CustomValue1");
+		customMap.put("CustomKey2", "CustomValue2");
+		customMap.put("CustomKey3", "CustomValue3");
+		task.setCustominfo(customMap);
+
 		return task;
 	}
 
@@ -52,6 +61,7 @@ public class BuildInfoPluginTest
 
 	@Test
 	public void testBuildInfoTask()
+		throws FileNotFoundException, IOException
 	{
 		final Project project = ProjectBuilder.builder()
 			.withProjectDir(new File(JUNIT_FILE_LOCATION)).build();
@@ -67,6 +77,32 @@ public class BuildInfoPluginTest
 		task.doTask();
 		outputFile = new File(JUNIT_FILE_NAME);
 		Assert.assertTrue(outputFile.exists());
+
+		final Properties props = new Properties();
+		props.load(new FileInputStream(outputFile));
+
+		Assert.assertFalse(props.isEmpty());
+
+		//
+		// Validate expected sources
+		//
+		Assert.assertTrue(props.containsKey("custom.info.CustomKey2"));
+		Assert.assertTrue(props.containsKey("machine.hostname"));
+		Assert.assertTrue(props.containsKey("machine.hostname"));
+		Assert.assertTrue(props.containsKey("gradle.rootdir"));
+
+		//
+		// Assuming this build is NOT in CI... :p
+		//
+		Assert.assertFalse(props.containsKey("ci.hudson.HUDSON_SERVER_COOKIE"));
+		Assert.assertFalse(props.containsKey("ci.jenkins.JENKINS_SERVER_COOKIE"));
+		Assert.assertFalse(props.containsKey("ci.teamcity.TEAMCITY_VERSION"));
+		Assert.assertTrue(props.containsKey("vcs.type"));
+
+		//
+		// This project uses GIT
+		//
+		Assert.assertEquals("GIT", props.getProperty("vcs.type"));
 	}
 
 	@Test
