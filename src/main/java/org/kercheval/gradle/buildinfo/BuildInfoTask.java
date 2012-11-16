@@ -31,6 +31,7 @@ import org.kercheval.gradle.info.InfoSource;
 import org.kercheval.gradle.info.JenkinsInfoSource;
 import org.kercheval.gradle.info.MachineInfoSource;
 import org.kercheval.gradle.info.SortedProperties;
+import org.kercheval.gradle.info.TeamCityInfoSource;
 
 public class BuildInfoTask
 	extends DefaultTask
@@ -336,6 +337,7 @@ public class BuildInfoTask
 			maybeStoreProperties(out, vcsTask.getInfoSource());
 			maybeStoreProperties(out, new JenkinsInfoSource());
 			maybeStoreProperties(out, new HudsonInfoSource());
+			maybeStoreProperties(out, new TeamCityInfoSource());
 
 			out.close();
 		}

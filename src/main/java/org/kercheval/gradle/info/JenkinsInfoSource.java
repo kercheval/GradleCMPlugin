@@ -6,7 +6,7 @@ public class JenkinsInfoSource
 	@Override
 	public String getDescription()
 	{
-		return "Jenkins (http://jenkins-ci.org/) continous integration server information";
+		return "Jenkins (http://jenkins-ci.org/) continuous integration server information";
 	}
 
 	//

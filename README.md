@@ -317,6 +317,7 @@ gathered includes:
 - Build machine information and user info
 - Jenkins CI build system information
 - Hudson CI build system information
+- TeamCity CI build system information
 - Gradle property information
 
 In addition to the information above, the `buildinfo` configuration
@@ -567,6 +568,9 @@ url, machine and other important information.
 
 Hudson - Several key Hudson variables are stored to shows build id,
 url, machine and other important information.
+
+TeamCity - Several key TeamCity variables are stored to shows build id,
+data and other important information.
 
 Gradle - Source build file, location and description information is
 stored in the information file.
