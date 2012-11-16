@@ -1,6 +1,7 @@
-package org.kercheval.gradle.util;
+package org.kercheval.gradle.info;
 
 import org.junit.Test;
+import org.kercheval.gradle.info.SortedProperties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

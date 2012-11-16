@@ -1,4 +1,4 @@
-package org.kercheval.gradle.util;
+package org.kercheval.gradle.info;
 
 import java.util.HashMap;
 import java.util.List;
@@ -7,13 +7,14 @@ import java.util.Map;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 
-public class GradleUtil
+public class GradleInfoSource
+	implements InfoSource
 {
 	public static final String PLUGIN_GROUP_NAME = "Gradle CM (kercheval.org)";
 
 	Project project;
 
-	public GradleUtil(final Project project)
+	public GradleInfoSource(final Project project)
 	{
 		this.project = project;
 	}
@@ -47,22 +48,35 @@ public class GradleUtil
 		return rVal;
 	}
 
+	@Override
+	public String getDescription()
+	{
+		return "Gradle (http://www.gradle.org/) build system environment information";
+	}
+
 	//
 	// Only few gradle specific properties obtained here. This should
 	// normally be called after the task graph has been generated to ensure
 	// the evaluation stage variable changes have been completed
 	//
-	public SortedProperties getGradleInfo()
+	@Override
+	public SortedProperties getInfo()
 	{
 		final Map<String, ?> gradleProps = project.getProperties();
 		final SortedProperties props = new SortedProperties();
 
-		props.addProperty("gradle.buildfile", gradleProps.get("buildFile"));
-		props.addProperty("gradle.rootdir", gradleProps.get("rootDir"));
-		props.addProperty("gradle.projectdir", gradleProps.get("projectDir"));
-		props.addProperty("gradle.description", gradleProps.get("description"));
+		props.addProperty(getPropertyPrefix() + ".buildfile", gradleProps.get("buildFile"));
+		props.addProperty(getPropertyPrefix() + ".rootdir", gradleProps.get("rootDir"));
+		props.addProperty(getPropertyPrefix() + ".projectdir", gradleProps.get("projectDir"));
+		props.addProperty(getPropertyPrefix() + ".description", gradleProps.get("description"));
 
 		return props;
+	}
+
+	@Override
+	public String getPropertyPrefix()
+	{
+		return "gradle";
 	}
 
 	public Task getTask(final String taskname)
@@ -75,5 +89,11 @@ public class GradleUtil
 		}
 
 		return tasknameMap.get(taskname);
+	}
+
+	@Override
+	public boolean isActive()
+	{
+		return true;
 	}
 }

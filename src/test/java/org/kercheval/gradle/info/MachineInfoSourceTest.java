@@ -1,9 +1,11 @@
-package org.kercheval.gradle.util;
+package org.kercheval.gradle.info;
 
 import org.gradle.api.Project;
 import org.gradle.testfixtures.ProjectBuilder;
 
 import org.junit.Test;
+import org.kercheval.gradle.info.MachineInfoSource;
+import org.kercheval.gradle.info.SortedProperties;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -11,14 +13,14 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 
-public class MachineUtilTest
+public class MachineInfoSourceTest
 {
 	@Test
 	public void test()
 	{
 		final Project project = ProjectBuilder.builder().build();
-		final MachineUtil machineUtil = new MachineUtil(project);
-		final SortedProperties props = machineUtil.getMachineInfo();
+		final MachineInfoSource machineUtil = new MachineInfoSource(project);
+		final SortedProperties props = machineUtil.getInfo();
 
 		try
 		{

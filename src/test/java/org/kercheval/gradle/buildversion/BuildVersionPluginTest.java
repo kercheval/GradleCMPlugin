@@ -13,7 +13,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kercheval.gradle.buildvcs.BuildVCSPlugin;
 import org.kercheval.gradle.gradlecm.GradleCMPlugin;
-import org.kercheval.gradle.util.GradleUtil;
+import org.kercheval.gradle.info.GradleInfoSource;
 import org.kercheval.gradle.vcs.JGitTestRepository;
 
 public class BuildVersionPluginTest
@@ -27,7 +27,7 @@ public class BuildVersionPluginTest
 		{
 			final Project project = ProjectBuilder.builder()
 				.withProjectDir(repoUtil.getOriginFile()).build();
-			final GradleUtil gradleUtil = new GradleUtil(project);
+			final GradleInfoSource gradleUtil = new GradleInfoSource(project);
 
 			Assert.assertNull(gradleUtil.getTask(BuildVersionPlugin.VERSION_TASK_NAME));
 

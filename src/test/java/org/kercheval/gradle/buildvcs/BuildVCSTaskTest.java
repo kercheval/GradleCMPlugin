@@ -13,8 +13,8 @@ import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 import org.kercheval.gradle.gradlecm.GradleCMPlugin;
-import org.kercheval.gradle.util.GradleUtil;
-import org.kercheval.gradle.vcs.IVCSAccess;
+import org.kercheval.gradle.info.GradleInfoSource;
+import org.kercheval.gradle.vcs.VCSAccess;
 import org.kercheval.gradle.vcs.JGitTestRepository;
 import org.kercheval.gradle.vcs.VCSException;
 import org.kercheval.gradle.vcs.VCSStatus;
@@ -33,7 +33,7 @@ public class BuildVCSTaskTest
 		{
 			final Project project = ProjectBuilder.builder()
 				.withProjectDir(repoUtil.getOriginFile()).build();
-			final GradleUtil gradleUtil = new GradleUtil(project);
+			final GradleInfoSource gradleUtil = new GradleInfoSource(project);
 
 			project.apply(new LinkedHashMap<String, String>()
 			{
@@ -56,7 +56,7 @@ public class BuildVCSTaskTest
 
 			task.setType("none");
 
-			Assert.assertEquals(IVCSAccess.Type.NONE.toString().toLowerCase(), task.getType());
+			Assert.assertEquals(VCSAccess.Type.NONE.toString().toLowerCase(), task.getType());
 			Assert.assertTrue(task.isClean());
 
 			final VCSStatus status = task.getStatus();

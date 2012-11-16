@@ -6,7 +6,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.kercheval.gradle.gradlecm.GradleCMPlugin;
-import org.kercheval.gradle.util.GradleUtil;
+import org.kercheval.gradle.info.GradleInfoSource;
 
 public class BuildInfoPlugin
 	implements Plugin<Project>
@@ -31,6 +31,6 @@ public class BuildInfoPlugin
 		//
 		final Task task = project.getTasks().add(INFO_TASK_NAME, BuildInfoTask.class);
 		task.setDescription("Create a build information file to be included in built artifacts");
-		task.setGroup(GradleUtil.PLUGIN_GROUP_NAME);
+		task.setGroup(GradleInfoSource.PLUGIN_GROUP_NAME);
 	}
 }

@@ -14,7 +14,7 @@ import org.kercheval.gradle.buildinfo.BuildInfoPlugin;
 import org.kercheval.gradle.buildrelease.BuildReleasePlugin;
 import org.kercheval.gradle.buildvcs.BuildVCSPlugin;
 import org.kercheval.gradle.buildversion.BuildVersionPlugin;
-import org.kercheval.gradle.util.GradleUtil;
+import org.kercheval.gradle.info.GradleInfoSource;
 import org.kercheval.gradle.vcs.JGitTestRepository;
 
 public class GradleCMPluginTest
@@ -29,7 +29,7 @@ public class GradleCMPluginTest
 		{
 			final Project project = ProjectBuilder.builder()
 				.withProjectDir(repoUtil.getOriginFile()).build();
-			final GradleUtil gradleUtil = new GradleUtil(project);
+			final GradleInfoSource gradleUtil = new GradleInfoSource(project);
 
 			Assert.assertNull(gradleUtil.getTask(BuildInfoPlugin.INFO_TASK_NAME));
 

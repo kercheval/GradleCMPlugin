@@ -1,6 +1,8 @@
-package org.kercheval.gradle.util;
+package org.kercheval.gradle.info;
 
 import org.junit.Test;
+import org.kercheval.gradle.info.JenkinsInfoSource;
+import org.kercheval.gradle.info.SortedProperties;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -8,13 +10,13 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 
-public class JenkinsUtilTest
+public class JenkinsInfoSourceTest
 {
 	@Test
 	public void test()
 	{
-		final JenkinsUtil jenkinsUtil = new JenkinsUtil();
-		final SortedProperties props = jenkinsUtil.getJenkinsInfo();
+		final JenkinsInfoSource jenkinsUtil = new JenkinsInfoSource();
+		final SortedProperties props = jenkinsUtil.getInfo();
 
 		try
 		{

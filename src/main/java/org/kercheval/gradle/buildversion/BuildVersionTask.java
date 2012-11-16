@@ -11,7 +11,7 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
 import org.kercheval.gradle.buildvcs.BuildVCSPlugin;
 import org.kercheval.gradle.buildvcs.BuildVCSTask;
-import org.kercheval.gradle.util.GradleUtil;
+import org.kercheval.gradle.info.GradleInfoSource;
 import org.kercheval.gradle.vcs.VCSException;
 import org.kercheval.gradle.vcs.VCSTag;
 
@@ -116,7 +116,7 @@ public class BuildVersionTask
 			//
 			// Get the filtered list of tags from VCS and iterate to find the newest one.
 			//
-			final BuildVCSTask vcsTask = (BuildVCSTask) new GradleUtil(project)
+			final BuildVCSTask vcsTask = (BuildVCSTask) new GradleInfoSource(project)
 				.getTask(BuildVCSPlugin.VCS_TASK_NAME);
 			List<VCSTag> tagList;
 

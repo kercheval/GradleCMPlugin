@@ -7,22 +7,22 @@ import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskExecutionException;
 import org.kercheval.gradle.buildvcs.BuildVCSPlugin;
 import org.kercheval.gradle.buildvcs.BuildVCSTask;
-import org.kercheval.gradle.util.GradleUtil;
+import org.kercheval.gradle.info.GradleInfoSource;
 
 public class VCSTaskUtil
 {
 	final BuildVCSTask vcsTask;
-	final IVCSAccess vcs;
+	final VCSAccess vcs;
 
 	public VCSTaskUtil(final Project project)
 	{
 		final Map<String, ?> props = project.getProperties();
-		vcsTask = (BuildVCSTask) new GradleUtil(project).getTask(BuildVCSPlugin.VCS_TASK_NAME);
+		vcsTask = (BuildVCSTask) new GradleInfoSource(project).getTask(BuildVCSPlugin.VCS_TASK_NAME);
 		vcs = VCSAccessFactory.getCurrentVCS(vcsTask.getType(), (File) props.get("rootDir"),
 			project.getLogger());
 	}
 
-	public IVCSAccess getVCS()
+	public VCSAccess getVCS()
 	{
 		return vcs;
 	}

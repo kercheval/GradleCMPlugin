@@ -9,11 +9,12 @@ import java.util.Set;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskAction;
-import org.kercheval.gradle.vcs.IVCSAccess;
+import org.kercheval.gradle.vcs.VCSAccess;
 import org.kercheval.gradle.vcs.VCSException;
 import org.kercheval.gradle.vcs.VCSStatus;
 import org.kercheval.gradle.vcs.VCSTag;
 import org.kercheval.gradle.vcs.VCSTaskUtil;
+import org.kercheval.gradle.vcs.VCSInfoSource;
 
 public class BuildVCSTask
 	extends DefaultTask
@@ -53,9 +54,13 @@ public class BuildVCSTask
 	}
 
 	public Properties getInfo()
-		throws VCSException
 	{
 		return getVCS().getInfo();
+	}
+
+	public VCSInfoSource getInfoSource()
+	{
+		return (VCSInfoSource) getVCS();
 	}
 
 	public VCSStatus getStatus()
@@ -75,7 +80,7 @@ public class BuildVCSTask
 		return type;
 	}
 
-	private IVCSAccess getVCS()
+	private VCSAccess getVCS()
 	{
 		final Project project = getProject();
 		final VCSTaskUtil vcsUtil = new VCSTaskUtil(project);
@@ -96,7 +101,7 @@ public class BuildVCSTask
 		//
 		final String desiredType = type.toLowerCase();
 		boolean foundType = false;
-		for (final IVCSAccess.Type iterType : IVCSAccess.Type.values())
+		for (final VCSAccess.Type iterType : VCSAccess.Type.values())
 		{
 			if (desiredType.equals(iterType.toString().toLowerCase()))
 			{
@@ -105,8 +110,8 @@ public class BuildVCSTask
 		}
 		if (!foundType)
 		{
-			final Set<IVCSAccess.Type> typeSet = new HashSet<IVCSAccess.Type>();
-			Collections.addAll(typeSet, IVCSAccess.Type.values());
+			final Set<VCSAccess.Type> typeSet = new HashSet<VCSAccess.Type>();
+			Collections.addAll(typeSet, VCSAccess.Type.values());
 
 			throw new IllegalArgumentException("The type '" + type + "' is invalid for task "
 				+ getName() + ".  Valid values are one of " + typeSet);

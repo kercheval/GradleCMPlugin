@@ -13,12 +13,12 @@ import org.gradle.api.logging.Logger;
 //
 public class VCSAccessFactory
 {
-	public static IVCSAccess getCurrentVCS(final String type, final File srcRootDir,
+	public static VCSAccess getCurrentVCS(final String type, final File srcRootDir,
 		final Logger logger)
 	{
-		final IVCSAccess rVal = new VCSNoneImpl(srcRootDir, logger);
+		final VCSAccess rVal = new VCSNoneImpl(srcRootDir, logger);
 		final String desiredType = type.toLowerCase();
-		if (desiredType.equals(IVCSAccess.Type.GIT.toString().toLowerCase()))
+		if (desiredType.equals(VCSAccess.Type.GIT.toString().toLowerCase()))
 		{
 			return new VCSGitImpl(srcRootDir, logger);
 		}

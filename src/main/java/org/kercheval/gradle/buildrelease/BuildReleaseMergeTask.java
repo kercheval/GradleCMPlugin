@@ -4,7 +4,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
-import org.kercheval.gradle.util.GradleUtil;
+import org.kercheval.gradle.info.GradleInfoSource;
 import org.kercheval.gradle.vcs.VCSException;
 import org.kercheval.gradle.vcs.VCSTaskUtil;
 
@@ -23,7 +23,7 @@ public class BuildReleaseMergeTask
 			// Get the current release init task to obtain the branch and origin
 			// variables
 			//
-			final BuildReleaseInitTask initTask = (BuildReleaseInitTask) new GradleUtil(project)
+			final BuildReleaseInitTask initTask = (BuildReleaseInitTask) new GradleInfoSource(project)
 				.getTask(BuildReleasePlugin.INIT_TASK_NAME);
 
 			//

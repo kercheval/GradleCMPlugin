@@ -15,10 +15,11 @@ import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 import org.kercheval.gradle.gradlecm.GradleCMPlugin;
-import org.kercheval.gradle.util.GradleUtil;
+import org.kercheval.gradle.info.GradleInfoSource;
 import org.kercheval.gradle.vcs.JGitTestRepository;
 import org.kercheval.gradle.vcs.VCSException;
 import org.kercheval.gradle.vcs.VCSGitImpl;
+import org.kercheval.gradle.vcs.VCSInfoSource;
 import org.kercheval.gradle.vcs.VCSTag;
 
 public class BuildVersionTaskTest
@@ -44,7 +45,7 @@ public class BuildVersionTaskTest
 			Project project = ProjectBuilder.builder().withProjectDir(repoUtil.getOriginFile())
 				.build();
 			applyBuildVersionPlugin(project);
-			GradleUtil gradleUtil = new GradleUtil(project);
+			GradleInfoSource gradleUtil = new GradleInfoSource(project);
 			BuildVersionTask versionTask = (BuildVersionTask) gradleUtil
 				.getTask(BuildVersionPlugin.VERSION_TASK_NAME);
 			Assert.assertNotNull(versionTask);
@@ -63,7 +64,7 @@ public class BuildVersionTaskTest
 			//
 			project = ProjectBuilder.builder().withProjectDir(repoUtil.getOriginFile()).build();
 			applyBuildVersionPlugin(project);
-			gradleUtil = new GradleUtil(project);
+			gradleUtil = new GradleInfoSource(project);
 
 			versionTask = (BuildVersionTask) gradleUtil
 				.getTask(BuildVersionPlugin.VERSION_TASK_NAME);
@@ -105,7 +106,7 @@ public class BuildVersionTaskTest
 			final Project project = ProjectBuilder.builder()
 				.withProjectDir(repoUtil.getOriginFile()).build();
 			applyBuildVersionPlugin(project);
-			final GradleUtil gradleUtil = new GradleUtil(project);
+			final GradleInfoSource gradleUtil = new GradleInfoSource(project);
 			final BuildVersionTask task = (BuildVersionTask) gradleUtil
 				.getTask(BuildVersionPlugin.VERSION_TASK_NAME);
 
@@ -130,7 +131,7 @@ public class BuildVersionTaskTest
 		throws VCSException
 	{
 		final BuildVersion version = ((BuildVersion) project.getVersion());
-		final VCSGitImpl git = new VCSGitImpl(repoUtil.getOriginFile(), project.getLogger());
+		final VCSInfoSource git = new VCSGitImpl(repoUtil.getOriginFile(), project.getLogger());
 		final List<VCSTag> tagList = git.getTags(version.getValidatePattern());
 		boolean found = false;
 		for (final VCSTag tag : tagList)

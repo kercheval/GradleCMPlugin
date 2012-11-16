@@ -16,8 +16,8 @@ import org.kercheval.gradle.buildvcs.BuildVCSTask;
 import org.kercheval.gradle.buildversion.BuildVersionPlugin;
 import org.kercheval.gradle.buildversion.BuildVersionTagTask;
 import org.kercheval.gradle.gradlecm.GradleCMPlugin;
-import org.kercheval.gradle.util.GradleUtil;
-import org.kercheval.gradle.vcs.IVCSAccess;
+import org.kercheval.gradle.info.GradleInfoSource;
+import org.kercheval.gradle.vcs.VCSAccess;
 import org.kercheval.gradle.vcs.VCSException;
 import org.kercheval.gradle.vcs.VCSTaskUtil;
 
@@ -48,16 +48,16 @@ public class BuildReleasePlugin
 			BuildReleaseInitTask.class);
 		buildInitTask
 			.setDescription("Create a release branch structure supporting release code promotion and publication");
-		buildInitTask.setGroup(GradleUtil.PLUGIN_GROUP_NAME);
+		buildInitTask.setGroup(GradleInfoSource.PLUGIN_GROUP_NAME);
 		final BuildReleaseMergeTask buildMergeTask = project.getTasks().add(MERGE_TASK_NAME,
 			BuildReleaseMergeTask.class);
 		buildMergeTask
 			.setDescription("Update the release branch with changes made to the mainline branch");
-		buildMergeTask.setGroup(GradleUtil.PLUGIN_GROUP_NAME);
+		buildMergeTask.setGroup(GradleInfoSource.PLUGIN_GROUP_NAME);
 		final BuildReleaseTask buildReleaseTask = project.getTasks().add(RELEASE_TASK_NAME,
 			BuildReleaseTask.class);
 		buildReleaseTask.setDescription("Run the " + MERGE_TASK_NAME + " and upload targets");
-		buildReleaseTask.setGroup(GradleUtil.PLUGIN_GROUP_NAME);
+		buildReleaseTask.setGroup(GradleInfoSource.PLUGIN_GROUP_NAME);
 
 		//
 		// The magic happens in a doFirst installed at task graph completion.
@@ -70,7 +70,7 @@ public class BuildReleasePlugin
 				@Override
 				public void graphPopulated(final TaskExecutionGraph graph)
 				{
-					final AbstractTask uploadTask = (AbstractTask) new GradleUtil(project)
+					final AbstractTask uploadTask = (AbstractTask) new GradleInfoSource(project)
 						.getTask(buildInitTask.getUploadtask());
 
 					if ((null == uploadTask))
@@ -104,13 +104,13 @@ public class BuildReleasePlugin
 	{
 		try
 		{
-			final BuildVCSTask vcsTask = (BuildVCSTask) new GradleUtil(project)
+			final BuildVCSTask vcsTask = (BuildVCSTask) new GradleInfoSource(project)
 				.getTask(BuildVCSPlugin.VCS_TASK_NAME);
 
 			//
 			// We cannot tag and push when we have no VCS. Silently fail...
 			//
-			if (!IVCSAccess.Type.NONE.toString().toLowerCase()
+			if (!VCSAccess.Type.NONE.toString().toLowerCase()
 				.equals(vcsTask.getType().toLowerCase()))
 			{
 				final VCSTaskUtil vcsUtil = new VCSTaskUtil(project);
@@ -119,7 +119,7 @@ public class BuildReleasePlugin
 				// Get the current release init task to obtain the branch and origin
 				// variables
 				//
-				final BuildReleaseInitTask initTask = (BuildReleaseInitTask) new GradleUtil(project)
+				final BuildReleaseInitTask initTask = (BuildReleaseInitTask) new GradleInfoSource(project)
 					.getTask(BuildReleasePlugin.INIT_TASK_NAME);
 
 				boolean isOnBranch = false;
@@ -149,7 +149,7 @@ public class BuildReleasePlugin
 					//
 					// Get the tag task to tag the repository
 					//
-					final BuildVersionTagTask tagTask = (BuildVersionTagTask) new GradleUtil(
+					final BuildVersionTagTask tagTask = (BuildVersionTagTask) new GradleInfoSource(
 						project).getTask(BuildVersionPlugin.TAG_TASK_NAME);
 					tagTask.execute();
 

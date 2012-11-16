@@ -1,9 +1,11 @@
-package org.kercheval.gradle.util;
+package org.kercheval.gradle.info;
 
 import org.gradle.api.Project;
 import org.gradle.testfixtures.ProjectBuilder;
 
 import org.junit.Test;
+import org.kercheval.gradle.info.GradleInfoSource;
+import org.kercheval.gradle.info.SortedProperties;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -11,14 +13,14 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 
-public class GradleUtilTest
+public class GradleInfoSourceTest
 {
 	@Test
 	public void test()
 	{
 		final Project project = ProjectBuilder.builder().build();
-		final GradleUtil gradleUtil = new GradleUtil(project);
-		final SortedProperties props = gradleUtil.getGradleInfo();
+		final GradleInfoSource gradleUtil = new GradleInfoSource(project);
+		final SortedProperties props = gradleUtil.getInfo();
 
 		try
 		{

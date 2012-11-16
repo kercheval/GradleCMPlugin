@@ -21,7 +21,7 @@ import org.kercheval.gradle.buildvcs.BuildVCSTask;
 import org.kercheval.gradle.buildversion.BuildVersionPlugin;
 import org.kercheval.gradle.buildversion.BuildVersionTask;
 import org.kercheval.gradle.gradlecm.GradleCMPlugin;
-import org.kercheval.gradle.util.GradleUtil;
+import org.kercheval.gradle.info.GradleInfoSource;
 import org.kercheval.gradle.vcs.JGitTestRepository;
 
 public class BuildReleasePluginTest
@@ -47,7 +47,7 @@ public class BuildReleasePluginTest
 				}
 			});
 
-			final GradleUtil gradleUtil = new GradleUtil(project);
+			final GradleInfoSource gradleUtil = new GradleInfoSource(project);
 
 			final BuildReleaseInitTask initTask = (BuildReleaseInitTask) gradleUtil
 				.getTask(BuildReleasePlugin.INIT_TASK_NAME);

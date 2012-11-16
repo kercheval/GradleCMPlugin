@@ -5,13 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.gradle.api.logging.Logger;
-import org.kercheval.gradle.util.SortedProperties;
+import org.kercheval.gradle.info.SortedProperties;
 
 public class VCSNoneImpl
-	implements IVCSAccess
+	extends VCSInfoSource
 {
 	public VCSNoneImpl(final File srcRootDir, final Logger logger)
-	{}
+	{
+		super(srcRootDir, logger);
+	}
 
 	@Override
 	public void createBranch(final String branchName, final String remoteOrigin,
@@ -54,10 +56,21 @@ public class VCSNoneImpl
 	}
 
 	@Override
+	public String getDescription()
+	{
+		return "No revision control system";
+	}
+
+	@Override
 	public SortedProperties getInfo()
-		throws VCSException
 	{
 		return new SortedProperties();
+	}
+
+	@Override
+	public String getPropertyPrefix()
+	{
+		return getType().toString();
 	}
 
 	@Override
@@ -77,11 +90,17 @@ public class VCSNoneImpl
 	@Override
 	public Type getType()
 	{
-		return IVCSAccess.Type.NONE;
+		return VCSAccess.Type.NONE;
 	}
 
 	@Override
-	public void mergeBranch(final String fromBranch, String remoteOrigin)
+	public boolean isActive()
+	{
+		return false;
+	}
+
+	@Override
+	public void mergeBranch(final String fromBranch, final String remoteOrigin)
 		throws VCSException
 	{
 		throw new VCSException("Unable to merge from " + fromBranch, new IllegalStateException(

@@ -25,11 +25,11 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
 import org.kercheval.gradle.buildvcs.BuildVCSPlugin;
 import org.kercheval.gradle.buildvcs.BuildVCSTask;
-import org.kercheval.gradle.util.GradleUtil;
-import org.kercheval.gradle.util.JenkinsUtil;
-import org.kercheval.gradle.util.MachineUtil;
-import org.kercheval.gradle.util.SortedProperties;
-import org.kercheval.gradle.vcs.VCSException;
+import org.kercheval.gradle.info.GradleInfoSource;
+import org.kercheval.gradle.info.InfoSource;
+import org.kercheval.gradle.info.JenkinsInfoSource;
+import org.kercheval.gradle.info.MachineInfoSource;
+import org.kercheval.gradle.info.SortedProperties;
 
 public class BuildInfoTask
 	extends DefaultTask
@@ -239,7 +239,7 @@ public class BuildInfoTask
 		//
 		final Project project = getProject();
 		project.getProperties();
-		final BuildVCSTask vcsTask = (BuildVCSTask) new GradleUtil(project)
+		final BuildVCSTask vcsTask = (BuildVCSTask) new GradleInfoSource(project)
 			.getTask(BuildVCSPlugin.VCS_TASK_NAME);
 
 		try
@@ -330,25 +330,14 @@ public class BuildInfoTask
 			//
 			// Grab properties from our various information sources
 			//
-			new MachineUtil(project).getMachineInfo().store(out, "Machine Info");
-			out.write(EOL);
-			out.write(EOL);
-			new GradleUtil(project).getGradleInfo().store(out, "Gradle Info");
-			out.write(EOL);
-			out.write(EOL);
-			final Properties vcsprops = vcsTask.getInfo();
-			vcsprops.setProperty("vcs.type", vcsTask.getType());
-			vcsprops.store(out, "VCS Info");
-			out.write(EOL);
-			out.write(EOL);
-			new JenkinsUtil().getJenkinsInfo().store(out, "Jenkins Info");
+			maybeStoreProperties(out, new MachineInfoSource(project));
+			maybeStoreProperties(out, new GradleInfoSource(project));
+			maybeStoreProperties(out, vcsTask.getInfoSource());
+			maybeStoreProperties(out, new JenkinsInfoSource());
+
 			out.close();
 		}
 		catch (final IOException e)
-		{
-			throw new TaskExecutionException(this, e);
-		}
-		catch (final VCSException e)
 		{
 			throw new TaskExecutionException(this, e);
 		}
@@ -377,6 +366,17 @@ public class BuildInfoTask
 	public boolean isAutowrite()
 	{
 		return autowrite;
+	}
+
+	private void maybeStoreProperties(final BufferedWriter out, final InfoSource infoSource)
+		throws IOException
+	{
+		if (infoSource.isActive())
+		{
+			infoSource.getInfo().store(out, infoSource.getDescription());
+			out.write(EOL);
+			out.write(EOL);
+		}
 	}
 
 	public void setAutowrite(final boolean autowrite)

@@ -1,4 +1,4 @@
-package org.kercheval.gradle.util;
+package org.kercheval.gradle.info;
 
 import java.util.Collections;
 import java.util.Enumeration;

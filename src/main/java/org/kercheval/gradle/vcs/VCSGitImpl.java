@@ -36,21 +36,17 @@ import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.gradle.api.logging.Logger;
-import org.kercheval.gradle.util.SortedProperties;
+import org.kercheval.gradle.info.SortedProperties;
 
 //
 // This class implements the VCSAccess interface for GIT.
 //
 public class VCSGitImpl
-	implements IVCSAccess
+	extends VCSInfoSource
 {
-	private final File srcRootDir;
-	private final Logger logger;
-
 	public VCSGitImpl(final File srcRootDir, final Logger logger)
 	{
-		this.srcRootDir = srcRootDir;
-		this.logger = logger;
+		super(srcRootDir, logger);
 	}
 
 	@Override
@@ -277,66 +273,47 @@ public class VCSGitImpl
 	}
 
 	@Override
-	public SortedProperties getInfo()
-		throws VCSException
+	public String getDescription()
 	{
-		final SortedProperties props = new SortedProperties();
+		return "Git (http://git-scm.com/) environment information";
+	}
+
+	@Override
+	public SortedProperties getInfo()
+	{
+		final SortedProperties props = super.getInfo();
 		Repository repository = null;
 
 		try
 		{
 			repository = new RepositoryBuilder().readEnvironment().findGitDir(getSrcRootDir())
 				.build();
-			props.addProperty("vcs.git.basedir", repository.getDirectory().getCanonicalPath());
-			props.addProperty("vcs.git.branch", repository.getBranch());
+			props.addProperty(getPropertyPrefix() + ".basedir", repository.getDirectory()
+				.getCanonicalPath());
+			props.addProperty(getPropertyPrefix() + ".branch", repository.getBranch());
 
 			final ObjectId head = repository.resolve("HEAD");
 			if (null == head)
 			{
-				props.addProperty("vcs.git.last.commit", "");
+				props.addProperty(getPropertyPrefix() + ".last.commit", "");
 			}
 			else
 			{
-				props.addProperty("vcs.git.last.commit", head.getName());
+				props.addProperty(getPropertyPrefix() + ".last.commit", head.getName());
 			}
 
 			final Config config = repository.getConfig();
 
-			props.addProperty("vcs.git.user.name", config.getString("user", null, "name"));
-			props.addProperty("vcs.git.user.email", config.getString("user", null, "email"));
-			props.addProperty("vcs.git.remote.origin", config.getString("remote", "origin", "url"));
-
-			try
-			{
-				final Status status = new Git(repository).status().call();
-
-				props.addProperty("vcs.git.workspace.clean", Boolean.toString(status.isClean()));
-				props.addProperty("vcs.git.workspace.files.added", status.getAdded().toString());
-				props
-					.addProperty("vcs.git.workspace.files.changed", status.getChanged().toString());
-				props
-					.addProperty("vcs.git.workspace.files.missing", status.getMissing().toString());
-				props
-					.addProperty("vcs.git.workspace.files.removed", status.getRemoved().toString());
-				props.addProperty("vcs.git.workspace.files.untracked", status.getUntracked()
-					.toString());
-				props.addProperty("vcs.git.workspace.files.conflicting", status.getConflicting()
-					.toString());
-				props.addProperty("vcs.git.workspace.files.modified", status.getModified()
-					.toString());
-			}
-			catch (final NoWorkTreeException e)
-			{
-				throw new VCSException("Unable to determine repository status", e);
-			}
-			catch (final GitAPIException e)
-			{
-				throw new VCSException("Unable to determine repository status", e);
-			}
+			props.addProperty(getPropertyPrefix() + ".user.name",
+				config.getString("user", null, "name"));
+			props.addProperty(getPropertyPrefix() + ".user.email",
+				config.getString("user", null, "email"));
+			props.addProperty(getPropertyPrefix() + ".remote.origin",
+				config.getString("remote", "origin", "url"));
 		}
 		catch (final IOException e)
 		{
-			throw new VCSException("Unable to find repository at: " + getSrcRootDir(), e);
+			// Ignore
 		}
 		finally
 		{
@@ -345,18 +322,7 @@ public class VCSGitImpl
 				repository.close();
 			}
 		}
-
 		return props;
-	}
-
-	public Logger getLogger()
-	{
-		return logger;
-	}
-
-	public File getSrcRootDir()
-	{
-		return srcRootDir;
 	}
 
 	@Override
@@ -472,7 +438,7 @@ public class VCSGitImpl
 	@Override
 	public Type getType()
 	{
-		return IVCSAccess.Type.GIT;
+		return VCSAccess.Type.GIT;
 	}
 
 	@Override

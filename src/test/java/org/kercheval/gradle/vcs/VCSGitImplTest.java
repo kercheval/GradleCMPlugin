@@ -15,7 +15,7 @@ import org.gradle.api.Project;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.Assert;
 import org.junit.Test;
-import org.kercheval.gradle.util.SortedProperties;
+import org.kercheval.gradle.info.SortedProperties;
 
 public class VCSGitImplTest
 {
@@ -24,7 +24,7 @@ public class VCSGitImplTest
 		final boolean verifyOrigin)
 		throws VCSException
 	{
-		final VCSGitImpl git = new VCSGitImpl(repoUtil.getStandardFile(), null);
+		final VCSInfoSource git = new VCSGitImpl(repoUtil.getStandardFile(), null);
 		git.createBranch(branchName, originName, ignoreOrigin);
 		Map<String, Ref> refMap = repoUtil.getStandardRepo().getAllRefs();
 		Assert.assertTrue(refMap.containsKey("refs/heads/" + branchName));
@@ -46,7 +46,7 @@ public class VCSGitImplTest
 		final String branchName, final String originName, final boolean ignoreOrigin)
 		throws VCSException
 	{
-		final VCSGitImpl git = new VCSGitImpl(repoUtil.getOriginFile(), null);
+		final VCSInfoSource git = new VCSGitImpl(repoUtil.getOriginFile(), null);
 		git.createBranch(branchName, originName, ignoreOrigin);
 		final Map<String, Ref> refMap = repoUtil.getOriginRepo().getAllRefs();
 		Assert.assertTrue(refMap.containsKey("refs/heads/" + branchName));
@@ -89,7 +89,7 @@ public class VCSGitImplTest
 		final JGitTestRepository repoUtil = new JGitTestRepository();
 		try
 		{
-			final VCSGitImpl git = new VCSGitImpl(repoUtil.getOriginFile(), null);
+			final VCSInfoSource git = new VCSGitImpl(repoUtil.getOriginFile(), null);
 			final String branchName = git.getBranchName();
 			System.out.println("Found branch - " + branchName);
 			Assert.assertNotNull(branchName);
@@ -113,7 +113,7 @@ public class VCSGitImplTest
 			Ref localHead = repoUtil.getStandardRepo().getRef("refs/heads/master");
 			Assert.assertEquals(localHead.getObjectId().getName(), originHead.getObjectId()
 				.getName());
-			final VCSGitImpl git = new VCSGitImpl(repoUtil.getStandardFile(), null);
+			final VCSInfoSource git = new VCSGitImpl(repoUtil.getStandardFile(), null);
 
 			git.fetch("myOrigin");
 			originHead = repoUtil.getStandardRepo().getRef("refs/remotes/myOrigin/master");
@@ -200,7 +200,7 @@ public class VCSGitImplTest
 		final JGitTestRepository repoUtil = new JGitTestRepository();
 		try
 		{
-			final VCSGitImpl git = new VCSGitImpl(repoUtil.getOriginFile(), null);
+			final VCSInfoSource git = new VCSGitImpl(repoUtil.getOriginFile(), null);
 			VCSStatus status = git.getStatus();
 			Assert.assertNotNull(status);
 			Assert.assertTrue(status.isClean());
@@ -228,7 +228,7 @@ public class VCSGitImplTest
 		final JGitTestRepository repoUtil = new JGitTestRepository();
 		try
 		{
-			final VCSGitImpl git = new VCSGitImpl(repoUtil.getOriginFile(), null);
+			final VCSInfoSource git = new VCSGitImpl(repoUtil.getOriginFile(), null);
 			List<VCSTag> tagList = git.getAllTags();
 			Assert.assertFalse(tagList.isEmpty());
 
@@ -257,7 +257,7 @@ public class VCSGitImplTest
 			Ref localHead = repoUtil.getStandardRepo().getRef("refs/heads/master");
 			Assert.assertEquals(localHead.getObjectId().getName(), originHead.getObjectId()
 				.getName());
-			final VCSGitImpl git = new VCSGitImpl(repoUtil.getStandardFile(), null);
+			final VCSInfoSource git = new VCSGitImpl(repoUtil.getStandardFile(), null);
 			git.fetch("myOrigin");
 			originHead = repoUtil.getStandardRepo().getRef("refs/remotes/myOrigin/master");
 			localHead = repoUtil.getStandardRepo().getRef("refs/heads/master");
@@ -299,7 +299,7 @@ public class VCSGitImplTest
 		final JGitTestRepository repoUtil = new JGitTestRepository();
 		try
 		{
-			final VCSGitImpl git = new VCSGitImpl(repoUtil.getStandardFile(), null);
+			final VCSInfoSource git = new VCSGitImpl(repoUtil.getStandardFile(), null);
 			try
 			{
 				git.mergeBranch("OriginalBranchNotPresent", null);
@@ -332,7 +332,7 @@ public class VCSGitImplTest
 			new Git(repoUtil.getStandardRepo()).commit()
 				.setCommitter(new PersonIdent("JUNIT", "JUNIT@dev.build"))
 				.setMessage("First commit into origin repository").call();
-			final VCSGitImpl git = new VCSGitImpl(repoUtil.getStandardFile(), null);
+			final VCSInfoSource git = new VCSGitImpl(repoUtil.getStandardFile(), null);
 			try
 			{
 				git.pushBranch("master", "myOrigin", true);

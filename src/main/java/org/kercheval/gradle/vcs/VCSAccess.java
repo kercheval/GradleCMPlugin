@@ -2,7 +2,8 @@ package org.kercheval.gradle.vcs;
 
 import java.util.List;
 
-import org.kercheval.gradle.util.SortedProperties;
+import org.kercheval.gradle.info.InfoSource;
+import org.kercheval.gradle.info.SortedProperties;
 
 //
 // This interface supports the specific types of operation required by
@@ -10,7 +11,8 @@ import org.kercheval.gradle.util.SortedProperties;
 //
 // NOTE: GIT is the only supported system at the moment.
 //
-public interface IVCSAccess
+public interface VCSAccess
+	extends InfoSource
 {
 	//
 	// This type refers to the VCS type in use for an access object.
@@ -63,8 +65,8 @@ public interface IVCSAccess
 	// Obtain 'interesting' information about the current VCS usage
 	// and return that as property information.
 	//
-	public SortedProperties getInfo()
-		throws VCSException;
+	@Override
+	public SortedProperties getInfo();
 
 	//
 	// Return the current status of the VCS system (all workspace changes)

@@ -1247,6 +1247,9 @@ variable description)
 The buildrelease plugin task behaviors can be modified by the
 following variables:
 
+**Note:** These variables are used by all of the buildrelease plugin
+tasks (except where noted).
+
 <table style="border: 1px solid black;">
 	<tr>
 		<th>Variable</td>

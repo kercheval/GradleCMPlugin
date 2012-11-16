@@ -6,7 +6,7 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
 import org.kercheval.gradle.buildvcs.BuildVCSPlugin;
 import org.kercheval.gradle.buildvcs.BuildVCSTask;
-import org.kercheval.gradle.util.GradleUtil;
+import org.kercheval.gradle.info.GradleInfoSource;
 import org.kercheval.gradle.vcs.VCSException;
 import org.kercheval.gradle.vcs.VCSTaskUtil;
 
@@ -41,7 +41,7 @@ public class BuildVersionTagTask
 		final Project project = getProject();
 		if (project.getVersion() instanceof BuildVersion)
 		{
-			final BuildVCSTask vcsTask = (BuildVCSTask) new GradleUtil(project)
+			final BuildVCSTask vcsTask = (BuildVCSTask) new GradleInfoSource(project)
 				.getTask(BuildVCSPlugin.VCS_TASK_NAME);
 			final VCSTaskUtil vcsUtil = new VCSTaskUtil(project);
 
