@@ -5,6 +5,6 @@ public class VCSException
 {
 	public VCSException(final String message, final Throwable cause)
 	{
-		super(message, cause);
+		super(message + (null == cause ? "" : ": " + cause.getMessage()), cause);
 	}
 }

@@ -244,7 +244,6 @@ public class BuildInfoTask
 	@TaskAction
 	public void doTask()
 	{
-
 		//
 		// Obtain the project properties
 		//

@@ -80,7 +80,6 @@ buildscript {
 		//
 		classpath gradleApi()
 		classpath 'org.eclipse.jgit:org.eclipse.jgit:2.1.0.201209190230-r'
-		classpath 'org.apache.commons:commons-io:1.3.2'
 		
 		//
 		// Obtain from parent output location (normally get from repository)
