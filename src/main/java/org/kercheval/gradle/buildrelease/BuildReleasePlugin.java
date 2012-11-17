@@ -13,8 +13,6 @@ import org.gradle.api.internal.AbstractTask;
 import org.gradle.api.tasks.TaskExecutionException;
 import org.kercheval.gradle.buildvcs.BuildVCSPlugin;
 import org.kercheval.gradle.buildvcs.BuildVCSTask;
-import org.kercheval.gradle.buildversion.BuildVersionPlugin;
-import org.kercheval.gradle.buildversion.BuildVersionTagTask;
 import org.kercheval.gradle.gradlecm.GradleCMPlugin;
 import org.kercheval.gradle.info.GradleInfoSource;
 import org.kercheval.gradle.vcs.VCSAccess;
@@ -119,8 +117,8 @@ public class BuildReleasePlugin
 				// Get the current release init task to obtain the branch and origin
 				// variables
 				//
-				final BuildReleaseInitTask initTask = (BuildReleaseInitTask) new GradleInfoSource(project)
-					.getTask(BuildReleasePlugin.INIT_TASK_NAME);
+				final BuildReleaseInitTask initTask = (BuildReleaseInitTask) new GradleInfoSource(
+					project).getTask(BuildReleasePlugin.INIT_TASK_NAME);
 
 				boolean isOnBranch = false;
 				if (forceOnBranch)
@@ -149,17 +147,15 @@ public class BuildReleasePlugin
 					//
 					// Get the tag task to tag the repository
 					//
-					final BuildVersionTagTask tagTask = (BuildVersionTagTask) new GradleInfoSource(
-						project).getTask(BuildVersionPlugin.TAG_TASK_NAME);
-					tagTask.execute();
+					final String tagName = project.getVersion().toString();
+					vcsTask.createTag(tagName, "Tag created by task " + initTask.getUploadtask());
 
 					//
-					// Push the new created tags back to origin
+					// Push the new created tag back to origin
 					//
 					if (!initTask.isIgnoreorigin())
 					{
-						vcsUtil.getVCS().pushBranch(initTask.getReleasebranch(),
-							initTask.getRemoteorigin(), true);
+						vcsUtil.getVCS().push(tagName, initTask.getRemoteorigin(), true);
 					}
 				}
 				else

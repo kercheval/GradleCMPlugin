@@ -10,7 +10,6 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.lib.PersonIdent;
-import org.eclipse.jgit.lib.Ref;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskExecutionException;
 import org.gradle.testfixtures.ProjectBuilder;
@@ -18,6 +17,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kercheval.gradle.buildvcs.BuildVCSPlugin;
 import org.kercheval.gradle.buildvcs.BuildVCSTask;
+import org.kercheval.gradle.buildversion.BuildVersion;
 import org.kercheval.gradle.buildversion.BuildVersionPlugin;
 import org.kercheval.gradle.buildversion.BuildVersionTask;
 import org.kercheval.gradle.gradlecm.GradleCMPlugin;
@@ -119,6 +119,7 @@ public class BuildReleasePluginTest
 			// Set ignore origin to false, then test new tag is present and
 			// That change in release is now at origin
 			//
+			((BuildVersion) project.getVersion()).incrementMinor();
 			releaseInitTask.setIgnoreorigin(false);
 			plugin.tagAndPush(project, releaseInitTask, true);
 
@@ -142,6 +143,7 @@ public class BuildReleasePluginTest
 			}
 
 			releaseInitTask.setOnlyifclean(false);
+			((BuildVersion) project.getVersion()).incrementMinor();
 			plugin.tagAndPush(project, releaseInitTask, true);
 			releaseInitTask.setOnlyifclean(true);
 
@@ -149,20 +151,12 @@ public class BuildReleasePluginTest
 				.setCommitter(new PersonIdent("JUNIT", "JUNIT@dev.build"))
 				.setMessage("First commit into origin repository").call();
 
-			Ref localHead = repoUtil.getStandardRepo().getRef("HEAD");
-
-			Assert.assertNull(repoUtil.getOriginRepo().getRef(localHead.getObjectId().getName()));
-
+			((BuildVersion) project.getVersion()).incrementMinor();
 			plugin.tagAndPush(project, releaseInitTask, true);
 			Assert.assertNotNull(repoUtil.getStandardRepo().getRef(
 				"refs/tags/" + project.getVersion().toString()));
 			Assert.assertNotNull(repoUtil.getOriginRepo().getRef(
 				"refs/tags/" + project.getVersion().toString()));
-
-			localHead = repoUtil.getStandardRepo().getRef("HEAD");
-			final Ref remoteHead = repoUtil.getOriginRepo().getRef("refs/heads/master");
-			Assert.assertEquals(localHead.getObjectId().getName(), remoteHead.getObjectId()
-				.getName());
 		}
 		finally
 		{
@@ -170,5 +164,4 @@ public class BuildReleasePluginTest
 		}
 
 	}
-
 }

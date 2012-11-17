@@ -94,7 +94,7 @@ public class VCSNoneImpl
 	}
 
 	@Override
-	public void mergeBranch(final String fromBranch, final String remoteOrigin)
+	public void merge(final String fromBranch, final String remoteOrigin)
 		throws VCSException
 	{
 		throw new VCSException("Unable to merge from " + fromBranch, new IllegalStateException(
@@ -103,11 +103,10 @@ public class VCSNoneImpl
 	}
 
 	@Override
-	public void pushBranch(final String fromBranch, final String remoteOrigin,
-		final boolean pushTags)
+	public void push(final String from, final String remoteOrigin, final boolean pushTag)
 		throws VCSException
 	{
-		throw new VCSException("Unable to push branch " + fromBranch + " to " + remoteOrigin,
+		throw new VCSException("Unable to push branch " + from + " to " + remoteOrigin,
 			new IllegalStateException("No VCS associated with this build"));
 	}
 

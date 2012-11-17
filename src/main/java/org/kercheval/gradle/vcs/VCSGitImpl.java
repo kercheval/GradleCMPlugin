@@ -442,7 +442,7 @@ public class VCSGitImpl
 	}
 
 	@Override
-	public void mergeBranch(final String fromBranch, final String remoteOrigin)
+	public void merge(final String fromBranch, final String remoteOrigin)
 		throws VCSException
 	{
 
@@ -521,11 +521,14 @@ public class VCSGitImpl
 	}
 
 	@Override
-	public void pushBranch(final String fromBranch, final String remoteOrigin,
-		final boolean pushTags)
+	public void push(final String from, final String remoteOrigin, final boolean pushTag)
 		throws VCSException
 	{
-		final String refLocalBranch = "refs/heads/" + fromBranch;
+		String refLocalBranch = "refs/heads/" + from;
+		if (pushTag)
+		{
+			refLocalBranch = "refs/tags/" + from;
+		}
 		Repository repository = null;
 
 		try
@@ -534,16 +537,8 @@ public class VCSGitImpl
 				.build();
 
 			Iterable<PushResult> pushResult;
-			if (pushTags)
-			{
-				pushResult = new Git(repository).push().setRemote(remoteOrigin)
-					.setRefSpecs(new RefSpec(refLocalBranch)).setPushTags().call();
-			}
-			else
-			{
-				pushResult = new Git(repository).push().setRemote(remoteOrigin)
-					.setRefSpecs(new RefSpec(refLocalBranch)).call();
-			}
+			pushResult = new Git(repository).push().setRemote(remoteOrigin)
+				.setRefSpecs(new RefSpec(refLocalBranch)).call();
 
 			RemoteRefUpdate.Status refStatus = null;
 			for (final PushResult result : pushResult)
@@ -580,15 +575,15 @@ public class VCSGitImpl
 		}
 		catch (final InvalidRemoteException e)
 		{
-			throw new VCSException("Unable to push branch " + fromBranch + " to " + remoteOrigin, e);
+			throw new VCSException("Unable to push branch " + from + " to " + remoteOrigin, e);
 		}
 		catch (final TransportException e)
 		{
-			throw new VCSException("Unable to push branch " + fromBranch + " to " + remoteOrigin, e);
+			throw new VCSException("Unable to push branch " + from + " to " + remoteOrigin, e);
 		}
 		catch (final GitAPIException e)
 		{
-			throw new VCSException("Unable to push branch " + fromBranch + " to " + remoteOrigin, e);
+			throw new VCSException("Unable to push branch " + from + " to " + remoteOrigin, e);
 		}
 		finally
 		{

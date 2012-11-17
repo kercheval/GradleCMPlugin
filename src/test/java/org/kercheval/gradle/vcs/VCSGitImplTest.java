@@ -126,7 +126,7 @@ public class VCSGitImplTest
 			Assert.assertFalse(localHead.getObjectId().getName()
 				.equals(originHead.getObjectId().getName()));
 
-			git.mergeBranch("master", "myOrigin");
+			git.merge("master", "myOrigin");
 			originHead = repoUtil.getStandardRepo().getRef("refs/remotes/myOrigin/master");
 			localHead = repoUtil.getStandardRepo().getRef("refs/heads/master");
 			Assert.assertEquals(localHead.getObjectId().getName(), originHead.getObjectId()
@@ -148,7 +148,8 @@ public class VCSGitImplTest
 			Assert.assertNotNull(repoUtil.getStandardRepo().getRef("refs/tags/NEW_TAG"));
 			Assert.assertNull(repoUtil.getOriginRepo().getRef("refs/tags/NEW_TAG"));
 
-			git.pushBranch("master", "myOrigin", true);
+			git.push("NEW_TAG", "myOrigin", true);
+			git.push("master", "myOrigin", false);
 			originHead = repoUtil.getStandardRepo().getRef("refs/remotes/myOrigin/master");
 			localHead = repoUtil.getStandardRepo().getRef("refs/heads/master");
 			Assert.assertEquals(localHead.getObjectId().getName(), originHead.getObjectId()
@@ -157,7 +158,7 @@ public class VCSGitImplTest
 			new Git(repoUtil.getStandardRepo()).tag().setName("ANOTHER_NEW_TAG")
 				.setMessage("Test of Push").call();
 			Assert.assertNull(repoUtil.getOriginRepo().getRef("refs/tags/ANOTHER_NEW_TAG"));
-			git.pushBranch("master", "myOrigin", false);
+			git.push("master", "myOrigin", false);
 			Assert.assertNull(repoUtil.getOriginRepo().getRef("refs/tags/ANOTHER_NEW_TAG"));
 		}
 		finally
@@ -279,7 +280,7 @@ public class VCSGitImplTest
 
 			try
 			{
-				git.mergeBranch("master", "myOrigin");
+				git.merge("master", "myOrigin");
 				Assert.fail("Merge conflict expected");
 			}
 			catch (final VCSException e)
@@ -306,14 +307,14 @@ public class VCSGitImplTest
 			final VCSInfoSource git = new VCSGitImpl(repoUtil.getStandardFile(), null);
 			try
 			{
-				git.mergeBranch("OriginalBranchNotPresent", null);
+				git.merge("OriginalBranchNotPresent", null);
 				Assert.fail("Expected Exception");
 			}
 			catch (final VCSException e)
 			{
 				// Expected
 			}
-			git.mergeBranch("OriginBranch1", null);
+			git.merge("OriginBranch1", null);
 		}
 		finally
 		{
@@ -339,7 +340,7 @@ public class VCSGitImplTest
 			final VCSInfoSource git = new VCSGitImpl(repoUtil.getStandardFile(), null);
 			try
 			{
-				git.pushBranch("master", "myOrigin", true);
+				git.push("master", "myOrigin", false);
 				Assert.fail("Expected exception");
 			}
 			catch (final VCSException e)

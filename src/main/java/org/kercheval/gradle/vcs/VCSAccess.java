@@ -89,13 +89,14 @@ public interface VCSAccess
 	// Failure will throw a VCSException. If remoteOrigin is null
 	// the merge will be from the local branch 'fromBranch'.
 	//
-	public void mergeBranch(final String fromBranch, String remoteOrigin)
+	public void merge(final String fromBranch, String remoteOrigin)
 		throws VCSException;
 
 	//
-	// Push the a branch back into the origin. Push failures will result in
-	// an exception being thrown.
+	// Push the a branch or tag back into the origin. Push failures will result in
+	// an exception being thrown. If pushTag is true, the from parameter is
+	// treated as a tag rather than a branch.
 	//
-	public void pushBranch(final String fromBranch, final String remoteOrigin, boolean pushTags)
+	public void push(final String from, final String remoteOrigin, boolean pushTag)
 		throws VCSException;
 }

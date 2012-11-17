@@ -47,15 +47,15 @@ public class BuildReleaseMergeTask
 				//
 				// Merge the remote origin to the release branch
 				//
-				vcsUtil.getVCS().mergeBranch(initTask.getReleasebranch(),
+				vcsUtil.getVCS().merge(initTask.getReleasebranch(),
 					initTask.getRemoteorigin());
-				vcsUtil.getVCS().mergeBranch(initTask.getMainlinebranch(),
+				vcsUtil.getVCS().merge(initTask.getMainlinebranch(),
 					initTask.getRemoteorigin());
 
 				//
 				// Push the new merge changes back to origin
 				//
-				vcsUtil.getVCS().pushBranch(initTask.getReleasebranch(),
+				vcsUtil.getVCS().push(initTask.getReleasebranch(),
 					initTask.getRemoteorigin(), false);
 			}
 			else
@@ -63,7 +63,7 @@ public class BuildReleaseMergeTask
 				//
 				// Merge directly from the mainline branch
 				//
-				vcsUtil.getVCS().mergeBranch(initTask.getMainlinebranch(), null);
+				vcsUtil.getVCS().merge(initTask.getMainlinebranch(), null);
 			}
 		}
 		catch (final VCSException e)
