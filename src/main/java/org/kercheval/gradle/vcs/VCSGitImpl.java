@@ -120,7 +120,7 @@ public class VCSGitImpl
 					// Need to push the local branch back to remote
 					//
 					git.push().setRemote(remoteOrigin).setRefSpecs(new RefSpec(refLocalBranch))
-						.call();
+						.setCredentialsProvider(new VCSGitImplCredentialsProvider()).call();
 				}
 			}
 		}
@@ -210,7 +210,8 @@ public class VCSGitImpl
 		{
 			repository = new RepositoryBuilder().readEnvironment().findGitDir(getSrcRootDir())
 				.build();
-			new Git(repository).fetch().setRemote(remoteOrigin).call();
+			new Git(repository).fetch().setRemote(remoteOrigin)
+				.setCredentialsProvider(new VCSGitImplCredentialsProvider()).call();
 		}
 		catch (final IOException e)
 		{
@@ -538,7 +539,8 @@ public class VCSGitImpl
 
 			Iterable<PushResult> pushResult;
 			pushResult = new Git(repository).push().setRemote(remoteOrigin)
-				.setRefSpecs(new RefSpec(refLocalBranch)).call();
+				.setRefSpecs(new RefSpec(refLocalBranch))
+				.setCredentialsProvider(new VCSGitImplCredentialsProvider()).call();
 
 			RemoteRefUpdate.Status refStatus = null;
 			for (final PushResult result : pushResult)

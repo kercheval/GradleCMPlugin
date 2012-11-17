@@ -261,9 +261,42 @@ approach does not allow admin changes or access to your account, just
 the repositories.  In general, SSH is also more secure and you should
 clone your remotes using the SSH URI available from github.
 
-This plugin has no support for login credential usage and the HTTPS
-connection method.  This is not particulary hard to do, but I will
-leave that to a contributor if is important to someone.
+####Using environment variables to supply usernames, passwords and
+passphrases.
+
+Normally, this plugin will ask interactively if a username, password
+or passphrase is required.  Since the intended target for this plugin
+is to enable automation and continuous integration, there is support
+to supply these values in the environment.
+
+Users of GIT:
+
+If you are using HTTPS, you can use the variables GIT_ORIGIN_PASSWORD
+and GIT_ORIGIN_USERNAME:
+
+```
+set GIT_ORIGIN_USERNAME=<gitusername>
+set GIT_ORIGIN_PASSWORD=<gitpassword)
+```
+
+Each build server has its own method for setting environment
+variables.  This approach is not recommended since it places github
+administration account credentials in the system in clear text.
+
+A better approach is to use SSH and a repository specific deploy key.
+If you have a passphrase on your SSH key, you can set the passphrase
+in the environment using GIT_ORIGIN_PASSWORD.
+
+```
+set GIT_ORIGIN_PASSWORD=<gitkeypassphrase>
+```
+
+Since you are exposing the passphrase in cleartext in this instance
+anyway, you should also consider using a key without a passphrase for
+your build system deploy keys to avoid the need for these variables at
+all.
+
+####SSH Keys
 
 To ensure you are using the correct SSH key, a key must be generated
 and installed in github.  This is done by the current github clients
@@ -303,6 +336,15 @@ windows, I would recommend puttygen
 (http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html) and
 copy/paste from the application for the public deploy key use the
 conversion menu to export the private key in standard form.
+
+Connect to your origin directly using ssh to ensure the vcs host is
+added to your known hosts file (this stores the host and allowed
+fingerprint key of the host).  In git, you can just show the remote to
+validate this all works
+
+```
+git remote show origin
+```
 
 ##Build Info Plugin
 

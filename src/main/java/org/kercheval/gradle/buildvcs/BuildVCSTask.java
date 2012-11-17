@@ -11,10 +11,10 @@ import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskAction;
 import org.kercheval.gradle.vcs.VCSAccess;
 import org.kercheval.gradle.vcs.VCSException;
+import org.kercheval.gradle.vcs.VCSInfoSource;
 import org.kercheval.gradle.vcs.VCSStatus;
 import org.kercheval.gradle.vcs.VCSTag;
 import org.kercheval.gradle.vcs.VCSTaskUtil;
-import org.kercheval.gradle.vcs.VCSInfoSource;
 
 public class BuildVCSTask
 	extends DefaultTask
