@@ -261,8 +261,7 @@ approach does not allow admin changes or access to your account, just
 the repositories.  In general, SSH is also more secure and you should
 clone your remotes using the SSH URI available from github.
 
-####Using environment variables to supply usernames, passwords and
-passphrases.
+####Using Environment Variables
 
 Normally, this plugin will ask interactively if a username, password
 or passphrase is required.  Since the intended target for this plugin
@@ -305,7 +304,7 @@ https://help.github.com/articles/generating-ssh-keys).
 
 The main thing you must ensure when setting up your system is to add
 the github host to your <home>/.ssh/config file (see
-ttp://en.wikibooks.org/wiki/OpenSSH/Client_Configuration_Files for
+http://en.wikibooks.org/wiki/OpenSSH/Client_Configuration_Files for
 exhaustive details).
 
 Inside of the config file, add a section that looks similar to this
@@ -334,7 +333,7 @@ Host github.com
 Key generation is straight forward, but environment specific.  On
 windows, I would recommend puttygen
 (http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html) and
-copy/paste from the application for the public deploy key use the
+copy/paste from the application for the public deploy key and use the
 conversion menu to export the private key in standard form.
 
 Connect to your origin directly using ssh to ensure the vcs host is
