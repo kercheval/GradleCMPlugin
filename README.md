@@ -1174,7 +1174,8 @@ buildversion {
 ```
 
 **Example 13** To create a version that generates SNAPSHOT unless the
-release branch is in use.  This is an extremely convenient approach.
+release branch is in use.  This is an extremely convenient approach
+and highly **recommended**.  
 
 ```
 def buildMajorVersion=1
@@ -1189,7 +1190,7 @@ buildversion {
 			version.setPattern("%M%.%m%-SNAPSHOT") 
 		}
 		version.updateMajor(new Integer(buildMajorVersion)) 
-		println(version);
+		println("Currently working on sources for " + version);
 	}
 }
 ```

@@ -17,7 +17,7 @@ buildversion {
 			version.setPattern("%M%.%m%-SNAPSHOT") 
 		}
 		version.updateMajor(new Integer(buildMajorVersion)) 
-		println(version);
+		println("Currently working on sources for " + version);
 	}
 }
 
