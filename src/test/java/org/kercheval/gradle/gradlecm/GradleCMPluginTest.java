@@ -15,7 +15,7 @@ import org.kercheval.gradle.buildrelease.BuildReleasePlugin;
 import org.kercheval.gradle.buildvcs.BuildVCSPlugin;
 import org.kercheval.gradle.buildversion.BuildVersionPlugin;
 import org.kercheval.gradle.info.GradleInfoSource;
-import org.kercheval.gradle.vcs.JGitTestRepository;
+import org.kercheval.gradle.vcs.git.JGitTestRepository;
 
 public class GradleCMPluginTest
 {

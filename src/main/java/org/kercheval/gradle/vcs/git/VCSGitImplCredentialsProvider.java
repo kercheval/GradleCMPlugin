@@ -1,4 +1,6 @@
-package org.kercheval.gradle.vcs;
+package org.kercheval.gradle.vcs.git;
+
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jgit.errors.UnsupportedCredentialItem;
@@ -7,7 +9,6 @@ import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.URIish;
 import org.kercheval.gradle.console.ConsoleException;
 import org.kercheval.gradle.console.TextDevice;
-import org.kercheval.gradle.console.TextDevices;
 
 public class VCSGitImplCredentialsProvider
 	extends CredentialsProvider
@@ -21,20 +22,39 @@ public class VCSGitImplCredentialsProvider
 	//
 	// Default username and password (from contructor init)
 	//
-
 	private final String username;
 	private final String password;
 
-	public VCSGitImplCredentialsProvider()
+	//
+	// The console IO device
+	//
+	private final TextDevice userIO;
+
+	//
+	// The environment to acquire variables from. Done using statics to allow testing
+	// by adding to the map
+	//
+	static private Map<String, String> environmentMap = System.getenv();
+
+	static protected void setEnvironmentMap(final Map<String, String> newMap)
+	{
+		environmentMap = newMap;
+	}
+
+	public VCSGitImplCredentialsProvider(final TextDevice userIO)
 	{
 		//
 		// Obtain the default values from the environment
 		//
-		this(System.getenv(GIT_ORIGIN_USERNAME), System.getenv(GIT_ORIGIN_PASSWORD));
+		this(userIO, environmentMap.get(GIT_ORIGIN_USERNAME), environmentMap
+			.get(GIT_ORIGIN_PASSWORD));
 	}
 
-	public VCSGitImplCredentialsProvider(final String username, final String password)
+	public VCSGitImplCredentialsProvider(final TextDevice userIO,
+		final String username,
+		final String password)
 	{
+		this.userIO = userIO;
 		this.username = username;
 		this.password = password;
 	}
@@ -42,8 +62,7 @@ public class VCSGitImplCredentialsProvider
 	//
 	// The prompts always show the requesting URI
 	//
-	private void displayPrompt(final TextDevice userIO, final URIish uri,
-		final CredentialItem credentialItem)
+	private void displayPrompt(final URIish uri, final CredentialItem credentialItem)
 		throws ConsoleException
 	{
 		userIO.printf(uri.toASCIIString() + " - " + credentialItem.getPromptText() + ": ");
@@ -52,8 +71,7 @@ public class VCSGitImplCredentialsProvider
 	//
 	// The yesno prompt should always include the allowable responses
 	//
-	private void displayYNPrompt(final TextDevice userIO, final URIish uri,
-		final CredentialItem credentialItem)
+	private void displayYNPrompt(final URIish uri, final CredentialItem credentialItem)
 		throws ConsoleException
 	{
 		userIO.printf(uri.toASCIIString() + " - " + credentialItem.getPromptText() + " [y/n]: ");
@@ -63,8 +81,6 @@ public class VCSGitImplCredentialsProvider
 	public boolean get(final URIish uri, final CredentialItem... items)
 		throws UnsupportedCredentialItem
 	{
-		final TextDevice userIO = TextDevices.defaultTextDevice();
-
 		for (final CredentialItem item : items)
 		{
 			//
@@ -88,7 +104,7 @@ public class VCSGitImplCredentialsProvider
 				}
 				else
 				{
-					displayPrompt(userIO, uri, credentialItem);
+					displayPrompt(uri, credentialItem);
 					credentialItem.setValue(userIO.readPassword());
 				}
 				continue;
@@ -108,13 +124,13 @@ public class VCSGitImplCredentialsProvider
 					}
 					else
 					{
-						displayPrompt(userIO, uri, credentialItem);
+						displayPrompt(uri, credentialItem);
 						credentialItem.setValue(String.valueOf(userIO.readPassword()));
 					}
 				}
 				else
 				{
-					displayPrompt(userIO, uri, credentialItem);
+					displayPrompt(uri, credentialItem);
 					credentialItem.setValue(userIO.readLine());
 				}
 				continue;
@@ -134,13 +150,13 @@ public class VCSGitImplCredentialsProvider
 					}
 					else
 					{
-						displayPrompt(userIO, uri, credentialItem);
+						displayPrompt(uri, credentialItem);
 						credentialItem.setValue(userIO.readPassword());
 					}
 				}
 				else
 				{
-					displayPrompt(userIO, uri, credentialItem);
+					displayPrompt(uri, credentialItem);
 					credentialItem.setValue(userIO.readLine().toCharArray());
 				}
 				continue;
@@ -152,7 +168,7 @@ public class VCSGitImplCredentialsProvider
 			if (item instanceof CredentialItem.InformationalMessage)
 			{
 				final CredentialItem.InformationalMessage credentialItem = (CredentialItem.InformationalMessage) item;
-				displayPrompt(userIO, uri, credentialItem);
+				displayPrompt(uri, credentialItem);
 				continue;
 			}
 
@@ -162,7 +178,7 @@ public class VCSGitImplCredentialsProvider
 			if (item instanceof CredentialItem.YesNoType)
 			{
 				final CredentialItem.YesNoType credentialItem = (CredentialItem.YesNoType) item;
-				displayYNPrompt(userIO, uri, credentialItem);
+				displayYNPrompt(uri, credentialItem);
 				final String response = userIO.readLine();
 				credentialItem.setValue(response.startsWith("y") || response.startsWith("Y"));
 				continue;

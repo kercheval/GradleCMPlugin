@@ -16,11 +16,11 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kercheval.gradle.gradlecm.GradleCMPlugin;
 import org.kercheval.gradle.info.GradleInfoSource;
-import org.kercheval.gradle.vcs.JGitTestRepository;
 import org.kercheval.gradle.vcs.VCSException;
-import org.kercheval.gradle.vcs.VCSGitImpl;
 import org.kercheval.gradle.vcs.VCSInfoSource;
 import org.kercheval.gradle.vcs.VCSTag;
+import org.kercheval.gradle.vcs.git.JGitTestRepository;
+import org.kercheval.gradle.vcs.git.VCSGitImpl;
 
 public class BuildVersionTaskTest
 {

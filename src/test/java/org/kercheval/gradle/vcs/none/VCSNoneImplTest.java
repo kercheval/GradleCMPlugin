@@ -1,4 +1,4 @@
-package org.kercheval.gradle.vcs;
+package org.kercheval.gradle.vcs.none;
 
 import java.io.File;
 import java.util.List;
@@ -6,10 +6,13 @@ import java.util.Properties;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.kercheval.gradle.vcs.VCSAccess;
+import org.kercheval.gradle.vcs.VCSException;
+import org.kercheval.gradle.vcs.VCSStatus;
+import org.kercheval.gradle.vcs.VCSTag;
 
 public class VCSNoneImplTest
 {
-
 	@Test
 	public void testVCSNoneInterface()
 		throws VCSException

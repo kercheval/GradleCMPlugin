@@ -15,10 +15,10 @@ import org.junit.Test;
 import org.kercheval.gradle.gradlecm.GradleCMPlugin;
 import org.kercheval.gradle.info.GradleInfoSource;
 import org.kercheval.gradle.vcs.VCSAccess;
-import org.kercheval.gradle.vcs.JGitTestRepository;
 import org.kercheval.gradle.vcs.VCSException;
 import org.kercheval.gradle.vcs.VCSStatus;
 import org.kercheval.gradle.vcs.VCSTag;
+import org.kercheval.gradle.vcs.git.JGitTestRepository;
 
 public class BuildVCSTaskTest
 {

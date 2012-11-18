@@ -1,4 +1,4 @@
-package org.kercheval.gradle.vcs;
+package org.kercheval.gradle.vcs.git;
 
 import java.io.File;
 import java.io.FileOutputStream;

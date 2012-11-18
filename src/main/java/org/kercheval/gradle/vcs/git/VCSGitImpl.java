@@ -1,4 +1,4 @@
-package org.kercheval.gradle.vcs;
+package org.kercheval.gradle.vcs.git;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +36,13 @@ import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.gradle.api.logging.Logger;
+import org.kercheval.gradle.console.TextDevices;
 import org.kercheval.gradle.info.SortedProperties;
+import org.kercheval.gradle.vcs.VCSAccess;
+import org.kercheval.gradle.vcs.VCSException;
+import org.kercheval.gradle.vcs.VCSInfoSource;
+import org.kercheval.gradle.vcs.VCSStatus;
+import org.kercheval.gradle.vcs.VCSTag;
 
 //
 // This class implements the VCSAccess interface for GIT.
@@ -119,8 +125,12 @@ public class VCSGitImpl
 					//
 					// Need to push the local branch back to remote
 					//
-					git.push().setRemote(remoteOrigin).setRefSpecs(new RefSpec(refLocalBranch))
-						.setCredentialsProvider(new VCSGitImplCredentialsProvider()).call();
+					git.push()
+						.setRemote(remoteOrigin)
+						.setRefSpecs(new RefSpec(refLocalBranch))
+						.setCredentialsProvider(
+							new VCSGitImplCredentialsProvider(TextDevices.defaultTextDevice()))
+						.call();
 				}
 			}
 		}
@@ -210,8 +220,11 @@ public class VCSGitImpl
 		{
 			repository = new RepositoryBuilder().readEnvironment().findGitDir(getSrcRootDir())
 				.build();
-			new Git(repository).fetch().setRemote(remoteOrigin)
-				.setCredentialsProvider(new VCSGitImplCredentialsProvider()).call();
+			new Git(repository)
+				.fetch()
+				.setRemote(remoteOrigin)
+				.setCredentialsProvider(
+					new VCSGitImplCredentialsProvider(TextDevices.defaultTextDevice())).call();
 		}
 		catch (final IOException e)
 		{
@@ -538,9 +551,12 @@ public class VCSGitImpl
 				.build();
 
 			Iterable<PushResult> pushResult;
-			pushResult = new Git(repository).push().setRemote(remoteOrigin)
+			pushResult = new Git(repository)
+				.push()
+				.setRemote(remoteOrigin)
 				.setRefSpecs(new RefSpec(refLocalBranch))
-				.setCredentialsProvider(new VCSGitImplCredentialsProvider()).call();
+				.setCredentialsProvider(
+					new VCSGitImplCredentialsProvider(TextDevices.defaultTextDevice())).call();
 
 			RemoteRefUpdate.Status refStatus = null;
 			for (final PushResult result : pushResult)

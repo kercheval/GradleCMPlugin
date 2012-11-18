@@ -3,6 +3,8 @@ package org.kercheval.gradle.vcs;
 import java.io.File;
 
 import org.gradle.api.logging.Logger;
+import org.kercheval.gradle.vcs.git.VCSGitImpl;
+import org.kercheval.gradle.vcs.none.VCSNoneImpl;
 
 //
 // This is a simple factory class that supports the return of a vcs access

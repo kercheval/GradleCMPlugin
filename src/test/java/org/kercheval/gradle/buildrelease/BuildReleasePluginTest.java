@@ -22,7 +22,7 @@ import org.kercheval.gradle.buildversion.BuildVersionPlugin;
 import org.kercheval.gradle.buildversion.BuildVersionTask;
 import org.kercheval.gradle.gradlecm.GradleCMPlugin;
 import org.kercheval.gradle.info.GradleInfoSource;
-import org.kercheval.gradle.vcs.JGitTestRepository;
+import org.kercheval.gradle.vcs.git.JGitTestRepository;
 
 public class BuildReleasePluginTest
 {

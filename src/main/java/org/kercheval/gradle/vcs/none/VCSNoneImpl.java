@@ -1,4 +1,4 @@
-package org.kercheval.gradle.vcs;
+package org.kercheval.gradle.vcs.none;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -6,6 +6,11 @@ import java.util.List;
 
 import org.gradle.api.logging.Logger;
 import org.kercheval.gradle.info.SortedProperties;
+import org.kercheval.gradle.vcs.VCSAccess;
+import org.kercheval.gradle.vcs.VCSException;
+import org.kercheval.gradle.vcs.VCSInfoSource;
+import org.kercheval.gradle.vcs.VCSStatus;
+import org.kercheval.gradle.vcs.VCSTag;
 
 public class VCSNoneImpl
 	extends VCSInfoSource

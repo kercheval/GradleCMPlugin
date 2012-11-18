@@ -1,4 +1,4 @@
-package org.kercheval.gradle.vcs;
+package org.kercheval.gradle.vcs.git;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +16,12 @@ import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 import org.kercheval.gradle.info.SortedProperties;
+import org.kercheval.gradle.vcs.VCSAccessFactory;
+import org.kercheval.gradle.vcs.VCSException;
+import org.kercheval.gradle.vcs.VCSInfoSource;
+import org.kercheval.gradle.vcs.VCSStatus;
+import org.kercheval.gradle.vcs.VCSTag;
+import org.kercheval.gradle.vcs.git.VCSGitImpl;
 
 public class VCSGitImplTest
 {

@@ -1637,6 +1637,8 @@ The sources here demonstrate the following
 
 ### Release History
 
+- 1.9 - Nov 17, 2012 - Add support for interactive
+username/password/passphrase prompting for VCS.
 - 1.8 - Nov 16, 2012 - Remove some debug messages in gradle info
 source.  No functional changes.
 - 1.7 - Nov 16, 2012 - Add Hudson and TeamCity support to buildinfo.
