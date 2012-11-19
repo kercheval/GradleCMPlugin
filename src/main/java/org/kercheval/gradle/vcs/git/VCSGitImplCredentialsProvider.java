@@ -2,11 +2,11 @@ package org.kercheval.gradle.vcs.git;
 
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.eclipse.jgit.errors.UnsupportedCredentialItem;
 import org.eclipse.jgit.transport.CredentialItem;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.URIish;
+import org.eclipse.jgit.util.StringUtils;
 import org.kercheval.gradle.console.ConsoleException;
 import org.kercheval.gradle.console.TextDevice;
 
@@ -86,7 +86,7 @@ public class VCSGitImplCredentialsProvider
 			//
 			// Supply our default user name
 			//
-			if ((item instanceof CredentialItem.Username) && !StringUtils.isEmpty(username))
+			if ((item instanceof CredentialItem.Username) && !StringUtils.isEmptyOrNull(username))
 			{
 				((CredentialItem.Username) item).setValue(username);
 				continue;
@@ -98,7 +98,7 @@ public class VCSGitImplCredentialsProvider
 			if (item instanceof CredentialItem.Password)
 			{
 				final CredentialItem.Password credentialItem = (CredentialItem.Password) item;
-				if (!StringUtils.isEmpty(password))
+				if (!StringUtils.isEmptyOrNull(password))
 				{
 					credentialItem.setValue(password.toCharArray());
 				}
@@ -118,7 +118,7 @@ public class VCSGitImplCredentialsProvider
 				final CredentialItem.StringType credentialItem = (CredentialItem.StringType) item;
 				if (credentialItem.isValueSecure())
 				{
-					if (!StringUtils.isEmpty(password))
+					if (!StringUtils.isEmptyOrNull(password))
 					{
 						credentialItem.setValue(String.valueOf(password.toCharArray()));
 					}
@@ -144,7 +144,7 @@ public class VCSGitImplCredentialsProvider
 				final CredentialItem.CharArrayType credentialItem = (CredentialItem.CharArrayType) item;
 				if (credentialItem.isValueSecure())
 				{
-					if (!StringUtils.isEmpty(password))
+					if (!StringUtils.isEmptyOrNull(password))
 					{
 						credentialItem.setValue(password.toCharArray());
 					}
