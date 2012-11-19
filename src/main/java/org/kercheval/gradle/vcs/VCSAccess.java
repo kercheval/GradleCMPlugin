@@ -22,7 +22,8 @@ public interface VCSAccess
 	public enum Type
 	{
 		NONE,
-		GIT
+		GIT,
+		MERCURIAL
 	}
 
 	//

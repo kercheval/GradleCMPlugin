@@ -2,6 +2,7 @@ package org.kercheval.gradle.vcs;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
@@ -107,5 +108,12 @@ public abstract class VCSInfoSource
 			// Ignore exception
 		}
 		return rVal;
+	}
+
+	@Override
+	public List<VCSTag> getAllTags()
+		throws VCSException
+	{
+		return getTags(".*");
 	}
 }

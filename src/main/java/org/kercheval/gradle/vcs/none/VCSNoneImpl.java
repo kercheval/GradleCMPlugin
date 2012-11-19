@@ -46,13 +46,6 @@ public class VCSNoneImpl
 	}
 
 	@Override
-	public List<VCSTag> getAllTags()
-		throws VCSException
-	{
-		return new ArrayList<VCSTag>();
-	}
-
-	@Override
 	public String getBranchName()
 		throws VCSException
 	{

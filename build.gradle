@@ -2,6 +2,8 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'gradlecm'
 
+description = 'Gradle Build CM Plugin'
+
 //
 // Normal dev builds will typically get SNAPSHOT versions
 //
@@ -40,7 +42,7 @@ clean {
 jar {
     manifest {
 		doFirst {
-			attributes 'Implementation-Title': 'Gradle Build CM Plugin', 'Implementation-Version': version
+			attributes 'Implementation-Title': description, 'Implementation-Version': version
 		}
     }
 }

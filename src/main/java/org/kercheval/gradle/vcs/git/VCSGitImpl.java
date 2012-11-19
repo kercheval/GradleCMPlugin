@@ -252,13 +252,6 @@ public class VCSGitImpl
 	}
 
 	@Override
-	public List<VCSTag> getAllTags()
-		throws VCSException
-	{
-		return getTags(".*");
-	}
-
-	@Override
 	public String getBranchName()
 		throws VCSException
 	{

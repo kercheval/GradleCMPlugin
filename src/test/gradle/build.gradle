@@ -9,10 +9,16 @@ apply plugin: 'gradlecm'
 
 description = 'Gradle CM Plugin test build file'
 
-def branchName = buildvcs.getBranchName()
+buildvcs {
+	type = "mercurial"
+}
 
 buildversion {
-	version.pattern = "%M%.%m%-${branchName}"
+	doLast {
+		def branchName = buildvcs.getBranchName()
+		version.pattern = "%M%.%m%-${branchName}"
+		project.println(version);
+	}
 }
 
 task showVersion << {
