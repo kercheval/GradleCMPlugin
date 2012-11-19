@@ -1637,6 +1637,7 @@ The sources here demonstrate the following
 
 ### Release History
 
+- 1.10 - Nov 19, 2012 - Use the JGIT StringUtils variant to avoid dependency on apache commons.
 - 1.9 - Nov 17, 2012 - Add support for interactive
 username/password/passphrase prompting for VCS.
 - 1.8 - Nov 16, 2012 - Remove some debug messages in gradle info
