@@ -668,6 +668,21 @@ any tasks being run which will use the info file for insertion into
 artifacts (jar/war/ear/etc) or the risk of inconsistent build
 information is present.
 
+- The gradle default `clean` task explicitly removes the build
+directory artifacts.  The default location for the
+buildinfo.properties file is in this directory.  If you use the
+`clean` task with other tasks that build artifacts you will need to
+ensure the `buildinfo` task is specified after the `clean` task.  For
+example, the following gradle command line will run the `clean` task and
+then the `buildinfo` task, then build the project artifacts.
+
+```
+gradle clean buildinfo build
+```
+
+As an alternative, you could place the buildinfo.properties file in a
+location that is not cleaned by the default `clean` task.
+
 ###Information sources
 
 Git - This plugin uses the library JGit
