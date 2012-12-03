@@ -203,9 +203,8 @@ public class VCSHgImpl
 	{
 		if (output.size() < 1)
 		{
-			throw new VCSException("Unable to obtain tags", new IllegalStateException(
+			throw new VCSException("Unable to run command", new IllegalStateException(
 				"Expected output from 'hg' not found"));
 		}
 	}
-
 }
