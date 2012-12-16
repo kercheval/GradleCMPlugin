@@ -170,14 +170,12 @@ public class BuildInfoTask
 
 							if (null != task)
 							{
-
 								//
 								// The task must implement AbstractCopyTask in order
 								// to automatically insert.
 								//
 								if (task instanceof AbstractCopyTask)
 								{
-
 									//
 									// Add a copy spec into the task using a closure
 									//
