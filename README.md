@@ -450,7 +450,7 @@ need to supply the default values for jar/war/ear tasks in your
 taskmap.  This behavior ensures you can override all the default
 behaviors.  Note that if you just want the info file built
 automatically but no task modification at all, you can set the
-taskmap to an empty map and no tasks will be modified.
+taskmap to an empty map `[:]` and no tasks will be modified.
 </p>
 <p>
 The tasks specified must be derived from the task type
@@ -638,13 +638,49 @@ buildinfo {
 }
 ```
 
-
 **Example 6** To prevent the current machine information from being
 placed in the output file.
 
 ```
 buildinfo {
 	showmachineinfo = false
+}
+```
+
+**Example 7** To support multi-project environments it is often
+simpler to disable the auto write support using the task map and
+instead use a closure to get all tasks of a particular type.
+
+This approach also has the advantage of not adding the buildinfo
+file into the inputs collection and thus jar/war/ear files will be
+updated with a new build info file only when a contributing source
+file is modified and not on every build.
+
+```
+buildinfo {
+    //
+    // The buildinfo file will be placed in jars via a doFirst enclosure
+    // for all subprojects.  Disable auto insertion via the task map.
+    //
+    taskmap = [:]
+}
+
+subprojects {
+    //
+    // Manifest specific properties.  All tasks that inherit from jar 
+    // (war/ear) are also affected by this
+    //
+    tasks.withType(Jar) {
+        //
+        // Place buildinfo into all jar files
+        //
+        doFirst {
+            from(rootProject.buildinfo.filedir) {
+                include rootProject.buildinfo.filename
+                into 'META-INF'
+            }
+        }
+    }
 }
 ```
 
