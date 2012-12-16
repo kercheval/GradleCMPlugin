@@ -1,4 +1,4 @@
-apply plugin: 'java'
+\apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'gradlecm'
 
@@ -36,15 +36,21 @@ clean {
 }
 
 //
-// Manifest specific properties.  This would be done for the War/Ear target if 
-// those plugins were also being used.
+// Manifest specific properties.  
 //
-jar {
+tasks.withType(Jar) {
     manifest {
 		doFirst {
 			attributes 'Implementation-Title': description, 'Implementation-Version': version
 		}
     }
+}
+
+//
+// Enable lint compilation
+//
+tasks.withType(Compile) {
+    options.compilerArgs << "-Xlint:unchecked"
 }
 
 //
