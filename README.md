@@ -1237,7 +1237,8 @@ buildversion {
 		// values.  Release gets the default pattern of the maven default 
 		//
 		def branchName = buildvcs.getBranchName()
-		if (branchName != "release") {
+        if (branchName != 'release' &&
+            !project.hasProperty('noSnapshot')) {
 			version.setPattern("%M%.%m%-SNAPSHOT") 
 		}
 		version.updateMajor(new Integer(buildMajorVersion)) 
