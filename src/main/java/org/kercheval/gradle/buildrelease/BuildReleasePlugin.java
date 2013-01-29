@@ -120,21 +120,15 @@ public class BuildReleasePlugin
 				final BuildReleaseInitTask initTask = (BuildReleaseInitTask) new GradleInfoSource(
 					project).getTask(BuildReleasePlugin.INIT_TASK_NAME);
 
-				boolean isOnBranch = false;
 				if (forceOnBranch)
 				{
 					//
 					// Verify we are on the right branch to perform this task.
 					//
 					vcsUtil.validateWorkspaceBranchName(initTask.getReleasebranch());
-					isOnBranch = true;
-				}
-				else
-				{
-					isOnBranch = vcsTask.getBranchName().equals(initTask.getReleasebranch());
 				}
 
-				if (isOnBranch)
+				if (vcsTask.getBranchName().equals(initTask.getReleasebranch()))
 				{
 					//
 					// Verify the current workspace is clean
