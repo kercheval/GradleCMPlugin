@@ -4,7 +4,9 @@
 
 This project is a set of plugins intended to support standard
 configuration management practices that are not necessarily well
-supported in gradle.  
+supported in gradle.  FAQs, Examples (cookbook) and Overview
+discussions can be found on the wiki at
+[https://github.com/kercheval/GradleCMPlugin/wiki](https://github.com/kercheval/GradleCMPlugin/wiki).
 
 The [GradleCM Plugin](#gradlecm-plugin) is a simple plugin that
 applies all the plugins that are a part of this plugin package.
@@ -1637,20 +1639,14 @@ The sources here demonstrate the following
 
 ### Release History
 
+- 1.11 - Jan 20, 2013 - Correct minor issue where tags could possibly be created on mainline when publishing
 - 1.10 - Nov 19, 2012 - Use the JGIT StringUtils variant to avoid dependency on apache commons.
-- 1.9 - Nov 17, 2012 - Add support for interactive
-username/password/passphrase prompting for VCS.
-- 1.8 - Nov 16, 2012 - Remove some debug messages in gradle info
-source.  No functional changes.
-- 1.7 - Nov 16, 2012 - Add Hudson and TeamCity support to buildinfo.
-Add variables to control info types in buildinfo.properties.
-- 1.6 - Nov 15, 2012 - Work around some gradle concurrent modification
-exceptions when adding dependencies to dynamic tasks
-(http://issues.gradle.org//browse/GRADLE-2023)
-- 1.5 - Nov 13, 2012 - The initial completion of the buildrelease,
-buildvcs and gradlecm plugins 
-- 1.0 - Nov 6, 2012 - The initial completion of the buildversion
-plugin 
+- 1.9 - Nov 17, 2012 - Add support for interactive username/password/passphrase prompting for VCS.
+- 1.8 - Nov 16, 2012 - Remove some debug messages in gradle info source.  No functional changes.
+- 1.7 - Nov 16, 2012 - Add Hudson and TeamCity support to buildinfo.  Add variables to control info types in buildinfo.properties.
+- 1.6 - Nov 15, 2012 - Work around some gradle concurrent modification exceptions when adding dependencies to dynamic tasks (http://issues.gradle.org//browse/GRADLE-2023)
+- 1.5 - Nov 13, 2012 - The initial completion of the buildrelease, buildvcs and gradlecm plugins 
+- 1.0 - Nov 6, 2012 - The initial completion of the buildversion plugin 
 - 0.6 - Oct 20, 2012 - The initial completion of the buildinfo plugin
 
 ### Dependencies
