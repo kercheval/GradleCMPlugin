@@ -23,8 +23,8 @@ public class BuildReleaseMergeTask
 			// Get the current release init task to obtain the branch and origin
 			// variables
 			//
-			final BuildReleaseInitTask initTask = (BuildReleaseInitTask) new GradleInfoSource(project)
-				.getTask(BuildReleasePlugin.INIT_TASK_NAME);
+			final BuildReleaseInitTask initTask = (BuildReleaseInitTask) new GradleInfoSource(
+				project).getTask(BuildReleasePlugin.INIT_TASK_NAME);
 
 			//
 			// Verify we are on the right branch to perform this task.
@@ -47,23 +47,24 @@ public class BuildReleaseMergeTask
 				//
 				// Merge the remote origin to the release branch
 				//
-				vcsUtil.getVCS().merge(initTask.getReleasebranch(),
-					initTask.getRemoteorigin());
-				vcsUtil.getVCS().merge(initTask.getMainlinebranch(),
-					initTask.getRemoteorigin());
+				vcsUtil.getVCS().merge(initTask.getReleasebranch(), initTask.getRemoteorigin(),
+					initTask.isFastforwardonly());
+				vcsUtil.getVCS().merge(initTask.getMainlinebranch(), initTask.getRemoteorigin(),
+					initTask.isFastforwardonly());
 
 				//
 				// Push the new merge changes back to origin
 				//
-				vcsUtil.getVCS().push(initTask.getReleasebranch(),
-					initTask.getRemoteorigin(), false);
+				vcsUtil.getVCS().push(initTask.getReleasebranch(), initTask.getRemoteorigin(),
+					false);
 			}
 			else
 			{
 				//
 				// Merge directly from the mainline branch
 				//
-				vcsUtil.getVCS().merge(initTask.getMainlinebranch(), null);
+				vcsUtil.getVCS().merge(initTask.getMainlinebranch(), null,
+					initTask.isFastforwardonly());
 			}
 		}
 		catch (final VCSException e)

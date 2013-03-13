@@ -21,7 +21,6 @@ import org.kercheval.gradle.vcs.VCSException;
 import org.kercheval.gradle.vcs.VCSInfoSource;
 import org.kercheval.gradle.vcs.VCSStatus;
 import org.kercheval.gradle.vcs.VCSTag;
-import org.kercheval.gradle.vcs.git.VCSGitImpl;
 
 public class VCSGitImplTest
 {
@@ -93,6 +92,55 @@ public class VCSGitImplTest
 	}
 
 	@Test
+	public void testFFMergeFail()
+		throws VCSException, InvalidRemoteException, TransportException, IOException,
+		GitAPIException
+	{
+		final JGitTestRepository repoUtil = new JGitTestRepository();
+		try
+		{
+
+			Ref originHead = repoUtil.getStandardRepo().getRef("refs/remotes/myOrigin/master");
+			Ref localHead = repoUtil.getStandardRepo().getRef("refs/heads/master");
+			Assert.assertEquals(localHead.getObjectId().getName(), originHead.getObjectId()
+				.getName());
+			final VCSInfoSource git = new VCSGitImpl(repoUtil.getStandardFile(), null);
+			git.fetch("myOrigin");
+			originHead = repoUtil.getStandardRepo().getRef("refs/remotes/myOrigin/master");
+			localHead = repoUtil.getStandardRepo().getRef("refs/heads/master");
+			Assert.assertFalse(localHead.getObjectId().getName()
+				.equals(originHead.getObjectId().getName()));
+
+			final File newFile = new File(repoUtil.getStandardFile().getAbsolutePath()
+				+ "/EmptyThirdFile.txt");
+			repoUtil.writeRandomContentFile(newFile);
+			new Git(repoUtil.getStandardRepo()).add().addFilepattern(".").call();
+			new Git(repoUtil.getStandardRepo()).commit()
+				.setCommitter(new PersonIdent("JUNIT", "JUNIT@dev.build"))
+				.setMessage("First commit into origin repository").call();
+			final Ref oldLocalHead = repoUtil.getStandardRepo().getRef("refs/heads/master");
+
+			try
+			{
+				git.merge("master", "myOrigin", true);
+				Assert.fail("Merge conflict expected");
+			}
+			catch (final VCSException e)
+			{
+				localHead = repoUtil.getStandardRepo().getRef("refs/heads/master");
+				Assert.assertEquals(localHead.getObjectId().getName(), oldLocalHead.getObjectId()
+					.getName());
+			}
+
+			git.merge("master", "myOrigin", false);
+		}
+		finally
+		{
+			repoUtil.close();
+		}
+	}
+
+	@Test
 	public void testGetBranch()
 		throws VCSException, InvalidRemoteException, TransportException, IOException,
 		GitAPIException
@@ -132,7 +180,7 @@ public class VCSGitImplTest
 			Assert.assertFalse(localHead.getObjectId().getName()
 				.equals(originHead.getObjectId().getName()));
 
-			git.merge("master", "myOrigin");
+			git.merge("master", "myOrigin", true);
 			originHead = repoUtil.getStandardRepo().getRef("refs/remotes/myOrigin/master");
 			localHead = repoUtil.getStandardRepo().getRef("refs/heads/master");
 			Assert.assertEquals(localHead.getObjectId().getName(), originHead.getObjectId()
@@ -286,7 +334,7 @@ public class VCSGitImplTest
 
 			try
 			{
-				git.merge("master", "myOrigin");
+				git.merge("master", "myOrigin", true);
 				Assert.fail("Merge conflict expected");
 			}
 			catch (final VCSException e)
@@ -313,14 +361,14 @@ public class VCSGitImplTest
 			final VCSInfoSource git = new VCSGitImpl(repoUtil.getStandardFile(), null);
 			try
 			{
-				git.merge("OriginalBranchNotPresent", null);
+				git.merge("OriginalBranchNotPresent", null, true);
 				Assert.fail("Expected Exception");
 			}
 			catch (final VCSException e)
 			{
 				// Expected
 			}
-			git.merge("OriginBranch1", null);
+			git.merge("OriginBranch1", null, true);
 		}
 		finally
 		{

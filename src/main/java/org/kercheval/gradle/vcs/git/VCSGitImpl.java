@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.MergeCommand.FastForwardMode;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.api.Status;
@@ -449,7 +450,8 @@ public class VCSGitImpl
 	}
 
 	@Override
-	public void merge(final String fromBranch, final String remoteOrigin)
+	public void merge(final String fromBranch, final String remoteOrigin,
+		final boolean fastForwardOnly)
 		throws VCSException
 	{
 
@@ -473,7 +475,12 @@ public class VCSGitImpl
 				throw new VCSException("Unable to merge branch: " + refBranchName,
 					new IllegalStateException("Branch does not exist"));
 			}
-			mergeResult = git.merge().include(refBranch).call();
+			FastForwardMode ffMode = FastForwardMode.FF;
+			if (fastForwardOnly)
+			{
+				ffMode = FastForwardMode.FF_ONLY;
+			}
+			mergeResult = git.merge().setFastForward(ffMode).include(refBranch).call();
 
 			if (!mergeResult.getMergeStatus().isSuccessful())
 			{

@@ -92,7 +92,8 @@ public class VCSNoneImpl
 	}
 
 	@Override
-	public void merge(final String fromBranch, final String remoteOrigin)
+	public void merge(final String fromBranch, final String remoteOrigin,
+		final boolean fastForwardOnly)
 		throws VCSException
 	{
 		throw new VCSException("Unable to merge from " + fromBranch, new IllegalStateException(

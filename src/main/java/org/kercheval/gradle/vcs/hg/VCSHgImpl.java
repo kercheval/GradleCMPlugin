@@ -183,7 +183,8 @@ public class VCSHgImpl
 	}
 
 	@Override
-	public void merge(final String fromBranch, final String remoteOrigin)
+	public void merge(final String fromBranch, final String remoteOrigin,
+		final boolean fastForwardOnly)
 		throws VCSException
 	{
 		// TODO Auto-generated method stub

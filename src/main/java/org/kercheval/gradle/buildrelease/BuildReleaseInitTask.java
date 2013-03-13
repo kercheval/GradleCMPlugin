@@ -17,6 +17,7 @@ public class BuildReleaseInitTask
 
 	private static final String DEFAULT_UPLOAD_TASK = "uploadArchives";
 	private static final boolean DEFAULT_ONLYIFCLEAN = true;
+	private static final boolean DEFAULT_FASTFORWARDONLY = true;
 
 	//
 	// The releasebranch variable defines the target branch for
@@ -65,6 +66,14 @@ public class BuildReleaseInitTask
 	//
 	private boolean onlyifclean = DEFAULT_ONLYIFCLEAN;
 
+	//
+	// if fastforwardonly is true, then merges will occur only if
+	// all changes from the release branch are already in the merge
+	// branch (or a merge from release has already been made to
+	// the mainline)
+	//
+	private boolean fastforwardonly = DEFAULT_FASTFORWARDONLY;
+
 	@TaskAction
 	public void doTask()
 	{
@@ -110,6 +119,11 @@ public class BuildReleaseInitTask
 		return uploadtask;
 	}
 
+	public boolean isFastforwardonly()
+	{
+		return fastforwardonly;
+	}
+
 	public boolean isIgnoreorigin()
 	{
 		return ignoreorigin;
@@ -118,6 +132,11 @@ public class BuildReleaseInitTask
 	public boolean isOnlyifclean()
 	{
 		return onlyifclean;
+	}
+
+	public void setFastforwardonly(final boolean fastforwardonly)
+	{
+		this.fastforwardonly = fastforwardonly;
 	}
 
 	public void setIgnoreorigin(final boolean ignoreorigin)
@@ -149,5 +168,4 @@ public class BuildReleaseInitTask
 	{
 		this.uploadtask = uploadtask;
 	}
-
 }

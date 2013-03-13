@@ -1515,6 +1515,24 @@ operations).
 		</td>
 	</tr>
 	<tr>
+		<td>fastforwardonly</td>
+		<td>
+<p>
+Default: <strong>true</strong>
+</p>
+<p>
+Auto merging of sources can work extremely well when dealing with
+code conflicts, but semantic or logic conflicts can be very problematic.
+By default the `buildreleasemerge` task will not merge changes unless
+the merge is a fast forward merge (this is true if a merge has been done
+from the release branch to the mainline branch).  If a fast forward 
+merge is not possible, the task will halt the build with an appropriate
+message.  If set to false, the `buildreleasemerge` task will attempt
+a merge even if fast forward merges are not possible.
+</p>
+		</td>
+	</tr>
+	<tr>
 		<td>uploadtask</td>
 		<td>
 <p>
@@ -1691,7 +1709,8 @@ The sources here demonstrate the following
 
 ### Release History
 
-- 1.11 - Jan 20, 2013 - Correct minor issue where tags could possibly be created on mainline when publishing
+- 1.12 - Mar 13, 2013 - Add support for fast forward merge restrictions in `buildreleasemerge` task.
+- 1.11 - Jan 20, 2013 - Correct minor issue where tags could possibly be created on mainline when publishing.
 - 1.10 - Nov 19, 2012 - Use the JGIT StringUtils variant to avoid dependency on apache commons.
 - 1.9 - Nov 17, 2012 - Add support for interactive username/password/passphrase prompting for VCS.
 - 1.8 - Nov 16, 2012 - Remove some debug messages in gradle info source.  No functional changes.

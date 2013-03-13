@@ -88,9 +88,12 @@ public interface VCSAccess
 	// any conflicts or merge changes required. To succeed the branch
 	// update must be the equivalent of a git fast-forward merge.
 	// Failure will throw a VCSException. If remoteOrigin is null
-	// the merge will be from the local branch 'fromBranch'.
+	// the merge will be from the local branch 'fromBranch'. If
+	// the boolean fastForwardOnly is true, the merge will only occur
+	// if there are no changes on the origin that are not also on the
+	// fromBranch.
 	//
-	public void merge(final String fromBranch, String remoteOrigin)
+	public void merge(final String fromBranch, String remoteOrigin, boolean fastForwardOnly)
 		throws VCSException;
 
 	//
