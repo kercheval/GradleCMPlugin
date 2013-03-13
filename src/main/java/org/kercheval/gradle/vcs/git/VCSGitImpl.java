@@ -490,7 +490,7 @@ public class VCSGitImpl
 				git.reset().setMode(ResetType.HARD).setRef(repository.getFullBranch()).call();
 				throw new VCSException("Unable to merge branch: " + mergeResult.getMergeStatus(),
 					new IllegalStateException(
-						"The branch must be merged or manually corrected before continuing"));
+						"The branch must be merged or manually corrected before continuing due to collision or non-fast forward merge"));
 			}
 		}
 		catch (final IOException e)
