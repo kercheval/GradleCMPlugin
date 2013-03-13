@@ -1693,6 +1693,15 @@ buildreleaseinit {
 }
 ```
 
+**Example 5** To allow merges that are not fast forward only by the 
+`buildreleasemerge` task.
+
+```
+buildreleaseinit {
+    fastforwardonly = false
+}
+```
+
 ##Project Specifics
 
 I intend for this source code base to be instructional as well as
