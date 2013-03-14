@@ -1528,7 +1528,8 @@ the merge is a fast forward merge (this is true if a merge has been done
 from the release branch to the mainline branch).  If a fast forward 
 merge is not possible, the task will halt the build with an appropriate
 message.  If set to false, the `buildreleasemerge` task will attempt
-a merge even if fast forward merges are not possible.
+a merge even if fast forward merges are not possible (and will still 
+correctly fail if a physical conflict occurs).
 </p>
 		</td>
 	</tr>
