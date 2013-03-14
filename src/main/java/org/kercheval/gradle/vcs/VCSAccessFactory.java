@@ -4,7 +4,6 @@ import java.io.File;
 
 import org.gradle.api.logging.Logger;
 import org.kercheval.gradle.vcs.git.VCSGitImpl;
-import org.kercheval.gradle.vcs.hg.VCSHgImpl;
 import org.kercheval.gradle.vcs.none.VCSNoneImpl;
 
 //
@@ -24,10 +23,6 @@ public class VCSAccessFactory
 		if (desiredType.equals(VCSAccess.Type.GIT.toString().toLowerCase()))
 		{
 			return new VCSGitImpl(srcRootDir, logger);
-		}
-		if (desiredType.equals(VCSAccess.Type.MERCURIAL.toString().toLowerCase()))
-		{
-			return new VCSHgImpl(srcRootDir, logger);
 		}
 		return rVal;
 	}
