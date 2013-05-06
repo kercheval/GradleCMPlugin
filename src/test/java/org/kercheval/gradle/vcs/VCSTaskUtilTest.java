@@ -94,7 +94,10 @@ public class VCSTaskUtilTest
 				Assert.fail("Exception expected");
 			}
 			catch (final TaskExecutionException e)
-			{}
+			{
+				Assert.assertTrue(e.getCause().getMessage()
+					.contains("Untracked: [EmptySecondFile.txt]"));
+			}
 		}
 		finally
 		{

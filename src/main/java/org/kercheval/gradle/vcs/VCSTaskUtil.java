@@ -17,7 +17,8 @@ public class VCSTaskUtil
 	public VCSTaskUtil(final Project project)
 	{
 		final Map<String, ?> props = project.getProperties();
-		vcsTask = (BuildVCSTask) new GradleInfoSource(project).getTask(BuildVCSPlugin.VCS_TASK_NAME);
+		vcsTask = (BuildVCSTask) new GradleInfoSource(project)
+			.getTask(BuildVCSPlugin.VCS_TASK_NAME);
 		vcs = VCSAccessFactory.getCurrentVCS(vcsTask.getType(), (File) props.get("rootDir"),
 			project.getLogger());
 	}
@@ -57,10 +58,9 @@ public class VCSTaskUtil
 			final VCSStatus status = getVCS().getStatus();
 			if (!status.isClean())
 			{
-				throw new TaskExecutionException(
-					vcsTask,
-					new IllegalStateException(
-						"The current workspace is not clean.  Please ensure you have committed all outstanding work."));
+				throw new TaskExecutionException(vcsTask, new IllegalStateException(
+					"The current workspace is not clean.  Please ensure you have committed all outstanding work. "
+						+ status.toString()));
 			}
 		}
 		catch (final VCSException e)

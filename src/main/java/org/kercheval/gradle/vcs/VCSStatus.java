@@ -58,19 +58,9 @@ public class VCSStatus
 		return added;
 	}
 
-	public void setAdded(final Set<String> added)
-	{
-		this.added = added;
-	}
-
 	public Set<String> getChanged()
 	{
 		return changed;
-	}
-
-	public void setChanged(final Set<String> changed)
-	{
-		this.changed = changed;
 	}
 
 	public Set<String> getConflicting()
@@ -78,19 +68,9 @@ public class VCSStatus
 		return conflicting;
 	}
 
-	public void setConflicting(final Set<String> conflicting)
-	{
-		this.conflicting = conflicting;
-	}
-
 	public Set<String> getMissing()
 	{
 		return missing;
-	}
-
-	public void setMissing(final Set<String> missing)
-	{
-		this.missing = missing;
 	}
 
 	public Set<String> getModified()
@@ -98,19 +78,9 @@ public class VCSStatus
 		return modified;
 	}
 
-	public void setModified(final Set<String> modified)
-	{
-		this.modified = modified;
-	}
-
 	public Set<String> getRemoved()
 	{
 		return removed;
-	}
-
-	public void setRemoved(final Set<String> removed)
-	{
-		this.removed = removed;
 	}
 
 	public Set<String> getUntracked()
@@ -118,15 +88,67 @@ public class VCSStatus
 		return untracked;
 	}
 
-	public void setUntracked(final Set<String> untracked)
-	{
-		this.untracked = untracked;
-	}
-
 	public boolean isClean()
 	{
 		return (getAdded().isEmpty() && getChanged().isEmpty() && getConflicting().isEmpty()
 			&& getMissing().isEmpty() && getModified().isEmpty() && getRemoved().isEmpty() && getUntracked()
 			.isEmpty());
+	}
+
+	public void setAdded(final Set<String> added)
+	{
+		this.added = added;
+	}
+
+	public void setChanged(final Set<String> changed)
+	{
+		this.changed = changed;
+	}
+
+	public void setConflicting(final Set<String> conflicting)
+	{
+		this.conflicting = conflicting;
+	}
+
+	public void setMissing(final Set<String> missing)
+	{
+		this.missing = missing;
+	}
+
+	public void setModified(final Set<String> modified)
+	{
+		this.modified = modified;
+	}
+
+	public void setRemoved(final Set<String> removed)
+	{
+		this.removed = removed;
+	}
+
+	public void setUntracked(final Set<String> untracked)
+	{
+		this.untracked = untracked;
+	}
+
+	@Override
+	public String toString()
+	{
+		final StringBuilder output = new StringBuilder();
+		output.append("Added: ");
+		output.append(getAdded());
+		output.append(", Changed: ");
+		output.append(getChanged());
+		output.append(", Conflicting: ");
+		output.append(getConflicting());
+		output.append(", Missing: ");
+		output.append(getMissing());
+		output.append(", Modified: ");
+		output.append(getModified());
+		output.append(", Removed: ");
+		output.append(getRemoved());
+		output.append(", Untracked: ");
+		output.append(getUntracked());
+
+		return output.toString();
 	}
 }
