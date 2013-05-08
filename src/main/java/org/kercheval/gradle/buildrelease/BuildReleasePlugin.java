@@ -42,17 +42,17 @@ public class BuildReleasePlugin
 		//
 		// Create the actual tasks that will be executed
 		//
-		final BuildReleaseInitTask buildInitTask = project.getTasks().add(INIT_TASK_NAME,
+		final BuildReleaseInitTask buildInitTask = project.getTasks().create(INIT_TASK_NAME,
 			BuildReleaseInitTask.class);
 		buildInitTask
 			.setDescription("Create a release branch structure supporting release code promotion and publication");
 		buildInitTask.setGroup(GradleInfoSource.PLUGIN_GROUP_NAME);
-		final BuildReleaseMergeTask buildMergeTask = project.getTasks().add(MERGE_TASK_NAME,
+		final BuildReleaseMergeTask buildMergeTask = project.getTasks().create(MERGE_TASK_NAME,
 			BuildReleaseMergeTask.class);
 		buildMergeTask
 			.setDescription("Update the release branch with changes made to the mainline branch");
 		buildMergeTask.setGroup(GradleInfoSource.PLUGIN_GROUP_NAME);
-		final BuildReleaseTask buildReleaseTask = project.getTasks().add(RELEASE_TASK_NAME,
+		final BuildReleaseTask buildReleaseTask = project.getTasks().create(RELEASE_TASK_NAME,
 			BuildReleaseTask.class);
 		buildReleaseTask.setDescription("Run the " + MERGE_TASK_NAME + " and upload targets");
 		buildReleaseTask.setGroup(GradleInfoSource.PLUGIN_GROUP_NAME);

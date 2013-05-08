@@ -29,7 +29,7 @@ public class BuildInfoPlugin
 		//
 		// Create the actual task that will be executed
 		//
-		final Task task = project.getTasks().add(INFO_TASK_NAME, BuildInfoTask.class);
+		final Task task = project.getTasks().create(INFO_TASK_NAME, BuildInfoTask.class);
 		task.setDescription("Create a build information file to be included in built artifacts");
 		task.setGroup(GradleInfoSource.PLUGIN_GROUP_NAME);
 	}

@@ -16,7 +16,7 @@ public class BuildVCSPlugin
 		//
 		// Create the actual task that will be executed
 		//
-		final Task task = project.getTasks().add(VCS_TASK_NAME, BuildVCSTask.class);
+		final Task task = project.getTasks().create(VCS_TASK_NAME, BuildVCSTask.class);
 		task.setDescription("Create a VCS reference object for use in other tasks");
 		task.setGroup(GradleInfoSource.PLUGIN_GROUP_NAME);
 	}

@@ -30,11 +30,11 @@ public class BuildVersionPlugin
 		//
 		// Create the actual task that will be executed
 		//
-		Task task = project.getTasks().add(VERSION_TASK_NAME, BuildVersionTask.class);
+		Task task = project.getTasks().create(VERSION_TASK_NAME, BuildVersionTask.class);
 		task.setDescription("Determine the current project version based on VCS tags");
 		task.setGroup(GradleInfoSource.PLUGIN_GROUP_NAME);
 
-		task = project.getTasks().add(TAG_TASK_NAME, BuildVersionTagTask.class);
+		task = project.getTasks().create(TAG_TASK_NAME, BuildVersionTagTask.class);
 		task.setDescription("Create a VCS with with a name based on the current project version");
 		task.setGroup(GradleInfoSource.PLUGIN_GROUP_NAME);
 	}
