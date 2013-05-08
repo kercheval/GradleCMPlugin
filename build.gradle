@@ -1,6 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'gradlecm'
+apply plugin: 'jacoco'
 
 description = 'Gradle Build CM Plugin'
 
