@@ -1719,7 +1719,7 @@ The sources here demonstrate the following
 
 ### Release History
 
-- 1.14 - June 11, 2013 - Minor updates to use and support Gradle 1.6.
+- 1.14 - June 11, 2013 - Minor updates to use and support Gradle 1.6.  From this release on, you must use Gradle 1.6+ to use this plugin.
 - 1.13 - May 6, 2013 - Minor change to show files involved in clean workspace violations.
 - 1.12 - Mar 13, 2013 - Add support for fast forward merge restrictions in `buildreleasemerge` task.
 - 1.11 - Jan 20, 2013 - Correct minor issue where tags could possibly be created on mainline when publishing.
