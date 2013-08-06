@@ -12,15 +12,15 @@ def buildMajorVersion=1
 buildversion {
 	doLast {
 		//
-		// Set the pattern after the tags have been used to set the initial 
-		// values.  Release gets the default pattern of the maven default 
+		// Set the pattern after the tags have been used to set the initial
+		// values.  Release gets the default pattern of the maven default
 		//
 		def branchName = buildvcs.getBranchName()
         if (branchName != 'release' &&
             !project.hasProperty('noSnapshot')) {
-			version.setPattern("%M%.%m%-SNAPSHOT") 
+			version.setPattern("%M%.%m%-SNAPSHOT")
 		}
-		version.updateMajor(new Integer(buildMajorVersion)) 
+		version.updateMajor(new Integer(buildMajorVersion))
 		println("Currently working on sources for " + version);
 	}
 }
@@ -38,7 +38,7 @@ clean {
 }
 
 //
-// Manifest specific properties.  
+// Manifest specific properties.
 //
 tasks.withType(Jar) {
     manifest {
@@ -69,7 +69,7 @@ dependencies {
 }
 
 //
-// Use bootstrap versions of CM plugin 
+// Use bootstrap versions of CM plugin
 //
 buildscript {
 	repositories {
@@ -83,14 +83,6 @@ buildscript {
 
 
 //
-// Gradle wrapper
-//
-task wrapper(type: Wrapper) {
-	gradleVersion = '1.6'
-}
-
-
-//
 // The publish group for the repository
 //
 group = 'org.kercheval'
@@ -99,20 +91,20 @@ uploadArchives {
 	repositories {
 		mavenDeployer {
 			//
-			// Note this cute little bit of indirection.  The upload target will place the repository 
-			// files into a local github repository that is at the same level as the root of this 
+			// Note this cute little bit of indirection.  The upload target will place the repository
+			// files into a local github repository that is at the same level as the root of this
 			// project.  I have cloned my maven repository into that location so that these line up
-			// correctly.  This allows me to validate the release binaries and commit them as a 
+			// correctly.  This allows me to validate the release binaries and commit them as a
 			// seperate step.  If I had nexus deployed and was using CI for this project, this repository
 			// reference would be pointing directly at that instead.
 			//
 			repository(url: "file://${rootDir}/../mvn-repo/releases")
 
 			//
-			// Note that this repository will be used ONLY if the 
+			// Note that this repository will be used ONLY if the
 			// version ends with 'SNAPSHOT'.
 			//
-			snapshotRepository(url: "file://${rootDir}/../mvn-repo/snapshots") 
+			snapshotRepository(url: "file://${rootDir}/../mvn-repo/snapshots")
 			pom.project {
 				licenses {
 					license {
