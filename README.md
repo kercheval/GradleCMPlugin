@@ -22,14 +22,14 @@ is used by many of the other plugins in this set of plugins.
 - [Examples](#build-vcs-examples)
 - [Security and SSH Keys](#security-considerations)
 
-The [Build Info Plugin](#build-info-plugin) supports creation of a build time 
+The [Build Info Plugin](#build-info-plugin) supports creation of a build time
 info properties file which is a part of the build artifacts.
 
 - [Quick Start](#build-info-quick-start)
 - [Variables for `buildinfo`](#build-info-variables)
 - [Examples](#build-info-examples)
 
-The [Build Version Plugin](#build-version-plugin) supports the tracking, 
+The [Build Version Plugin](#build-version-plugin) supports the tracking,
 update and tagging for version numbers in your project and artifacts.
 
 - [Quick Start](#build-version-quick-start)
@@ -158,7 +158,7 @@ buildversion plugin.
 ###Build VCS Methods
 
 The buildvcs plugin exposes several useful methods that are available
-to your script.  
+to your script.
 
 **String buildvcs.getType()** - This method returns the current VCS type.  This
 is an alternate form if the variable referenced at buildvcs.type.
@@ -400,7 +400,7 @@ Default: <strong>buildinfo.properties</strong>
 <p>
 The filename variable determines the name of the file (without path)
 of the properties file created.  The filename can be any valid name
-and extension for your target systems.  
+and extension for your target systems.
 </p>
 		</td>
 	</tr>
@@ -602,7 +602,7 @@ task myZip (type: Zip) {
 	//
 	from (buildinfo.filedir) {
 		include buildinfo.filename into 'infodir'
-	} 
+	}
 }
 ```
 
@@ -614,8 +614,8 @@ the default toString() behavior of the object.
 ```
 buildinfo {
 	custominfo = [
-		"release": releaseType, 
-		"version": "${version}.${versionSuffix}", 
+		"release": releaseType,
+		"version": "${version}.${versionSuffix}",
 		"special": mySpecialVar
 	]
 }
@@ -669,7 +669,7 @@ buildinfo {
 
 subprojects {
     //
-    // Manifest specific properties.  All tasks that inherit from jar 
+    // Manifest specific properties.  All tasks that inherit from jar
     // (war/ear) are also affected by this
     //
     tasks.withType(Jar) {
@@ -754,7 +754,7 @@ plugin if you have an interest in contributing.
 
 ###Summary
 
-The buildversion plugin supports the automatic setting of build numbers 
+The buildversion plugin supports the automatic setting of build numbers
 based on VCS tag labeling.  The plugin supports multiple branch
 versioning and can be used without tagging at all.
 
@@ -792,13 +792,13 @@ Extended patterns are supported to allow very flexible variations.
 ####buildversiontag
 
 This task will take the current version and write a tag using the
-current version format.  
+current version format.
 
 If this task is used directly, then this tag is written to only the
 local repository for the vcs in use.  In this case, if you wish these
 tags published in a central repository, you will need to push the tags
 to the origin repository explicitly (this would be 'git push origin
---tags' for git users).  
+--tags' for git users).
 
 The `buildversiontag` task always depends on the `buildversion` task
 and will use variables created in the `buildversion` configuration
@@ -817,10 +817,10 @@ apply plugin: 'buildversion'
 ```
 
 This will automatically cause the tag list to be parsed and the
-version object to be placed in project.version.  
+version object to be placed in project.version.
 
 The `buildversiontag` task must be executed seperately by an explicit
-gradle call 
+gradle call
 
 ```
 > gradle buildversiontag
@@ -929,7 +929,7 @@ creation pattern.  The pattern used has the following restrictions
 <p>
 The pattern can otherwise have any valid form to create patterns that
 are specific to your needs or are specific to your branch or build
-type.  The default pattern used if no pattern is explicitly set is 
+type.  The default pattern used if no pattern is explicitly set is
 "%M%.%m%-%d%.%t%".  Invalid patterns will result in a build failure.
 </p>
 <p>
@@ -942,7 +942,7 @@ contexts (meaning multiple vcs branches can all be using different
 versions for building artifacts) and for special tag list filtering
 when setting the initial version.  If a validation pattern is not
 explicitly set, then a validation pattern is automatically generated
-from the version pattern.  
+from the version pattern.
 </p>
 <p>
 The validation pattern must always be consistent with the version
@@ -960,7 +960,7 @@ There are a few useful methods that can be used on the version object.
 Normally, these methods should be used only after the initial
 `buildversion` task has been run.  This is most easily accomplished by
 the use of a doLast closure in the configuration block for
-`buildversion` (see examples) or usage in any task run after the 
+`buildversion` (see examples) or usage in any task run after the
 `buildversion` task.
 </p>
 <p>
@@ -1034,7 +1034,7 @@ current workspace is considered clean (no modified/added/deleted
 files).  The intent of the written tag is to represent a reproducible
 build point so the tag will be attached to the current checkout commit
 (usually the HEAD in git).
- 
+
 The `buildversiontag` task behavior can be modified by the following
 variables:
 
@@ -1158,7 +1158,7 @@ create a branch specific version (useful for hotfix branches, parallel
 development, etc.) but will grab the most recent tag from any branch
 (named without numbers).  Note that the regex can be arbitrarily
 complex so you can do any sort of tag filtering you want as long as it
-is consistent with the version pattern.  
+is consistent with the version pattern.
 
 ```
 def currentBranch = 'release'
@@ -1223,27 +1223,27 @@ buildversion {
 		//
 		version.updateMajor(year);
 	}
-}  
+}
 ```
 
 **Example 13** To create a version that generates SNAPSHOT unless the
 release branch is in use.  This is an extremely convenient approach
-and highly **recommended**.  
+and highly **recommended**.
 
 ```
 def buildMajorVersion=1
 buildversion {
 	doLast {
 		//
-		// Set the pattern after the tags have been used to set the initial 
-		// values.  Release gets the default pattern of the maven default 
+		// Set the pattern after the tags have been used to set the initial
+		// values.  Release gets the default pattern of the maven default
 		//
 		def branchName = buildvcs.getBranchName()
         if (branchName != 'release' &&
             !project.hasProperty('noSnapshot')) {
-			version.setPattern("%M%.%m%-SNAPSHOT") 
+			version.setPattern("%M%.%m%-SNAPSHOT")
 		}
-		version.updateMajor(new Integer(buildMajorVersion)) 
+		version.updateMajor(new Integer(buildMajorVersion))
 		println("Currently working on sources for " + version);
 	}
 }
@@ -1285,9 +1285,9 @@ buildversion {
 		// set the initial values.  Release gets the default.
 		//
 		if (buildType != "release") {
-			version.setPattern("%M%.%m%-${buildType}") 
+			version.setPattern("%M%.%m%-${buildType}")
 		}
-		version.updateMajor(new Integer(buildMajorVersion)) 
+		version.updateMajor(new Integer(buildMajorVersion))
 	}
 }
 ```
@@ -1439,7 +1439,7 @@ This represents the release branch line for the build and upload of
 release artifacts.  During release artifact upload, it is this branch
 that will receive the merge from the mainline and this branch that
 will receive the release tag (though in git this distinction has very
-little meaning). 
+little meaning).
 </p>
 <p>
 This variable should normally be different than that used for the mainline
@@ -1525,10 +1525,10 @@ Auto merging of sources can work extremely well when dealing with
 code conflicts, but semantic or logic conflicts can be very problematic.
 By default the `buildreleasemerge` task will not merge changes unless
 the merge is a fast forward merge (this is true if a merge has been done
-from the release branch to the mainline branch).  If a fast forward 
+from the release branch to the mainline branch).  If a fast forward
 merge is not possible, the task will halt the build with an appropriate
 message.  If set to false, the `buildreleasemerge` task will attempt
-a merge even if fast forward merges are not possible (and will still 
+a merge even if fast forward merges are not possible (and will still
 correctly fail if a physical conflict occurs).
 </p>
 		</td>
@@ -1567,7 +1567,7 @@ upload task normally.  If the workspace is on the release branch, then
 execute the remaining steps below.</li>
 <li>If the variable 'onlyifclean' is set to true, determine if the
 workspace is clean.  If the workspace is not clean, build execution
-is stopped.</li> 
+is stopped.</li>
 <li>Tag the current branch with a tag named for the current gradle
 version (project.version).  The tag comment describes the task that
 created the tag (ie. uploadArchives).</li>
@@ -1622,7 +1622,7 @@ usage normally and is highly discouraged.
 This task is at the core of the buildrelease plugin.  When run, the
 following actions are taken:
 
-1. Verify the current branch is the release branch. 
+1. Verify the current branch is the release branch.
 1. Verify the current workspace is clean.
 1. Fetch the origin content (when origin in use)
 1. Merge the origin release branch (when origin in use)
@@ -1694,7 +1694,7 @@ buildreleaseinit {
 }
 ```
 
-**Example 5** To allow merges that are not fast forward only by the 
+**Example 5** To allow merges that are not fast forward only by the
 `buildreleasemerge` task.
 
 ```
@@ -1719,6 +1719,7 @@ The sources here demonstrate the following
 
 ### Release History
 
+- 1.15 - Oct 30, 2013 - Complete a TODO to remove workaround for bug corrected in Gradle 1.4.  Update project to use Gradle 1.8 (plugin still supports 1.6+).
 - 1.14 - June 11, 2013 - Minor updates to use and support Gradle 1.6.  From this release on, you must use Gradle 1.6+ to use this plugin.
 - 1.13 - May 6, 2013 - Minor change to show files involved in clean workspace violations.
 - 1.12 - Mar 13, 2013 - Add support for fast forward merge restrictions in `buildreleasemerge` task.
@@ -1728,8 +1729,8 @@ The sources here demonstrate the following
 - 1.8 - Nov 16, 2012 - Remove some debug messages in gradle info source.  No functional changes.
 - 1.7 - Nov 16, 2012 - Add Hudson and TeamCity support to buildinfo.  Add variables to control info types in buildinfo.properties.
 - 1.6 - Nov 15, 2012 - Work around some gradle concurrent modification exceptions when adding dependencies to dynamic tasks (http://issues.gradle.org//browse/GRADLE-2023)
-- 1.5 - Nov 13, 2012 - The initial completion of the buildrelease, buildvcs and gradlecm plugins 
-- 1.0 - Nov 6, 2012 - The initial completion of the buildversion plugin 
+- 1.5 - Nov 13, 2012 - The initial completion of the buildrelease, buildvcs and gradlecm plugins
+- 1.0 - Nov 6, 2012 - The initial completion of the buildversion plugin
 - 0.6 - Oct 20, 2012 - The initial completion of the buildinfo plugin
 
 ### Dependencies
@@ -1738,12 +1739,12 @@ This project depends on the following tools currently:
 
 - The gradle API
 (<http://www.gradle.org/docs/current/javadoc/index.html>) - This is a
-gradle plugin after all  
+gradle plugin after all
 - JUNIT (<http://www.junit.org/>) - There is some JUNIT validation
 for information sources and utility code
 - JGIT (<http://www.eclipse.org/jgit/>) - The git information is
 acquired using the very well done JGit project code (used for the
-Eclipse project) 
+Eclipse project)
 
 ### Current Steps to Release Artifacts
 
