@@ -1,7 +1,7 @@
 //
 // This build file displays and allows test of the build info plugin
 //
-// This build file should not be used as an example of how to use 
+// This build file should not be used as an example of how to use
 // the plugin, it is only used for testing purposes.
 //
 apply plugin: 'war'
@@ -10,7 +10,7 @@ apply plugin: 'gradlecm'
 description = 'Gradle CM Plugin test build file'
 
 buildvcs {
-	type = "mercurial"
+	type = "git"
 }
 
 buildversion {
@@ -31,7 +31,7 @@ task showVersion << {
 def mySpecialVar = "Special Variable: Test"
 buildinfo {
 	//
-	// If autowrite is turned off, you must place the buildinfo task as 
+	// If autowrite is turned off, you must place the buildinfo task as
 	// a dependency in any task you wish to use the buildinfo file
 	//
 	autowrite = true
@@ -72,21 +72,21 @@ task myZip (type: Zip) {
 	//
 	from (buildinfo.filedir) {
 		include buildinfo.filename into 'infodir'
-	} 
+	}
 }
 
 buildscript {
 	repositories {
 	    mavenCentral()
 	}
-	
+
 	dependencies {
 		//
 		// Normally these two are derived from dependency POM (test only)
 		//
 		classpath gradleApi()
 		classpath 'org.eclipse.jgit:org.eclipse.jgit:2.1.0.201209190230-r'
-		
+
 		//
 		// Obtain from parent output location (normally get from repository)
 		//

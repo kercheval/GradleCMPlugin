@@ -14,12 +14,8 @@ public class BuildReleaseTask
 		final GradleInfoSource gradleUtil = new GradleInfoSource(project);
 		final BuildReleaseInitTask initTask = (BuildReleaseInitTask) gradleUtil
 			.getTask(BuildReleasePlugin.INIT_TASK_NAME);
-
-		if (gradleUtil.enableTask(getName()))
-		{
-			dependsOn(":" + BuildReleasePlugin.MERGE_TASK_NAME);
-			dependsOn(":" + initTask.getUploadtask());
-		}
+		dependsOn(":" + BuildReleasePlugin.MERGE_TASK_NAME);
+		dependsOn(":" + initTask.getUploadtask());
 	}
 
 	@TaskAction

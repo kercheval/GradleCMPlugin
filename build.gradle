@@ -64,7 +64,7 @@ repositories {
 
 dependencies {
 	compile gradleApi()
-	compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '2.3.1.201302201838-r'
+	compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '3.1.0.201310021548-r'
 	testCompile group: 'junit', name: 'junit', version: '4.+'
 }
 

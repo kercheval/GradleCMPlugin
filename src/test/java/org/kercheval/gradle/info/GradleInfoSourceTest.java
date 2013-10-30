@@ -34,13 +34,6 @@ public class GradleInfoSourceTest
 		Assert.assertTrue(props.size() > 0);
 		validatePropertyPrefix(props, infoSource.getPropertyPrefix());
 
-		Assert.assertTrue(infoSource.enableTask("hello"));
-		project.getGradle().getStartParameter().getTaskNames().add("tasks");
-		Assert.assertFalse(infoSource.enableTask("hello"));
-		project.getGradle().getStartParameter().getTaskNames().remove("tasks");
-		project.getGradle().getStartParameter().getTaskNames().add("task");
-		Assert.assertFalse(infoSource.enableTask("hello"));
-
 		Assert.assertNotNull(infoSource.getTask("buildinfo"));
 	}
 }
