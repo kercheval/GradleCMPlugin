@@ -2,8 +2,8 @@ package org.kercheval.gradle.buildversion;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-
 import java.util.Date;
+import java.util.TimeZone;
 
 public class BuildVersion
 {
@@ -18,400 +18,6 @@ public class BuildVersion
 	// The default pattern uses major, minor and standard maven time format
 	//
 	public static final String DEFAULT_PATTERN = "%M%.%m%-%d%.%t%";
-
-	//
-	// The actual version info pulled from the candidate based on the
-	// pattern or passed into the constructor
-	//
-	private int major = 0;
-	private int minor = 0;
-	private int build = 0;
-	private Date buildDate = new Date();
-
-	//
-	// These values are set based on the presence of variables in the
-	// pattern in use. Set in validatePattern.
-	//
-	private boolean useMajor = false;
-	private boolean useMinor = false;
-	private boolean useBuild = false;
-
-	//
-	// Pattern used for version. The pattern must be set at follows...
-	// - May not have any whitespace (validated)
-	// - May contain any of the following variables (at most once)
-	// %M% - major version
-	// %m% - minor version
-	// %b% - build number
-	// %d% - date (using yyyyMMdd)
-	// %t% - time (using HHmmss)
-	// %% - a percent character (may appear multiple times in the pattern)
-	//
-	private String pattern;
-
-	//
-	// The validate pattern is used to verify candidate strings and is used
-	// to verify toString output. This pattern is auto-generated if a specific
-	// pattern is not supplied (based on output pattern).
-	//
-	private String validatePattern;
-
-	//
-	// Create a default version
-	//
-	public BuildVersion(final String pattern)
-		throws ParseException
-	{
-		this(pattern, null, null);
-	}
-
-	public BuildVersion(final String pattern, final String candidate)
-		throws ParseException
-	{
-		this(pattern, null, candidate);
-	}
-
-	public BuildVersion(final String pattern, final String validatePattern, final String candidate)
-		throws ParseException
-	{
-		init(0, 0, 0, null);
-		setPattern(pattern, validatePattern);
-		parseCandidate(candidate);
-	}
-
-	public BuildVersion(final String pattern,
-		final int major,
-		final int minor,
-		final int build,
-		final Date buildDate)
-	{
-		init(major, minor, build, buildDate);
-		setPattern(pattern);
-	}
-
-	@SuppressWarnings("hiding")
-	private void init(final int major, final int minor, final int build, final Date buildDate)
-	{
-		setMajor(major);
-		setMinor(minor);
-		setBuild(build);
-		setBuildDate(buildDate);
-	}
-
-	public void setPattern(final String newPattern)
-	{
-		setPattern(newPattern, null);
-	}
-
-	public void setPattern(String newPattern, final String newValidatePattern)
-	{
-		if (null == newPattern)
-		{
-			newPattern = DEFAULT_PATTERN;
-		}
-
-		this.pattern = checkPattern(newPattern);
-		this.validatePattern = newValidatePattern;
-
-		if (null == newValidatePattern)
-		{
-			this.validatePattern = generateValidatePattern(getPattern());
-		}
-	}
-
-	private void setUseMajor(final boolean useMajor)
-	{
-		this.useMajor = useMajor;
-	}
-
-	private void setUseMinor(final boolean useMinor)
-	{
-		this.useMinor = useMinor;
-	}
-
-	private void setUseBuild(final boolean useBuild)
-	{
-		this.useBuild = useBuild;
-	}
-
-	public String getPattern()
-	{
-		return pattern;
-	}
-
-	public String getValidatePattern()
-	{
-		return validatePattern;
-	}
-
-	public int getMajor()
-	{
-		return major;
-	}
-
-	public void setMajor(final int major)
-	{
-		this.major = major;
-	}
-
-	public int getMinor()
-	{
-		return minor;
-	}
-
-	public void setMinor(final int minor)
-	{
-		this.minor = minor;
-	}
-
-	public int getBuild()
-	{
-		return build;
-	}
-
-	public void setBuild(final int build)
-	{
-		this.build = build;
-	}
-
-	public Date getBuildDate()
-	{
-		return buildDate;
-	}
-
-	public void setBuildDate(final Date buildDate)
-	{
-		this.buildDate = buildDate;
-
-		if (null == buildDate)
-		{
-			this.buildDate = new Date();
-		}
-	}
-
-	public boolean useMajor()
-	{
-		return this.useMajor;
-	}
-
-	public boolean useMinor()
-	{
-		return this.useMinor;
-	}
-
-	public boolean useBuild()
-	{
-		return this.useBuild;
-	}
-
-	//
-	// This method increments the build version in the most 'natural' way.
-	// The build number is considered the most volatile, followed by the minor
-	// version and finally followed by the major version. The date is always updated
-	// as a result of the increment of the build version.
-	//
-	public void incrementVersion()
-	{
-		if (useBuild())
-		{
-			incrementBuild();
-		}
-		else if (useMinor())
-		{
-			incrementMinor();
-		}
-		else if (useMajor())
-		{
-			incrementMajor();
-		}
-		else
-		{
-			updateDate();
-		}
-	}
-
-	public void incrementBuild()
-	{
-		build++;
-		updateDate();
-	}
-
-	public void incrementMinor()
-	{
-		minor++;
-		updateDate();
-	}
-
-	public void incrementMajor()
-	{
-		major++;
-		setMinor(0);
-		updateDate();
-	}
-
-	public void updateMajor(final int newMajor)
-	{
-		if (getMajor() != newMajor)
-		{
-			setMajor(newMajor);
-			setMinor(0);
-		}
-	}
-
-	public void updateDate()
-	{
-		setBuildDate(new Date());
-	}
-
-	@Override
-	public String toString()
-	{
-		final String versionString = generateVersionString();
-
-		if (!versionString.matches(getValidatePattern()))
-		{
-			throw new IllegalStateException("Version string generated '" + versionString
-				+ "' from pattern '" + getPattern() + "' does not match candidate pattern '"
-				+ getValidatePattern() + "'.  Output and candidate patterns must be consistent");
-		}
-
-		return versionString;
-	}
-
-	private String checkPattern(final String checkPattern)
-	{
-
-		//
-		// Reset variable usage for a new pattern
-		//
-		setUseMajor(false);
-		setUseMinor(false);
-		setUseBuild(false);
-
-		//
-		// Ensure the pattern contains no whitespace
-		//
-		if (checkPattern.matches("\\S*\\s+\\S*"))
-		{
-			throw new IllegalArgumentException("Invalid pattern: whitespace not allowed in pattern");
-		}
-
-		//
-		// Ensure each pattern type is used zero or one times only
-		//
-		if (checkPattern.matches("\\S*%M%\\S*%M%\\S*"))
-		{
-			throw new IllegalArgumentException(
-				"Invalid pattern: Major variable %M% used more than once in pattern");
-		}
-
-		if (checkPattern.matches("\\S*%m%\\S*%m%\\S*"))
-		{
-			throw new IllegalArgumentException(
-				"Invalid pattern: Minor variable %m% used more than once in pattern");
-		}
-
-		if (checkPattern.matches("\\S*%b%\\S*%b%\\S*"))
-		{
-			throw new IllegalArgumentException(
-				"Invalid pattern: Build variable %b% used more than once in pattern");
-		}
-
-		if (checkPattern.matches("\\S*%d%\\S*%d%\\S*"))
-		{
-			throw new IllegalArgumentException(
-				"Invalid pattern: Date variable %d% used more than once in pattern");
-		}
-
-		if (checkPattern.matches("\\S*%t%\\S*%t%\\S*"))
-		{
-			throw new IllegalArgumentException(
-				"Invalid pattern: Time variable %t% used more than once in pattern");
-		}
-
-		//
-		// Validate the escape/variable syntax is used correctly and set the usage booleans
-		//
-		int index = 0;
-
-		while (index >= 0)
-		{
-
-			//
-			// Find the next pattern block to validate
-			//
-			index = checkPattern.indexOf("%", index);
-
-			if (index >= 0)
-			{
-
-				//
-				// The string must have enough space left for either another % or a variable
-				// followed by a %
-				//
-				if (checkPattern.length() == index + 1)
-				{
-					throw new IllegalArgumentException(
-						"Invalid pattern: unbalanced % found at end of pattern");
-				}
-
-				if ((checkPattern.length() == index + 2) && (checkPattern.charAt(index + 1) != '%'))
-				{
-					throw new IllegalArgumentException(
-						"Invalid pattern: unbalanced % found at end of pattern");
-				}
-
-				final char nextChar = checkPattern.charAt(index + 1);
-
-				if (nextChar == '%')
-				{
-					index += 2;
-				}
-				else
-				{
-					final char fenceChar = checkPattern.charAt(index + 2);
-
-					if (fenceChar != '%')
-					{
-						throw new IllegalArgumentException(
-							"Invalid pattern: invalid variable reference at pattern index "
-								+ (index + 2));
-					}
-
-					switch (nextChar)
-					{
-					case 'M':
-						setUseMajor(true);
-
-						break;
-
-					case 'm':
-						setUseMinor(true);
-
-						break;
-
-					case 'b':
-						setUseBuild(true);
-
-						break;
-
-					case 'd':
-					case 't':
-						break;
-
-					default:
-						throw new IllegalArgumentException(
-							"Invalid pattern: invalid variable reference '" + nextChar
-								+ "' at pattern index " + (index + 1));
-					}
-
-					index += 3;
-				}
-			}
-		}
-
-		return checkPattern;
-	}
 
 	private static String generateValidatePattern(String buildPattern)
 	{
@@ -490,6 +96,420 @@ public class BuildVersion
 		validatePatternStr.append(buildPattern.substring(lastIndex));
 
 		return validatePatternStr.toString();
+	}
+
+	//
+	// The actual version info pulled from the candidate based on the
+	// pattern or passed into the constructor
+	//
+	private int major = 0;
+	private int minor = 0;
+	private int build = 0;
+
+	private Date buildDate = new Date();
+	//
+	// These values are set based on the presence of variables in the
+	// pattern in use. Set in validatePattern.
+	//
+	private boolean useMajor = false;
+	private boolean useMinor = false;
+
+	private boolean useBuild = false;
+
+	//
+	// Pattern used for version. The pattern must be set at follows...
+	// - May not have any whitespace (validated)
+	// - May contain any of the following variables (at most once)
+	// %M% - major version
+	// %m% - minor version
+	// %b% - build number
+	// %d% - date (using yyyyMMdd)
+	// %t% - time (using HHmmss)
+	// %% - a percent character (may appear multiple times in the pattern)
+	//
+	private String pattern;
+
+	//
+	// The validate pattern is used to verify candidate strings and is used
+	// to verify toString output. This pattern is auto-generated if a specific
+	// pattern is not supplied (based on output pattern).
+	//
+	private String validatePattern;
+
+	//
+	// Create a default version
+	//
+	public BuildVersion(final String pattern)
+		throws ParseException
+	{
+		this(pattern, null, null);
+	}
+
+	public BuildVersion(final String pattern,
+		final int major,
+		final int minor,
+		final int build,
+		final Date buildDate)
+	{
+		init(major, minor, build, buildDate);
+		setPattern(pattern);
+	}
+
+	public BuildVersion(final String pattern, final String candidate)
+		throws ParseException
+	{
+		this(pattern, null, candidate);
+	}
+
+	public BuildVersion(final String pattern, final String validatePattern, final String candidate)
+		throws ParseException
+	{
+		init(0, 0, 0, null);
+		setPattern(pattern, validatePattern);
+		parseCandidate(candidate);
+	}
+
+	private String checkPattern(final String checkPattern)
+	{
+
+		//
+		// Reset variable usage for a new pattern
+		//
+		setUseMajor(false);
+		setUseMinor(false);
+		setUseBuild(false);
+
+		//
+		// Ensure the pattern contains no whitespace
+		//
+		if (checkPattern.matches("\\S*\\s+\\S*"))
+		{
+			throw new IllegalArgumentException("Invalid pattern: whitespace not allowed in pattern");
+		}
+
+		//
+		// Ensure each pattern type is used zero or one times only
+		//
+		if (checkPattern.matches("\\S*%M%\\S*%M%\\S*"))
+		{
+			throw new IllegalArgumentException(
+				"Invalid pattern: Major variable %M% used more than once in pattern");
+		}
+
+		if (checkPattern.matches("\\S*%m%\\S*%m%\\S*"))
+		{
+			throw new IllegalArgumentException(
+				"Invalid pattern: Minor variable %m% used more than once in pattern");
+		}
+
+		if (checkPattern.matches("\\S*%b%\\S*%b%\\S*"))
+		{
+			throw new IllegalArgumentException(
+				"Invalid pattern: Build variable %b% used more than once in pattern");
+		}
+
+		if (checkPattern.matches("\\S*%d%\\S*%d%\\S*"))
+		{
+			throw new IllegalArgumentException(
+				"Invalid pattern: Date variable %d% used more than once in pattern");
+		}
+
+		if (checkPattern.matches("\\S*%t%\\S*%t%\\S*"))
+		{
+			throw new IllegalArgumentException(
+				"Invalid pattern: Time variable %t% used more than once in pattern");
+		}
+
+		//
+		// Validate the escape/variable syntax is used correctly and set the usage booleans
+		//
+		int index = 0;
+
+		while (index >= 0)
+		{
+
+			//
+			// Find the next pattern block to validate
+			//
+			index = checkPattern.indexOf("%", index);
+
+			if (index >= 0)
+			{
+
+				//
+				// The string must have enough space left for either another % or a variable
+				// followed by a %
+				//
+				if (checkPattern.length() == (index + 1))
+				{
+					throw new IllegalArgumentException(
+						"Invalid pattern: unbalanced % found at end of pattern");
+				}
+
+				if ((checkPattern.length() == (index + 2))
+					&& (checkPattern.charAt(index + 1) != '%'))
+				{
+					throw new IllegalArgumentException(
+						"Invalid pattern: unbalanced % found at end of pattern");
+				}
+
+				final char nextChar = checkPattern.charAt(index + 1);
+
+				if (nextChar == '%')
+				{
+					index += 2;
+				}
+				else
+				{
+					final char fenceChar = checkPattern.charAt(index + 2);
+
+					if (fenceChar != '%')
+					{
+						throw new IllegalArgumentException(
+							"Invalid pattern: invalid variable reference at pattern index "
+								+ (index + 2));
+					}
+
+					switch (nextChar)
+					{
+					case 'M':
+						setUseMajor(true);
+
+						break;
+
+					case 'm':
+						setUseMinor(true);
+
+						break;
+
+					case 'b':
+						setUseBuild(true);
+
+						break;
+
+					case 'd':
+					case 't':
+						break;
+
+					default:
+						throw new IllegalArgumentException(
+							"Invalid pattern: invalid variable reference '" + nextChar
+								+ "' at pattern index " + (index + 1));
+					}
+
+					index += 3;
+				}
+			}
+		}
+
+		return checkPattern;
+	}
+
+	private String generateVersionString()
+	{
+		final StringBuilder versionStr = new StringBuilder();
+		final String buildPattern = getPattern();
+
+		//
+		// The pattern is known valid, just fill in the blanks
+		//
+		int index = 0;
+		int lastIndex = index;
+
+		while (index >= 0)
+		{
+
+			//
+			// Find the next pattern block to validate
+			//
+			index = buildPattern.indexOf("%", index);
+
+			int nextIndex = index + 3;
+
+			if (index >= 0)
+			{
+
+				//
+				// Place the block from the last match to the current into the string
+				//
+				versionStr.append(buildPattern.substring(lastIndex, index));
+
+				final char nextChar = buildPattern.charAt(index + 1);
+
+				switch (nextChar)
+				{
+				case '%':
+					versionStr.append("%");
+
+					//
+					// Backup the index one since this is only 2 characters consumed
+					//
+					nextIndex -= 1;
+
+					break;
+
+				case 'M':
+					versionStr.append(getMajor());
+
+					break;
+
+				case 'm':
+					versionStr.append(getMinor());
+
+					break;
+
+				case 'b':
+					versionStr.append(getBuild());
+
+					break;
+
+				case 'd':
+					final SimpleDateFormat dateFormatter = new SimpleDateFormat(DATE_FORMAT_PATTERN);
+					dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+					versionStr.append(dateFormatter.format(getBuildDate()));
+
+					break;
+
+				case 't':
+					final SimpleDateFormat timeFormatter = new SimpleDateFormat(TIME_FORMAT_PATTERN);
+					timeFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+					versionStr.append(timeFormatter.format(getBuildDate()));
+
+					break;
+
+				default:
+
+					//
+					// This state is not possible if the validate method works. Not testable
+					// without breaking private contract
+					//
+					throw new IllegalStateException("Invalid pattern detected '" + getPattern()
+						+ "' at index: " + index);
+				}
+
+				index = nextIndex;
+				lastIndex = index;
+			}
+		}
+
+		//
+		// Tack on the postfix (if any)
+		//
+		versionStr.append(buildPattern.substring(lastIndex));
+
+		return versionStr.toString();
+	}
+
+	public int getBuild()
+	{
+		return build;
+	}
+
+	public Date getBuildDate()
+	{
+		return buildDate;
+	}
+
+	public int getMajor()
+	{
+		return major;
+	}
+
+	public int getMinor()
+	{
+		return minor;
+	}
+
+	private int getNextNonNumberIndex(final String candidate, final int startIndex)
+	{
+		int currentIndex = startIndex;
+
+		while ((currentIndex < candidate.length())
+			&& Character.isDigit(candidate.charAt(currentIndex)))
+		{
+			currentIndex++;
+		}
+
+		return currentIndex;
+	}
+
+	private int getNextNumberIndex(final String candidate, final int startIndex)
+	{
+		int currentIndex = startIndex;
+
+		while ((currentIndex < candidate.length())
+			&& !Character.isDigit(candidate.charAt(currentIndex)))
+		{
+			currentIndex++;
+		}
+
+		return currentIndex;
+	}
+
+	public String getPattern()
+	{
+		return pattern;
+	}
+
+	public String getValidatePattern()
+	{
+		return validatePattern;
+	}
+
+	public void incrementBuild()
+	{
+		build++;
+		updateDate();
+	}
+
+	public void incrementMajor()
+	{
+		major++;
+		setMinor(0);
+		updateDate();
+	}
+
+	public void incrementMinor()
+	{
+		minor++;
+		updateDate();
+	}
+
+	//
+	// This method increments the build version in the most 'natural' way.
+	// The build number is considered the most volatile, followed by the minor
+	// version and finally followed by the major version. The date is always updated
+	// as a result of the increment of the build version.
+	//
+	public void incrementVersion()
+	{
+		if (useBuild())
+		{
+			incrementBuild();
+		}
+		else if (useMinor())
+		{
+			incrementMinor();
+		}
+		else if (useMajor())
+		{
+			incrementMajor();
+		}
+		else
+		{
+			updateDate();
+		}
+	}
+
+	@SuppressWarnings("hiding")
+	private void init(final int major, final int minor, final int build, final Date buildDate)
+	{
+		setMajor(major);
+		setMinor(minor);
+		setBuild(build);
+		setBuildDate(buildDate);
 	}
 
 	private void parseCandidate(final String candidate)
@@ -653,7 +673,7 @@ public class BuildVersion
 				}
 
 				final SimpleDateFormat formatter = new SimpleDateFormat(format);
-
+				formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
 				formatter.setLenient(true);
 
 				try
@@ -669,124 +689,108 @@ public class BuildVersion
 		}
 	}
 
-	private int getNextNumberIndex(final String candidate, final int startIndex)
+	public void setBuild(final int build)
 	{
-		int currentIndex = startIndex;
-
-		while ((currentIndex < candidate.length())
-			&& !Character.isDigit(candidate.charAt(currentIndex)))
-		{
-			currentIndex++;
-		}
-
-		return currentIndex;
+		this.build = build;
 	}
 
-	private int getNextNonNumberIndex(final String candidate, final int startIndex)
+	public void setBuildDate(final Date buildDate)
 	{
-		int currentIndex = startIndex;
+		this.buildDate = buildDate;
 
-		while ((currentIndex < candidate.length())
-			&& Character.isDigit(candidate.charAt(currentIndex)))
+		if (null == buildDate)
 		{
-			currentIndex++;
+			this.buildDate = new Date();
 		}
-
-		return currentIndex;
 	}
 
-	private String generateVersionString()
+	public void setMajor(final int major)
 	{
-		final StringBuilder versionStr = new StringBuilder();
-		final String buildPattern = getPattern();
+		this.major = major;
+	}
 
-		//
-		// The pattern is known valid, just fill in the blanks
-		//
-		int index = 0;
-		int lastIndex = index;
+	public void setMinor(final int minor)
+	{
+		this.minor = minor;
+	}
 
-		while (index >= 0)
+	public void setPattern(final String newPattern)
+	{
+		setPattern(newPattern, null);
+	}
+
+	public void setPattern(String newPattern, final String newValidatePattern)
+	{
+		if (null == newPattern)
 		{
-
-			//
-			// Find the next pattern block to validate
-			//
-			index = buildPattern.indexOf("%", index);
-
-			int nextIndex = index + 3;
-
-			if (index >= 0)
-			{
-
-				//
-				// Place the block from the last match to the current into the string
-				//
-				versionStr.append(buildPattern.substring(lastIndex, index));
-
-				final char nextChar = buildPattern.charAt(index + 1);
-
-				switch (nextChar)
-				{
-				case '%':
-					versionStr.append("%");
-
-					//
-					// Backup the index one since this is only 2 characters consumed
-					//
-					nextIndex -= 1;
-
-					break;
-
-				case 'M':
-					versionStr.append(getMajor());
-
-					break;
-
-				case 'm':
-					versionStr.append(getMinor());
-
-					break;
-
-				case 'b':
-					versionStr.append(getBuild());
-
-					break;
-
-				case 'd':
-					final SimpleDateFormat dateFormatter = new SimpleDateFormat(DATE_FORMAT_PATTERN);
-
-					versionStr.append(dateFormatter.format(getBuildDate()));
-
-					break;
-
-				case 't':
-					final SimpleDateFormat timeFormatter = new SimpleDateFormat(TIME_FORMAT_PATTERN);
-
-					versionStr.append(timeFormatter.format(getBuildDate()));
-
-					break;
-
-				default:
-
-					//
-					// This state is not possible if the validate method works. Not testable
-					// without breaking private contract
-					//
-					throw new IllegalStateException("Invalid pattern detected '" + getPattern()
-						+ "' at index: " + index);
-				}
-
-				index = nextIndex;
-				lastIndex = index;
-			}
+			newPattern = DEFAULT_PATTERN;
 		}
 
-		//
-		// Tack on the postfix (if any)
-		//
-		versionStr.append(buildPattern.substring(lastIndex));
+		pattern = checkPattern(newPattern);
+		validatePattern = newValidatePattern;
 
-		return versionStr.toString();
+		if (null == newValidatePattern)
+		{
+			validatePattern = generateValidatePattern(getPattern());
+		}
+	}
+
+	private void setUseBuild(final boolean useBuild)
+	{
+		this.useBuild = useBuild;
+	}
+
+	private void setUseMajor(final boolean useMajor)
+	{
+		this.useMajor = useMajor;
+	}
+
+	private void setUseMinor(final boolean useMinor)
+	{
+		this.useMinor = useMinor;
+	}
+
+	@Override
+	public String toString()
+	{
+		final String versionString = generateVersionString();
+
+		if (!versionString.matches(getValidatePattern()))
+		{
+			throw new IllegalStateException("Version string generated '" + versionString
+				+ "' from pattern '" + getPattern() + "' does not match candidate pattern '"
+				+ getValidatePattern() + "'.  Output and candidate patterns must be consistent");
+		}
+
+		return versionString;
+	}
+
+	public void updateDate()
+	{
+		setBuildDate(new Date());
+	}
+
+	public void updateMajor(final int newMajor)
+	{
+		if (getMajor() != newMajor)
+		{
+			setMajor(newMajor);
+			setMinor(0);
+		}
+	}
+
+	public boolean useBuild()
+	{
+		return useBuild;
+	}
+
+	public boolean useMajor()
+	{
+		return useMajor;
+	}
+
+	public boolean useMinor()
+	{
+		return useMinor;
 	}
 }

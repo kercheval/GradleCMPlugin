@@ -929,8 +929,11 @@ creation pattern.  The pattern used has the following restrictions
 <p>
 The pattern can otherwise have any valid form to create patterns that
 are specific to your needs or are specific to your branch or build
-type.  The default pattern used if no pattern is explicitly set is
-"%M%.%m%-%d%.%t%".  Invalid patterns will result in a build failure.
+type.  Invalid patterns will result in a build failure.
+</p>
+<p>
+<strong>Note: </strong>The default pattern used if no pattern is explicitly set is
+"%M%.%m%-%d%.%t%".  The timezone for the resulting timestamp is "UTC" (the maven standard).
 </p>
 <p>
 In addition to the version pattern, you can set a validation Pattern.
@@ -1719,6 +1722,7 @@ The sources here demonstrate the following
 
 ### Release History
 
+- 1.16 - Nov 25, 2013 - Convert buildversion default time zone to UTC rather then local to be consistent with Maven defaults
 - 1.15 - Oct 30, 2013 - Complete a TODO to remove workaround for bug corrected in Gradle 1.4.  Update project to use Gradle 1.8 (plugin still supports 1.6+).
 - 1.14 - June 11, 2013 - Minor updates to use and support Gradle 1.6.  From this release on, you must use Gradle 1.6+ to use this plugin.
 - 1.13 - May 6, 2013 - Minor change to show files involved in clean workspace violations.
