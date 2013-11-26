@@ -1579,11 +1579,12 @@ origin repository.  Failure to push the tag to the origin will result
 in build execution being stopped.</li>
 </ol>
 
-<strong>Note:</strong> The task hook is accomplished via a doFirst()
-closure.  If other doFirst() closures are created for your upload task
+<strong>Note:</strong> The task hook is accomplished via a task execution
+listener.  If other task execution listeners are created for your upload task
 (particularly if they are done dynamically), they may may be executed
-prior to tagging and push.  Be aware of this timing if you have
-additional customization in your upload task via a doFirst closure.
+prior to tagging and push.  This is normally not going to be a problem, but
+be aware of ordering if you are doing tag or VCS manipulation in your uploadArchives
+or publish tasks.
 </p>
 <p>
 Normally, the task <code>buildreleasemerge</code> should have been run

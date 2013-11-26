@@ -89,6 +89,7 @@ public class BuildInfoTask
 	private boolean showvscinfo = DEFAULT_SHOWINFO_SECTION;
 	private boolean showciinfo = DEFAULT_SHOWINFO_SECTION;
 
+	//
 	// The filedirWasSet variable is used to determine if the filedir has
 	// explicitly been set in the build file. If not, we update our internal
 	// filedir variable to buildDir just in case it was changed last minute

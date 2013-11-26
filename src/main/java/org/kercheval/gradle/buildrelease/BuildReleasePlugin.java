@@ -1,7 +1,5 @@
 package org.kercheval.gradle.buildrelease;
 
-import groovy.lang.Closure;
-
 import java.util.LinkedHashMap;
 
 import org.gradle.api.Plugin;
@@ -9,8 +7,10 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.execution.TaskExecutionGraph;
 import org.gradle.api.execution.TaskExecutionGraphListener;
+import org.gradle.api.execution.TaskExecutionListener;
 import org.gradle.api.internal.AbstractTask;
 import org.gradle.api.tasks.TaskExecutionException;
+import org.gradle.api.tasks.TaskState;
 import org.kercheval.gradle.buildvcs.BuildVCSPlugin;
 import org.kercheval.gradle.buildvcs.BuildVCSTask;
 import org.kercheval.gradle.gradlecm.GradleCMPlugin;
@@ -82,19 +82,29 @@ public class BuildReleasePlugin
 					}
 					else
 					{
-						uploadTask.doFirst(new Closure<Task>(this, this)
+						project.getGradle().addListener(new TaskExecutionListener()
 						{
-							@SuppressWarnings("unused")
-							public Object doCall(final Task task)
+							@Override
+							public void afterExecute(final Task task, final TaskState taskState)
 							{
-								tagAndPush(project, buildInitTask, false);
-								return task;
+								// Nothing after execution
+							}
+
+							@Override
+							public void beforeExecute(final Task task)
+							{
+								//
+								// If we have the right task, ensure we run the tag and push
+								//
+								if (task.equals(uploadTask))
+								{
+									tagAndPush(project, buildInitTask, false);
+								}
 							}
 						});
 					}
 				}
 			});
-
 	}
 
 	protected void tagAndPush(final Project project, final BuildReleaseInitTask currentTask,
