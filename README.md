@@ -1746,6 +1746,7 @@ The sources here demonstrate the following
 
 ### Release History
 
+- 1.18 - Nov 27, 2013 - Modify builddir detection to user getBuildDir rather then properties to avoid include ordering problems with maven-publish and ivy-publish.
 - 1.17 - Nov 26, 2013 - Modify primary hook for tag and push to use a task execution listener rather than a do first insertion to allow use is maven and ivy publisher plugins.
 - 1.16 - Nov 25, 2013 - Convert buildversion default time zone to UTC rather then local to be consistent with Maven defaults
 - 1.15 - Oct 30, 2013 - Complete a TODO to remove workaround for bug corrected in Gradle 1.4.  Update project to use Gradle 1.8 (plugin still supports 1.6+).

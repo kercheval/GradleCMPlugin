@@ -105,10 +105,9 @@ public class BuildInfoTask
 		//
 		// Init the file directory
 		//
-		final Map<String, ?> props = project.getProperties();
 		try
 		{
-			setFiledir(((File) props.get("buildDir")).getCanonicalPath());
+			setFiledir(project.getBuildDir().getCanonicalPath());
 		}
 		catch (final IOException e)
 		{
@@ -129,15 +128,13 @@ public class BuildInfoTask
 				@Override
 				public void graphPopulated(final TaskExecutionGraph graph)
 				{
-					final Map<String, ?> afterGraphProps = project.getProperties();
 					try
 					{
 						//
 						// If the buildDir was reset at config and it is the same as was initially
 						// created, then reset to the new buildDir.
 						//
-						final String newBuildDir = ((File) afterGraphProps.get("buildDir"))
-							.getCanonicalPath();
+						final String newBuildDir = project.getBuildDir().getCanonicalPath();
 						if (!filedirWasSet)
 						{
 							setFiledir(newBuildDir);
@@ -247,7 +244,6 @@ public class BuildInfoTask
 		// Obtain the project properties
 		//
 		final Project project = getProject();
-		project.getProperties();
 		final BuildVCSTask vcsTask = (BuildVCSTask) new GradleInfoSource(project)
 			.getTask(BuildVCSPlugin.VCS_TASK_NAME);
 
