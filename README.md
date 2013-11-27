@@ -1581,12 +1581,11 @@ in build execution being stopped.</li>
 
 <strong>Note:</strong> When using the maven-publish and ivy-publish plugins
 you are strongly encouraged to make an explicit publish target of your own
-to use with this variable (a task by the name of `uploadArchives` would do!).
-These two plugins create publication tasks dynamically.  By doing this, you
-can setup explicit dependsOn settings for the specific archive
+to use with this variable.  These two plugins create publication tasks dynamically.
+By doing this, you can setup explicit dependsOn settings for the specific archive
 publication tasks you want to trigger a VCS tag.  For example, the task
 `publishPluginPublicationToReleasesRepository` would be a good task to add
-a dependsOn parameter for the uploadArchives target task.
+a dependsOn parameter for the uploadTask target task.
 </p>
 
 <strong>Note:</strong> The task hook is accomplished via a task execution
@@ -1714,6 +1713,19 @@ buildreleaseinit {
 ```
 buildreleaseinit {
     fastforwardonly = false
+}
+```
+
+**Example 6** To use an alternate uploadArchives target for use with the maven-publish
+plugin.
+
+```
+task myUploadTask << {
+    tasks.publishPluginPublicationToReleasesRepository.execute()
+}
+
+buildreleaseinit {
+    uploadtask = myUploadTask
 }
 ```
 
