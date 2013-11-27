@@ -1578,7 +1578,8 @@ created the tag (ie. uploadArchives).</li>
 origin repository.  Failure to push the tag to the origin will result
 in build execution being stopped.</li>
 </ol>
-
+</p>
+<p>
 <strong>Note:</strong> When using the maven-publish and ivy-publish plugins
 you are strongly encouraged to make an explicit publish target of your own
 to use with this variable.  These two plugins create publication tasks dynamically.
@@ -1587,7 +1588,7 @@ publication tasks you want to trigger a VCS tag.  For example, the task
 `publishPluginPublicationToReleasesRepository` would be a good task to add
 a dependsOn parameter for the uploadTask target task.
 </p>
-
+<p>
 <strong>Note:</strong> The task hook is accomplished via a task execution
 listener.  If other task execution listeners are created for your upload task
 (particularly if they are done dynamically), they may may be executed
