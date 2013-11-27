@@ -1579,6 +1579,16 @@ origin repository.  Failure to push the tag to the origin will result
 in build execution being stopped.</li>
 </ol>
 
+<strong>Note:</strong> When using the maven-publish and ivy-publish plugins
+you are strongly encouraged to make an explicit publish target of your own
+to use with this variable (a task by the name of `uploadArchives` would do!).
+These two plugins create publication tasks dynamically.  By doing this, you
+can setup explicit dependsOn settings for the specific archive
+publication tasks you want to trigger a VCS tag.  For example, the task
+`publishPluginPublicationToReleasesRepository` would be a good task to add
+a dependsOn parameter for the uploadArchives target task.
+</p>
+
 <strong>Note:</strong> The task hook is accomplished via a task execution
 listener.  If other task execution listeners are created for your upload task
 (particularly if they are done dynamically), they may may be executed
@@ -1723,6 +1733,7 @@ The sources here demonstrate the following
 
 ### Release History
 
+- 1.17 - Nov 26, 2013 - Modify primary hook for tag and push to use a task execution listener rather than a do first insertion to allow use is maven and ivy publisher plugins.
 - 1.16 - Nov 25, 2013 - Convert buildversion default time zone to UTC rather then local to be consistent with Maven defaults
 - 1.15 - Oct 30, 2013 - Complete a TODO to remove workaround for bug corrected in Gradle 1.4.  Update project to use Gradle 1.8 (plugin still supports 1.6+).
 - 1.14 - June 11, 2013 - Minor updates to use and support Gradle 1.6.  From this release on, you must use Gradle 1.6+ to use this plugin.
