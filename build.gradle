@@ -51,7 +51,7 @@ tasks.withType(Jar) {
 //
 // Enable lint compilation
 //
-tasks.withType(Compile) {
+tasks.withType(JavaCompile) {
     options.compilerArgs << "-Xlint:unchecked"
 }
 
@@ -64,7 +64,7 @@ repositories {
 
 dependencies {
 	compile gradleApi()
-	compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '3.1.0.201310021548-r'
+	compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '3.4.1.201406201815-r'
 	testCompile group: 'junit', name: 'junit', version: '4.+'
 }
 
