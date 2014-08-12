@@ -1746,6 +1746,7 @@ The sources here demonstrate the following
 
 ### Release History
 
+- 1.19 - Aug 12, 2014 - Update to support build with gradle 2.0, Update jgit to 3.4.1
 - 1.18 - Nov 27, 2013 - Modify builddir detection to user getBuildDir rather then properties to avoid include ordering problems with maven-publish and ivy-publish.
 - 1.17 - Nov 26, 2013 - Modify primary hook for tag and push to use a task execution listener rather than a do first insertion to allow use is maven and ivy publisher plugins.
 - 1.16 - Nov 25, 2013 - Convert buildversion default time zone to UTC rather then local to be consistent with Maven defaults
