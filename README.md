@@ -933,7 +933,9 @@ type.  Invalid patterns will result in a build failure.
 </p>
 <p>
 <strong>Note: </strong>The default pattern used if no pattern is explicitly set is
-"%M%.%m%-%d%.%t%".  The timezone for the resulting timestamp is "UTC" (the maven standard).
+"%M%.%m%-%d%.%t%".  The timezone for the resulting timestamp is "UTC" (the
+maven standard) unless the `uselocaltimezone` variable is set to true (in which case the
+timezone used for the string will be in the local timezone).
 </p>
 <p>
 In addition to the version pattern, you can set a validation Pattern.
@@ -1023,6 +1025,21 @@ completion (just before tasks are executed and just after the
 configuration phase).  This is normally exactly the right behavior,
 but specific build ordering or other custom needs may be require some
 form of later task execution (and thus late project.version binding).
+</p>
+		</td>
+	</tr>
+	<tr>
+		<td>uselocaltimezone</td>
+		<td>
+<p>
+Default: <strong>false</strong>
+</p>
+<p>
+When set to false, time/date formats in the version string will be set to the UTC timezone.
+This is the maven default and is most appropriate for publicly released artifacts.
+Many teams prefer to have build artifacts versioned with a timestamp that represents their
+local timezone.  Set this to true to obtain the default timezone from the build host rather
+than using UTC
 </p>
 		</td>
 	</tr>

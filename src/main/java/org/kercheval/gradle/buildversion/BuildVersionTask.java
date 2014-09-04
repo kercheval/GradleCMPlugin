@@ -21,6 +21,7 @@ public class BuildVersionTask
 	public static final boolean DEFAULT_AUTOWRITE = true;
 	public static final boolean DEFAULT_AUTOINCREMENT = true;
 	public static final boolean DEFAULT_USETAG = true;
+	public static final boolean DEFAULT_USELOCALTIMEZONE = false;
 
 	//
 	// When autowrite is true, the project version will automatically be set at
@@ -47,12 +48,18 @@ public class BuildVersionTask
 	private boolean usetag = DEFAULT_USETAG;
 
 	//
+	// if uselocaltimezone is true, then the version time stamp will be based on the
+	// local time zone rather than UTC (which is the standard maven timestamp).
+	//
+	private boolean uselocaltimezone = DEFAULT_USELOCALTIMEZONE;
+
+	//
 	// This is the object that will be set at the project version. This is normally
 	// updated via a tag search during task execution, but doLast handlers can modify this
 	// at will. Updates to this object will be reflected in project.version (which could
 	// also be directly modified after a cast).
 	//
-	private BuildVersion version = new BuildVersion(null, 0, 0, 0, null);
+	private BuildVersion version = new BuildVersion(null, 0, 0, 0, null, false);
 
 	public BuildVersionTask()
 	{
@@ -155,7 +162,7 @@ public class BuildVersionTask
 				try
 				{
 					rVal = new BuildVersion(rVal.getPattern(), rVal.getValidatePattern(),
-						foundTag.getName());
+						foundTag.getName(), uselocaltimezone);
 				}
 				catch (final ParseException e)
 				{
@@ -205,5 +212,15 @@ public class BuildVersionTask
 	public void setVersion(final BuildVersion version)
 	{
 		this.version = version;
+	}
+
+	public boolean isUselocaltimezone()
+	{
+		return uselocaltimezone;
+	}
+
+	public void setUselocaltimezone(final boolean uselocaltimezone)
+	{
+		this.uselocaltimezone = uselocaltimezone;
 	}
 }

@@ -114,7 +114,7 @@ public class BuildVersionTaskTest
 			task.doTask();
 			Assert.assertTrue(project.getVersion() instanceof BuildVersion);
 			System.out.println(project.getVersion());
-			task.setVersion(new BuildVersion("%M%.%m%-%d%-%t%", null));
+			task.setVersion(new BuildVersion("%M%.%m%-%d%-%t%", null, false));
 			task.doTask();
 			Assert.assertTrue(project.getVersion() instanceof BuildVersion);
 			System.out.println(project.getVersion());

@@ -7,7 +7,6 @@ import java.util.TimeZone;
 
 public class BuildVersion
 {
-
 	//
 	// Pattern used for date/time (not modifiable)
 	//
@@ -137,41 +136,51 @@ public class BuildVersion
 	private String validatePattern;
 
 	//
+	// The useLocalTimeZone variable determines what time zone is used to
+	// set the pattern time zone. If true, the local machine timezone is
+	// used, if false, the UTC timezone is used.
+	//
+	private boolean useLocalTimeZone;
+
+	//
 	// Create a default version
 	//
 	public BuildVersion(final String pattern)
 		throws ParseException
 	{
-		this(pattern, null, null);
+		this(pattern, null, null, false);
 	}
 
 	public BuildVersion(final String pattern,
 		final int major,
 		final int minor,
 		final int build,
-		final Date buildDate)
+		final Date buildDate,
+		final boolean useLocalTimeZone)
 	{
-		init(major, minor, build, buildDate);
+		init(major, minor, build, buildDate, useLocalTimeZone);
 		setPattern(pattern);
 	}
 
-	public BuildVersion(final String pattern, final String candidate)
+	public BuildVersion(final String pattern, final String candidate, final boolean useLocalTimeZone)
 		throws ParseException
 	{
-		this(pattern, null, candidate);
+		this(pattern, null, candidate, useLocalTimeZone);
 	}
 
-	public BuildVersion(final String pattern, final String validatePattern, final String candidate)
+	public BuildVersion(final String pattern,
+		final String validatePattern,
+		final String candidate,
+		final boolean useLocalTimeZone)
 		throws ParseException
 	{
-		init(0, 0, 0, null);
+		init(0, 0, 0, null, useLocalTimeZone);
 		setPattern(pattern, validatePattern);
 		parseCandidate(candidate);
 	}
 
 	private String checkPattern(final String checkPattern)
 	{
-
 		//
 		// Reset variable usage for a new pattern
 		//
@@ -318,7 +327,6 @@ public class BuildVersion
 
 		while (index >= 0)
 		{
-
 			//
 			// Find the next pattern block to validate
 			//
@@ -328,7 +336,6 @@ public class BuildVersion
 
 			if (index >= 0)
 			{
-
 				//
 				// Place the block from the last match to the current into the string
 				//
@@ -365,7 +372,7 @@ public class BuildVersion
 
 				case 'd':
 					final SimpleDateFormat dateFormatter = new SimpleDateFormat(DATE_FORMAT_PATTERN);
-					dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+					dateFormatter.setTimeZone(getVersionTimeZone());
 
 					versionStr.append(dateFormatter.format(getBuildDate()));
 
@@ -373,14 +380,13 @@ public class BuildVersion
 
 				case 't':
 					final SimpleDateFormat timeFormatter = new SimpleDateFormat(TIME_FORMAT_PATTERN);
-					timeFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+					timeFormatter.setTimeZone(getVersionTimeZone());
 
 					versionStr.append(timeFormatter.format(getBuildDate()));
 
 					break;
 
 				default:
-
 					//
 					// This state is not possible if the validate method works. Not testable
 					// without breaking private contract
@@ -400,6 +406,26 @@ public class BuildVersion
 		versionStr.append(buildPattern.substring(lastIndex));
 
 		return versionStr.toString();
+	}
+
+	private void setUseLocalTimeZone(final boolean useLocalTimeZone)
+	{
+		this.useLocalTimeZone = useLocalTimeZone;
+	}
+
+	private TimeZone getVersionTimeZone()
+	{
+		TimeZone timeZone;
+
+		if (useLocalTimeZone)
+		{
+			timeZone = TimeZone.getDefault();
+		}
+		else
+		{
+			timeZone = TimeZone.getTimeZone("UTC");
+		}
+		return timeZone;
 	}
 
 	public int getBuild()
@@ -504,12 +530,14 @@ public class BuildVersion
 	}
 
 	@SuppressWarnings("hiding")
-	private void init(final int major, final int minor, final int build, final Date buildDate)
+	private void init(final int major, final int minor, final int build, final Date buildDate,
+		final boolean useLocalTimeZone)
 	{
 		setMajor(major);
 		setMinor(minor);
 		setBuild(build);
 		setBuildDate(buildDate);
+		setUseLocalTimeZone(useLocalTimeZone);
 	}
 
 	private void parseCandidate(final String candidate)
@@ -673,7 +701,7 @@ public class BuildVersion
 				}
 
 				final SimpleDateFormat formatter = new SimpleDateFormat(format);
-				formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+				formatter.setTimeZone(getVersionTimeZone());
 				formatter.setLenient(true);
 
 				try

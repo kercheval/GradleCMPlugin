@@ -13,7 +13,6 @@ public class BuildVersionTest
 	@Test
 	public void testBooleanPatternUsage()
 	{
-
 		//
 		// Test boolean results
 		//
@@ -36,17 +35,18 @@ public class BuildVersionTest
 	public void testCandidatePattern()
 		throws ParseException
 	{
-		BuildVersion verify = new BuildVersion(null, "\\d+.\\d+-\\d+.\\d+", "4.5-20121101.123456");
+		BuildVersion verify = new BuildVersion(null, "\\d+.\\d+-\\d+.\\d+", "4.5-20121101.123456",
+			true);
 
 		Assert.assertNotNull(verify.toString());
 		verify = new BuildVersion(BuildVersion.DEFAULT_PATTERN + "Postfix",
-			"\\d+.\\d+-\\d+.\\d+Postfix", "4.5-20121101.123456Postfix");
+			"\\d+.\\d+-\\d+.\\d+Postfix", "4.5-20121101.123456Postfix", true);
 		Assert.assertNotNull(verify.toString());
 
 		try
 		{
 			verify = new BuildVersion(null, "\\d+.\\d+-\\d+.\\d+Postfix",
-				"4.5-20121101.123456Postfix");
+				"4.5-20121101.123456Postfix", true);
 		}
 		catch (final IllegalStateException e)
 		{
@@ -57,13 +57,13 @@ public class BuildVersionTest
 	@Test
 	public void testDefaultDate()
 	{
-		BuildVersion verify = new BuildVersion("", 0, 0, 0, null);
+		BuildVersion verify = new BuildVersion("", 0, 0, 0, null, false);
 
 		Assert.assertNotNull(verify.getBuildDate());
 
 		final Date now = new Date();
 
-		verify = new BuildVersion("", 0, 0, 0, now);
+		verify = new BuildVersion("", 0, 0, 0, now, false);
 		Assert.assertSame(now, verify.getBuildDate());
 	}
 
@@ -162,7 +162,7 @@ public class BuildVersionTest
 	{
 		try
 		{
-			final BuildVersion buildVersion = new BuildVersion(pattern, 0, 0, 0, null);
+			final BuildVersion buildVersion = new BuildVersion(pattern, 0, 0, 0, null, false);
 
 			fail("Invalid pattern was not caught: " + buildVersion.toString());
 		}
@@ -177,45 +177,50 @@ public class BuildVersionTest
 		throws ParseException
 	{
 		final BuildVersion versionNow = new BuildVersion(BuildVersion.DEFAULT_PATTERN);
-		BuildVersion verify = new BuildVersion(BuildVersion.DEFAULT_PATTERN, versionNow.toString());
+		BuildVersion verify = new BuildVersion(BuildVersion.DEFAULT_PATTERN, versionNow.toString(),
+			true);
 
 		Assert.assertEquals(versionNow.toString(), verify.toString());
-		verify = new BuildVersion("%M%.%m%.%b%-%d%.%t%", "9.3.456-20121101.123456");
+		verify = new BuildVersion("%M%.%m%.%b%-%d%.%t%", "9.3.456-20121101.123456", true);
 		Assert.assertSame(9, verify.getMajor());
 		Assert.assertSame(3, verify.getMinor());
 		Assert.assertEquals(456, verify.getBuild());
+		Assert.assertEquals("1351798496000", Long.valueOf(verify.getBuildDate().getTime())
+			.toString());
+		verify = new BuildVersion("%M%.%m%.%b%-%d%.%t%", "9.3.456-20121101.123456", false);
 		Assert.assertEquals("1351773296000", Long.valueOf(verify.getBuildDate().getTime())
 			.toString());
-		verify = new BuildVersion("%M%.%m%.%b%", "9.3.456");
+		verify = new BuildVersion("%M%.%m%.%b%", "9.3.456", true);
 		Assert.assertSame(9, verify.getMajor());
 		Assert.assertSame(3, verify.getMinor());
 		Assert.assertEquals(456, verify.getBuild());
-		verify = new BuildVersion("%M%.%m%.%b%-%d%.%t%", "Prefix98.34.1456-2012111.123456Postfix");
+		verify = new BuildVersion("%M%.%m%.%b%-%d%.%t%", "Prefix98.34.1456-2012111.123456Postfix",
+			true);
 		Assert.assertSame(98, verify.getMajor());
 		Assert.assertSame(34, verify.getMinor());
 		Assert.assertEquals(1456, verify.getBuild());
-		Assert.assertEquals("1351773296000", Long.valueOf(verify.getBuildDate().getTime())
+		Assert.assertEquals("1351798496000", Long.valueOf(verify.getBuildDate().getTime())
 			.toString());
 		verify = new BuildVersion("%%%M%.%m%.%b%-%d%.%t%%%",
-			"Prefix98.34.1456-2012111.123456Postfix");
+			"Prefix98.34.1456-2012111.123456Postfix", true);
 		Assert.assertSame(98, verify.getMajor());
 		Assert.assertSame(34, verify.getMinor());
 		Assert.assertEquals(1456, verify.getBuild());
-		Assert.assertEquals("1351773296000", Long.valueOf(verify.getBuildDate().getTime())
+		Assert.assertEquals("1351798496000", Long.valueOf(verify.getBuildDate().getTime())
 			.toString());
 		verify = new BuildVersion("%d%.%%%M%.%m%.%b%-%t%%%",
-			"2012111.Prefix98.34.1456-123456Postfix");
+			"2012111.Prefix98.34.1456-123456Postfix", true);
 		Assert.assertSame(98, verify.getMajor());
 		Assert.assertSame(34, verify.getMinor());
 		Assert.assertEquals(1456, verify.getBuild());
-		Assert.assertEquals("1351773296000", Long.valueOf(verify.getBuildDate().getTime())
+		Assert.assertEquals("1351798496000", Long.valueOf(verify.getBuildDate().getTime())
 			.toString());
 		verify = new BuildVersion("%d%.%%.%m%.%b%-%t%%%%M%",
-			"2012111.Prefix.34.1456-123456Postfix98");
+			"2012111.Prefix.34.1456-123456Postfix98", true);
 		Assert.assertSame(98, verify.getMajor());
 		Assert.assertSame(34, verify.getMinor());
 		Assert.assertEquals(1456, verify.getBuild());
-		Assert.assertEquals("1351773296000", Long.valueOf(verify.getBuildDate().getTime())
+		Assert.assertEquals("1351798496000", Long.valueOf(verify.getBuildDate().getTime())
 			.toString());
 		testParseFailure("%d%.%%.%m%.%b%-%t%%%%M%", "2012111.Prefix.34.1456-123456Postfix");
 		testParseFailure("%d%.%%.%m%.%M%-%t%%%%b%", "2012111.Prefix.34.1456-123456Postfix");
@@ -230,7 +235,7 @@ public class BuildVersionTest
 	{
 		try
 		{
-			new BuildVersion(pattern, candidate);
+			new BuildVersion(pattern, candidate, false);
 			fail("ParseException expected");
 		}
 		catch (final ParseException e)
@@ -244,30 +249,29 @@ public class BuildVersionTest
 	public void testPatternSet()
 		throws ParseException
 	{
-		BuildVersion verify = new BuildVersion("%d%", "20121110");
+		BuildVersion verify = new BuildVersion("%d%", "20121110", false);
 
 		Assert.assertEquals("%d%", verify.getPattern());
-		verify = new BuildVersion(null, "3.4-20121110.123456");
+		verify = new BuildVersion(null, "3.4-20121110.123456", false);
 		Assert.assertEquals(BuildVersion.DEFAULT_PATTERN, verify.getPattern());
-		verify = new BuildVersion(null, null);
+		verify = new BuildVersion(null, null, false);
 		Assert.assertEquals(BuildVersion.DEFAULT_PATTERN, verify.getPattern());
 	}
 
 	@Test
 	public void testToString()
 	{
-		BuildVersion verify = new BuildVersion(null, 0, 0, 0, new Date(0));
-
-		Assert.assertEquals("0.0-19700101.000000", verify.toString());
-		verify = new BuildVersion("%d%%t%", 0, 0, 0, new Date(0));
+		BuildVersion verify = new BuildVersion(null, 0, 0, 0, new Date(0), true);
+		Assert.assertEquals("0.0-19691231.160000", verify.toString());
+		verify = new BuildVersion("%d%%t%", 0, 0, 0, new Date(0), false);
 		Assert.assertEquals("19700101000000", verify.toString());
-		verify = new BuildVersion("Prefix%d%infix%t%postfix", 0, 0, 0, new Date(0));
-		Assert.assertEquals("Prefix19700101infix000000postfix", verify.toString());
-		verify = new BuildVersion("%d%%b%%t%", 0, 0, 0, new Date(0));
+		verify = new BuildVersion("Prefix%d%infix%t%postfix", 0, 0, 0, new Date(0), true);
+		Assert.assertEquals("Prefix19691231infix160000postfix", verify.toString());
+		verify = new BuildVersion("%d%%b%%t%", 0, 0, 0, new Date(0), false);
 		Assert.assertEquals("197001010000000", verify.toString());
-		verify = new BuildVersion("%%%d%%%%t%%%", 0, 0, 0, new Date(0));
-		Assert.assertEquals("%19700101%000000%", verify.toString());
-		verify = new BuildVersion("ThisIsATest", 0, 0, 0, new Date(0));
+		verify = new BuildVersion("%%%d%%%%t%%%", 0, 0, 0, new Date(0), true);
+		Assert.assertEquals("%19691231%160000%", verify.toString());
+		verify = new BuildVersion("ThisIsATest", 0, 0, 0, new Date(0), false);
 		Assert.assertEquals("ThisIsATest", verify.toString());
 	}
 
@@ -339,7 +343,7 @@ public class BuildVersionTest
 
 		try
 		{
-			rVal = new BuildVersion(pattern, 0, 0, 0, null);
+			rVal = new BuildVersion(pattern, 0, 0, 0, null, false);
 			System.out.println("Pattern '" + pattern + "' produced '" + rVal + "'");
 		}
 		catch (final IllegalArgumentException e)
@@ -353,7 +357,7 @@ public class BuildVersionTest
 	@Test
 	public void testVersionUpdate()
 	{
-		final BuildVersion verify = new BuildVersion("", 0, 0, 0, null);
+		final BuildVersion verify = new BuildVersion("", 0, 0, 0, null, false);
 
 		verify.setMinor(30);
 		Assert.assertSame(30, verify.getMinor());
