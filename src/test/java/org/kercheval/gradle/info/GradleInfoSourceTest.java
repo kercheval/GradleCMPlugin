@@ -19,7 +19,7 @@ public class GradleInfoSourceTest
 
 		Assert.assertNull(infoSource.getTask("buildinfo"));
 
-		project.apply(new LinkedHashMap<String, String>()
+		project.apply(new LinkedHashMap<String, Class>()
 		{
 			{
 				put("plugin", GradleCMPlugin.BUILD_INFO_PLUGIN);

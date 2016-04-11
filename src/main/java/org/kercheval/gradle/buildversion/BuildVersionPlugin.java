@@ -20,7 +20,7 @@ public class BuildVersionPlugin
 		//
 		// We need the VCS plugin for this
 		//
-		project.apply(new LinkedHashMap<String, String>()
+		project.apply(new LinkedHashMap<String, Class>()
 		{
 			{
 				put("plugin", GradleCMPlugin.BUILD_VCS_PLUGIN);
