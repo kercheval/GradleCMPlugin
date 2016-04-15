@@ -31,7 +31,7 @@ public class BuildVersionPluginTest
 
 			Assert.assertNull(gradleUtil.getTask(BuildVersionPlugin.VERSION_TASK_NAME));
 
-			project.apply(new LinkedHashMap<String, String>()
+			project.apply(new LinkedHashMap<String, Class>()
 			{
 				{
 					put("plugin", GradleCMPlugin.BUILD_VERSION_PLUGIN);

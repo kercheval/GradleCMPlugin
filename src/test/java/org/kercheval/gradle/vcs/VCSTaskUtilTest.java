@@ -28,7 +28,7 @@ public class VCSTaskUtilTest
 
 			final Project project = ProjectBuilder.builder()
 				.withProjectDir(repoUtil.getOriginFile()).build();
-			project.apply(new LinkedHashMap<String, String>()
+			project.apply(new LinkedHashMap<String, Class>()
 			{
 				{
 					put("plugin", GradleCMPlugin.BUILD_VERSION_PLUGIN);
@@ -68,7 +68,7 @@ public class VCSTaskUtilTest
 			Assert.assertEquals("master", repoUtil.getStandardRepo().getBranch());
 			final Project project = ProjectBuilder.builder()
 				.withProjectDir(repoUtil.getStandardFile()).build();
-			project.apply(new LinkedHashMap<String, String>()
+			project.apply(new LinkedHashMap<String, Class>()
 			{
 				{
 					put("plugin", GradleCMPlugin.BUILD_VERSION_PLUGIN);

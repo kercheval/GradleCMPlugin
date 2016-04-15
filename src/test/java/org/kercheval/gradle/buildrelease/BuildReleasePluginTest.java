@@ -40,7 +40,7 @@ public class BuildReleasePluginTest
 		{
 			final Project project = ProjectBuilder.builder()
 				.withProjectDir(repoUtil.getStandardFile()).build();
-			project.apply(new LinkedHashMap<String, String>()
+			project.apply(new LinkedHashMap<String, Class>()
 			{
 				{
 					put("plugin", GradleCMPlugin.BUILD_RELEASE_PLUGIN);
