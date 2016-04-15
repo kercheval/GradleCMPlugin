@@ -1763,6 +1763,7 @@ The sources here demonstrate the following
 
 ### Release History
 
+- 1.21 - Apr 15, 2016 - Merge pull request to reference plugins internally by class rather then ID
 - 1.20 - Sep 4, 2014 - Support using local time zone for build strings date/time
 - 1.19 - Aug 12, 2014 - Update to support build with gradle 2.0, Update jgit to 3.4.1
 - 1.18 - Nov 27, 2013 - Modify builddir detection to user getBuildDir rather then properties to avoid include ordering problems with maven-publish and ivy-publish.
