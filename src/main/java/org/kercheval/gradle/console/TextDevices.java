@@ -26,7 +26,7 @@ import java.io.PrintWriter;
  */
 public final class TextDevices
 {
-	private static TextDevice DEFAULT = (System.console() == null) ? streamDevice(System.in,
+	private static final TextDevice DEFAULT = (System.console() == null) ? streamDevice(System.in,
 		System.out) : new ConsoleDevice(System.console());
 
 	/**

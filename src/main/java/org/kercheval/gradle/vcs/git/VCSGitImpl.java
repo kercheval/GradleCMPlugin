@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.MergeCommand.FastForwardMode;
@@ -395,11 +396,11 @@ public class VCSGitImpl
 
 			final Map<String, Ref> tags = repository.getTags();
 
-			for (final String name : tags.keySet())
+			for (final Entry<String, Ref> tag : tags.entrySet())
 			{
-				if (name.matches(regexFilter))
+				if (tag.getKey().matches(regexFilter))
 				{
-					final Ref ref = tags.get(name);
+					final Ref ref = tag.getValue();
 					final RevWalk revWalk = new RevWalk(repository);
 
 					try
