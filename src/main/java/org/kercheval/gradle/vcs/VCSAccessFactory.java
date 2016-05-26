@@ -20,7 +20,7 @@ public class VCSAccessFactory
 	{
 		final VCSAccess rVal = new VCSNoneImpl(srcRootDir, logger);
 		final String desiredType = type.toLowerCase();
-		if (desiredType.equals(VCSAccess.Type.GIT.toString().toLowerCase()))
+		if (desiredType.equalsIgnoreCase(VCSAccess.Type.GIT.toString()))
 		{
 			return new VCSGitImpl(srcRootDir, logger);
 		}

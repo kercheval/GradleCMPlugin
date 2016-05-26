@@ -103,7 +103,7 @@ public class BuildVCSTask
 		boolean foundType = false;
 		for (final VCSAccess.Type iterType : VCSAccess.Type.values())
 		{
-			if (desiredType.equals(iterType.toString().toLowerCase()))
+			if (desiredType.equalsIgnoreCase(iterType.toString()))
 			{
 				foundType = true;
 			}
