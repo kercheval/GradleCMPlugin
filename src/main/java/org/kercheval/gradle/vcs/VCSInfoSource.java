@@ -56,15 +56,7 @@ public abstract class VCSInfoSource
 			props.addProperty(getPropertyPrefix() + ".workspace.files.modified", status
 				.getModified().toString());
 		}
-		catch (final NoWorkTreeException e)
-		{
-			// Ignore
-		}
-		catch (final GitAPIException e)
-		{
-			// Ignore
-		}
-		catch (final IOException e)
+		catch (final NoWorkTreeException|GitAPIException|IOException e)
 		{
 			// Ignore
 		}
