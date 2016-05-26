@@ -11,20 +11,7 @@ import org.eclipse.jgit.api.MergeCommand.FastForwardMode;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.api.Status;
-import org.eclipse.jgit.api.errors.CheckoutConflictException;
-import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.InvalidMergeHeadsException;
-import org.eclipse.jgit.api.errors.InvalidRefNameException;
-import org.eclipse.jgit.api.errors.InvalidRemoteException;
-import org.eclipse.jgit.api.errors.InvalidTagNameException;
-import org.eclipse.jgit.api.errors.NoHeadException;
-import org.eclipse.jgit.api.errors.NoMessageException;
-import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
-import org.eclipse.jgit.api.errors.RefNotFoundException;
-import org.eclipse.jgit.api.errors.TransportException;
-import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
-import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -139,18 +126,6 @@ public class VCSGitImpl
 		{
 			throw new VCSException("Unable to find repository at: " + getSrcRootDir(), e);
 		}
-		catch (final RefAlreadyExistsException e)
-		{
-			throw new VCSException("Unable to create branch: " + branchName, e);
-		}
-		catch (final RefNotFoundException e)
-		{
-			throw new VCSException("Unable to create branch: " + branchName, e);
-		}
-		catch (final InvalidRefNameException e)
-		{
-			throw new VCSException("Unable to create branch: " + branchName, e);
-		}
 		catch (final GitAPIException e)
 		{
 			throw new VCSException("Unable to create branch: " + branchName, e);
@@ -180,18 +155,6 @@ public class VCSGitImpl
 			try
 			{
 				git.tag().setName(tag.getName()).setMessage(tag.getComment()).call();
-			}
-			catch (final ConcurrentRefUpdateException e)
-			{
-				throw new VCSException("Unable to create tag: " + tag.getName(), e);
-			}
-			catch (final InvalidTagNameException e)
-			{
-				throw new VCSException("Unable to create tag: " + tag.getName(), e);
-			}
-			catch (final NoHeadException e)
-			{
-				throw new VCSException("Unable to create tag: " + tag.getName(), e);
 			}
 			catch (final GitAPIException e)
 			{
@@ -230,14 +193,6 @@ public class VCSGitImpl
 		catch (final IOException e)
 		{
 			throw new VCSException("Unable to find repository at: " + getSrcRootDir(), e);
-		}
-		catch (final InvalidRemoteException e)
-		{
-			throw new VCSException("Unable to fetch from origin: " + remoteOrigin, e);
-		}
-		catch (final TransportException e)
-		{
-			throw new VCSException("Unable to fetch from origin: " + remoteOrigin, e);
 		}
 		catch (final GitAPIException e)
 		{
@@ -356,10 +311,6 @@ public class VCSGitImpl
 				rVal.setUntracked(status.getUntracked());
 				rVal.setConflicting(status.getConflicting());
 				rVal.setModified(status.getModified());
-			}
-			catch (final NoWorkTreeException e)
-			{
-				throw new VCSException("Unable to determine repository status", e);
 			}
 			catch (final GitAPIException e)
 			{
@@ -497,30 +448,6 @@ public class VCSGitImpl
 		{
 			throw new VCSException("Unable to find repository at: " + getSrcRootDir(), e);
 		}
-		catch (final NoHeadException e)
-		{
-			throw new VCSException("Unable to merge branch: " + fromBranch, e);
-		}
-		catch (final ConcurrentRefUpdateException e)
-		{
-			throw new VCSException("Unable to merge branch: " + fromBranch, e);
-		}
-		catch (final CheckoutConflictException e)
-		{
-			throw new VCSException("Unable to merge branch: " + fromBranch, e);
-		}
-		catch (final InvalidMergeHeadsException e)
-		{
-			throw new VCSException("Unable to merge branch: " + fromBranch, e);
-		}
-		catch (final WrongRepositoryStateException e)
-		{
-			throw new VCSException("Unable to merge branch: " + fromBranch, e);
-		}
-		catch (final NoMessageException e)
-		{
-			throw new VCSException("Unable to merge branch: " + fromBranch, e);
-		}
 		catch (final GitAPIException e)
 		{
 			throw new VCSException("Unable to merge branch: " + fromBranch, e);
@@ -590,14 +517,6 @@ public class VCSGitImpl
 		catch (final IOException e)
 		{
 			throw new VCSException("Unable to push repository at: " + getSrcRootDir(), e);
-		}
-		catch (final InvalidRemoteException e)
-		{
-			throw new VCSException("Unable to push branch " + from + " to " + remoteOrigin, e);
-		}
-		catch (final TransportException e)
-		{
-			throw new VCSException("Unable to push branch " + from + " to " + remoteOrigin, e);
 		}
 		catch (final GitAPIException e)
 		{
