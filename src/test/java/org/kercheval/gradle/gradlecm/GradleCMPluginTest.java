@@ -33,7 +33,7 @@ public class GradleCMPluginTest
 
 			Assert.assertNull(gradleUtil.getTask(BuildInfoPlugin.INFO_TASK_NAME));
 
-			project.apply(new LinkedHashMap<String, Class>()
+			project.apply(new LinkedHashMap<String, Class<GradleCMPlugin>>()
 			{
 				{
 					put("plugin", GradleCMPlugin.GRADLE_CM_PLUGIN);

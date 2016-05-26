@@ -4,10 +4,15 @@ import static org.junit.Assert.fail;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.junit.*;
 
 public class BuildVersionTest {
+
+    final String expectedLocalZone = "Pacific Standard Time";
+    final boolean isExpectedZone = expectedLocalZone.equals(TimeZone.getDefault().getDisplayName());
+
     @Test
     public void testBooleanPatternUsage() {
         //
@@ -164,47 +169,50 @@ public class BuildVersionTest {
                 new BuildVersion(BuildVersion.DEFAULT_PATTERN, versionNow.toString(), true);
 
         Assert.assertEquals(versionNow.toString(), verify.toString());
-        verify = new BuildVersion("%M%.%m%.%b%-%d%.%t%", "9.3.456-20121101.123456", true);
-        Assert.assertSame(9, verify.getMajor());
-        Assert.assertSame(3, verify.getMinor());
-        Assert.assertEquals(456, verify.getBuild());
-        Assert.assertEquals("1351787696000",
-            Long.valueOf(verify.getBuildDate().getTime()).toString());
+        
         verify = new BuildVersion("%M%.%m%.%b%-%d%.%t%", "9.3.456-20121101.123456", false);
         Assert.assertEquals("1351773296000",
             Long.valueOf(verify.getBuildDate().getTime()).toString());
-        verify = new BuildVersion("%M%.%m%.%b%", "9.3.456", true);
-        Assert.assertSame(9, verify.getMajor());
-        Assert.assertSame(3, verify.getMinor());
-        Assert.assertEquals(456, verify.getBuild());
-        verify = new BuildVersion("%M%.%m%.%b%-%d%.%t%", "Prefix98.34.1456-2012111.123456Postfix",
-            true);
-        Assert.assertSame(98, verify.getMajor());
-        Assert.assertSame(34, verify.getMinor());
-        Assert.assertEquals(1456, verify.getBuild());
-        Assert.assertEquals("1351787696000",
-            Long.valueOf(verify.getBuildDate().getTime()).toString());
-        verify = new BuildVersion("%%%M%.%m%.%b%-%d%.%t%%%",
-            "Prefix98.34.1456-2012111.123456Postfix", true);
-        Assert.assertSame(98, verify.getMajor());
-        Assert.assertSame(34, verify.getMinor());
-        Assert.assertEquals(1456, verify.getBuild());
-        Assert.assertEquals("1351787696000",
-            Long.valueOf(verify.getBuildDate().getTime()).toString());
-        verify = new BuildVersion("%d%.%%%M%.%m%.%b%-%t%%%",
-            "2012111.Prefix98.34.1456-123456Postfix", true);
-        Assert.assertSame(98, verify.getMajor());
-        Assert.assertSame(34, verify.getMinor());
-        Assert.assertEquals(1456, verify.getBuild());
-        Assert.assertEquals("1351787696000",
-            Long.valueOf(verify.getBuildDate().getTime()).toString());
-        verify = new BuildVersion("%d%.%%.%m%.%b%-%t%%%%M%",
-            "2012111.Prefix.34.1456-123456Postfix98", true);
-        Assert.assertSame(98, verify.getMajor());
-        Assert.assertSame(34, verify.getMinor());
-        Assert.assertEquals(1456, verify.getBuild());
-        Assert.assertEquals("1351787696000",
-            Long.valueOf(verify.getBuildDate().getTime()).toString());
+        if (isExpectedZone) {
+            verify = new BuildVersion("%M%.%m%.%b%-%d%.%t%", "9.3.456-20121101.123456", true);
+            Assert.assertSame(9, verify.getMajor());
+            Assert.assertSame(3, verify.getMinor());
+            Assert.assertEquals(456, verify.getBuild());
+            Assert.assertEquals("1351798496000",
+                Long.valueOf(verify.getBuildDate().getTime()).toString());
+	        verify = new BuildVersion("%M%.%m%.%b%", "9.3.456", true);
+	        Assert.assertSame(9, verify.getMajor());
+	        Assert.assertSame(3, verify.getMinor());
+	        Assert.assertEquals(456, verify.getBuild());
+	        verify = new BuildVersion("%M%.%m%.%b%-%d%.%t%", "Prefix98.34.1456-2012111.123456Postfix",
+	            true);
+	        Assert.assertSame(98, verify.getMajor());
+	        Assert.assertSame(34, verify.getMinor());
+	        Assert.assertEquals(1456, verify.getBuild());
+	        Assert.assertEquals("1351798496000",
+	            Long.valueOf(verify.getBuildDate().getTime()).toString());
+	        verify = new BuildVersion("%%%M%.%m%.%b%-%d%.%t%%%",
+	            "Prefix98.34.1456-2012111.123456Postfix", true);
+	        Assert.assertSame(98, verify.getMajor());
+	        Assert.assertSame(34, verify.getMinor());
+	        Assert.assertEquals(1456, verify.getBuild());
+	        Assert.assertEquals("1351798496000",
+	            Long.valueOf(verify.getBuildDate().getTime()).toString());
+	        verify = new BuildVersion("%d%.%%%M%.%m%.%b%-%t%%%",
+	            "2012111.Prefix98.34.1456-123456Postfix", true);
+	        Assert.assertSame(98, verify.getMajor());
+	        Assert.assertSame(34, verify.getMinor());
+	        Assert.assertEquals(1456, verify.getBuild());
+	        Assert.assertEquals("1351798496000",
+	            Long.valueOf(verify.getBuildDate().getTime()).toString());
+	        verify = new BuildVersion("%d%.%%.%m%.%b%-%t%%%%M%",
+	            "2012111.Prefix.34.1456-123456Postfix98", true);
+	        Assert.assertSame(98, verify.getMajor());
+	        Assert.assertSame(34, verify.getMinor());
+	        Assert.assertEquals(1456, verify.getBuild());
+	        Assert.assertEquals("1351798496000",
+	            Long.valueOf(verify.getBuildDate().getTime()).toString());
+        }
         testParseFailure("%d%.%%.%m%.%b%-%t%%%%M%", "2012111.Prefix.34.1456-123456Postfix");
         testParseFailure("%d%.%%.%m%.%M%-%t%%%%b%", "2012111.Prefix.34.1456-123456Postfix");
         testParseFailure("%d%.%%.%b%.%M%-%t%%%%m%", "2012111.Prefix.34.1456-123456Postfix");
@@ -213,7 +221,6 @@ public class BuildVersionTest {
         testParseFailure("%M%.%m%.%b%-%d%.%t%", "9.3.456-121101.123456");
     }
 
-    @SuppressWarnings("unused")
     void testParseFailure(final String pattern, final String candidate) {
         try {
             new BuildVersion(pattern, candidate, false);
@@ -237,16 +244,19 @@ public class BuildVersionTest {
 
     @Test
     public void testToString() {
-        BuildVersion verify = new BuildVersion(null, 0, 0, 0, new Date(0), true);
-        Assert.assertEquals("0.0-19691231.190000", verify.toString());
+        BuildVersion verify;
+        if (isExpectedZone) {
+	        verify = new BuildVersion(null, 0, 0, 0, new Date(0), true);
+	        Assert.assertEquals("0.0-19691231.160000", verify.toString());
+	        verify = new BuildVersion("Prefix%d%infix%t%postfix", 0, 0, 0, new Date(0), true);
+	        Assert.assertEquals("Prefix19691231infix160000postfix", verify.toString());
+	        verify = new BuildVersion("%%%d%%%%t%%%", 0, 0, 0, new Date(0), true);
+	        Assert.assertEquals("%19691231%160000%", verify.toString());
+        }
         verify = new BuildVersion("%d%%t%", 0, 0, 0, new Date(0), false);
         Assert.assertEquals("19700101000000", verify.toString());
-        verify = new BuildVersion("Prefix%d%infix%t%postfix", 0, 0, 0, new Date(0), true);
-        Assert.assertEquals("Prefix19691231infix190000postfix", verify.toString());
         verify = new BuildVersion("%d%%b%%t%", 0, 0, 0, new Date(0), false);
         Assert.assertEquals("197001010000000", verify.toString());
-        verify = new BuildVersion("%%%d%%%%t%%%", 0, 0, 0, new Date(0), true);
-        Assert.assertEquals("%19691231%190000%", verify.toString());
         verify = new BuildVersion("ThisIsATest", 0, 0, 0, new Date(0), false);
         Assert.assertEquals("ThisIsATest", verify.toString());
     }

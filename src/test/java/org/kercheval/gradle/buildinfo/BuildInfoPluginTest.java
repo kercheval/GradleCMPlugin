@@ -15,7 +15,7 @@ public class BuildInfoPluginTest {
             JUNIT_FILE_LOCATION + "/build/" + BuildInfoTask.DEFAULT_FILENAME;
 
     private BuildInfoTask getTask(final Project project) {
-        project.apply(new LinkedHashMap<String, Class>() {
+        project.apply(new LinkedHashMap<String, Class<BuildInfoPlugin>>() {
             {
                 put("plugin", GradleCMPlugin.BUILD_INFO_PLUGIN);
             }

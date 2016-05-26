@@ -17,6 +17,7 @@ import org.kercheval.gradle.vcs.git.JGitTestRepository;
 
 public class VCSTaskUtilTest
 {
+	@SuppressWarnings("rawtypes")
 	@Test
 	public void testValidateWorkspaceBranchName()
 		throws IOException, InvalidRemoteException, TransportException, GitAPIException
@@ -58,6 +59,7 @@ public class VCSTaskUtilTest
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Test
 	public void testValidateWorkspaceIsClean()
 		throws IOException, InvalidRemoteException, TransportException, GitAPIException

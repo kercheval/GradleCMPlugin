@@ -23,7 +23,7 @@ public class BuildReleaseMergeTaskTest {
                     ProjectBuilder.builder().withProjectDir(repoUtil.getStandardFile()).build();
             final GradleInfoSource gradleUtil = new GradleInfoSource(project);
 
-            project.apply(new LinkedHashMap<String, Class>() {
+            project.apply(new LinkedHashMap<String, Class<BuildReleasePlugin>>() {
                 {
                     put("plugin", GradleCMPlugin.BUILD_RELEASE_PLUGIN);
                 }

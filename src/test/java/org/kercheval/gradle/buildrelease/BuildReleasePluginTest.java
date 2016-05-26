@@ -26,6 +26,7 @@ import org.kercheval.gradle.vcs.git.JGitTestRepository;
 
 public class BuildReleasePluginTest
 {
+	@SuppressWarnings("rawtypes")
 	@Test
 	public void testTagAndPush()
 		throws InvalidRemoteException, TransportException, IOException, GitAPIException

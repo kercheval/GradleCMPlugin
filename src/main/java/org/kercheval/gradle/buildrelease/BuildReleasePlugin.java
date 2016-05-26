@@ -7,6 +7,7 @@ import org.gradle.api.execution.*;
 import org.gradle.api.internal.AbstractTask;
 import org.gradle.api.tasks.*;
 import org.kercheval.gradle.buildvcs.*;
+import org.kercheval.gradle.buildversion.BuildVersionPlugin;
 import org.kercheval.gradle.gradlecm.GradleCMPlugin;
 import org.kercheval.gradle.info.GradleInfoSource;
 import org.kercheval.gradle.vcs.*;
@@ -23,7 +24,7 @@ public class BuildReleasePlugin implements Plugin<Project> {
         //
         // This plugin uses buildversion tasks
         //
-        project.apply(new LinkedHashMap<String, Class>() {
+        project.apply(new LinkedHashMap<String, Class<BuildVersionPlugin>>() {
             {
                 put("plugin", GradleCMPlugin.BUILD_VERSION_PLUGIN);
             }

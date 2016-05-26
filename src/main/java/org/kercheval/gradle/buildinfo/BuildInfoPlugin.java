@@ -3,6 +3,7 @@ package org.kercheval.gradle.buildinfo;
 import java.util.LinkedHashMap;
 
 import org.gradle.api.*;
+import org.kercheval.gradle.buildvcs.BuildVCSPlugin;
 import org.kercheval.gradle.gradlecm.GradleCMPlugin;
 import org.kercheval.gradle.info.GradleInfoSource;
 
@@ -14,7 +15,7 @@ public class BuildInfoPlugin implements Plugin<Project> {
         //
         // We need the VCS plugin for this
         //
-        project.apply(new LinkedHashMap<String, Class>() {
+        project.apply(new LinkedHashMap<String, Class<BuildVCSPlugin>>() {
             {
                 put("plugin", GradleCMPlugin.BUILD_VCS_PLUGIN);
             }

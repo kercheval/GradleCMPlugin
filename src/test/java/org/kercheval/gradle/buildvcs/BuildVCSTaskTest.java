@@ -23,7 +23,7 @@ public class BuildVCSTaskTest {
                     ProjectBuilder.builder().withProjectDir(repoUtil.getOriginFile()).build();
             final GradleInfoSource gradleUtil = new GradleInfoSource(project);
 
-            project.apply(new LinkedHashMap<String, Class>() {
+            project.apply(new LinkedHashMap<String, Class<BuildVCSPlugin>>() {
                 {
                     put("plugin", GradleCMPlugin.BUILD_VCS_PLUGIN);
                 }

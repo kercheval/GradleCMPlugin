@@ -26,7 +26,7 @@ public class BuildVersionTaskTest
 {
 	private void applyBuildVersionPlugin(final Project project)
 	{
-		project.apply(new LinkedHashMap<String, Class>()
+		project.apply(new LinkedHashMap<String, Class<BuildVersionPlugin>>()
 		{
 			{
 				put("plugin", GradleCMPlugin.BUILD_VERSION_PLUGIN);

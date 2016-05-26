@@ -529,7 +529,6 @@ public class BuildVersion
 		}
 	}
 
-	@SuppressWarnings("hiding")
 	private void init(final int major, final int minor, final int build, final Date buildDate,
 		final boolean useLocalTimeZone)
 	{

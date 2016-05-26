@@ -6,6 +6,7 @@ import org.gradle.api.Project;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.Assert;
 import org.junit.Test;
+import org.kercheval.gradle.buildinfo.BuildInfoPlugin;
 import org.kercheval.gradle.gradlecm.GradleCMPlugin;
 
 public class GradleInfoSourceTest
@@ -19,7 +20,7 @@ public class GradleInfoSourceTest
 
 		Assert.assertNull(infoSource.getTask("buildinfo"));
 
-		project.apply(new LinkedHashMap<String, Class>()
+		project.apply(new LinkedHashMap<String, Class<BuildInfoPlugin>>()
 		{
 			{
 				put("plugin", GradleCMPlugin.BUILD_INFO_PLUGIN);
