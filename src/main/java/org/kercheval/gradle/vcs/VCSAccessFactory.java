@@ -15,6 +15,8 @@ import org.kercheval.gradle.vcs.none.VCSNoneImpl;
 //
 public class VCSAccessFactory
 {
+    private VCSAccessFactory() {}
+    
 	public static VCSAccess getCurrentVCS(final String type, final File srcRootDir,
 		final Logger logger)
 	{
