@@ -420,10 +420,7 @@ public class VCSGitImpl
 					}
 					finally
 					{
-						if (null != revWalk)
-						{
-							revWalk.dispose();
-						}
+					    revWalk.dispose();
 					}
 				}
 			}

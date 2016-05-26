@@ -40,6 +40,6 @@ public class TeamCityInfoSource
 	@Override
 	public boolean isActive()
 	{
-		return (null != System.getenv("TEAMCITY_VERSION"));
+		return null != System.getenv("TEAMCITY_VERSION");
 	}
 }

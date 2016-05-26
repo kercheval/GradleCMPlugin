@@ -130,7 +130,7 @@ public class BuildVersionTaskTest
 	private void validateVersionTag(final JGitTestRepository repoUtil, final Project project)
 		throws VCSException
 	{
-		final BuildVersion version = ((BuildVersion) project.getVersion());
+		final BuildVersion version = (BuildVersion) project.getVersion();
 		final VCSInfoSource git = new VCSGitImpl(repoUtil.getOriginFile(), project.getLogger());
 		final List<VCSTag> tagList = git.getTags(version.getValidatePattern());
 		boolean found = false;
