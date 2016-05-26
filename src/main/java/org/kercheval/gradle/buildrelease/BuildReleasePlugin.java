@@ -94,8 +94,7 @@ public class BuildReleasePlugin implements Plugin<Project> {
             //
             // We cannot tag and push when we have no VCS. Silently fail...
             //
-            if (!VCSAccess.Type.NONE.toString().toLowerCase()
-                .equals(vcsTask.getType().toLowerCase())) {
+            if (!VCSAccess.Type.NONE.toString().equalsIgnoreCase(vcsTask.getType())) {
                 final VCSTaskUtil vcsUtil = new VCSTaskUtil(project);
 
                 //
