@@ -90,9 +90,9 @@ public class VCSStatus
 
 	public boolean isClean()
 	{
-		return (getAdded().isEmpty() && getChanged().isEmpty() && getConflicting().isEmpty()
+		return getAdded().isEmpty() && getChanged().isEmpty() && getConflicting().isEmpty()
 			&& getMissing().isEmpty() && getModified().isEmpty() && getRemoved().isEmpty() && getUntracked()
-			.isEmpty());
+			.isEmpty();
 	}
 
 	public void setAdded(final Set<String> added)

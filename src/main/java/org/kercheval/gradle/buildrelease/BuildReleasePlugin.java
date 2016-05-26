@@ -59,7 +59,7 @@ public class BuildReleasePlugin implements Plugin<Project> {
                     final AbstractTask uploadTask = (AbstractTask) new GradleInfoSource(project)
                         .getTask(buildInitTask.getUploadtask());
 
-                    if ((null == uploadTask)) {
+                    if (null == uploadTask) {
                         project.getLogger().debug("The upload task '"
                                 + buildInitTask.getUploadtask()
                                 + "' specified for buildreleaseupdate does not exist.  This task may be dynamic.");
