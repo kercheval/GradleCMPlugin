@@ -162,9 +162,9 @@ public class BuildInfoTask
 							tasknameMap.put(task.getName(), task);
 						}
 
-						for (final String taskname : taskmap.keySet())
+						for (final Entry<String, String> taskInfo : taskmap.entrySet())
 						{
-							final Task task = tasknameMap.get(taskname);
+							final Task task = tasknameMap.get(taskInfo.getKey());
 
 							if (null != task)
 							{
@@ -200,7 +200,7 @@ public class BuildInfoTask
 												// add in the from and include parameters for
 												// the child spec
 												//
-												copySpec.into(taskmap.get(taskname)).include(
+												copySpec.into(taskInfo.getValue()).include(
 													getFilename());
 
 												return copySpec;
@@ -228,7 +228,7 @@ public class BuildInfoTask
 									//
 									project.getLogger().info(
 										"buildinfo: task defined in taskmap does not exist: "
-											+ taskname);
+											+ taskInfo.getKey());
 								}
 							}
 						}
@@ -326,8 +326,7 @@ public class BuildInfoTask
 
 				for (final Entry<String, Object> entry : getCustominfo().entrySet())
 				{
-					customProps.put("custom.info." + entry.getKey().toString(), entry.getValue()
-						.toString());
+					customProps.put("custom.info." + entry.getKey(), entry.getValue().toString());
 				}
 
 				customProps.store(out, "Custom build info specified in gradle build file");

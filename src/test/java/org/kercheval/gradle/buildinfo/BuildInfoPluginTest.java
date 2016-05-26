@@ -27,9 +27,8 @@ public class BuildInfoPluginTest {
             tasknameMap.put(task.getName(), task);
         }
 
-        final BuildInfoTask task = (BuildInfoTask) tasknameMap.get(BuildInfoPlugin.INFO_TASK_NAME);
+        return (BuildInfoTask) tasknameMap.get(BuildInfoPlugin.INFO_TASK_NAME);
 
-        return task;
     }
 
     private void resetDefaultTaskValues(final Project project, final BuildInfoTask task)
