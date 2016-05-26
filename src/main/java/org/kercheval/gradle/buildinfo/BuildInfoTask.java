@@ -38,7 +38,7 @@ public class BuildInfoTask
 {
 	public static final String DEFAULT_FILENAME = "buildinfo.properties";
 	public static final boolean DEFAULT_AUTOWRITE = true;
-	private static final Map<String, String> DEFAULT_TASKMAP_PRIVATE = new HashMap<String, String>();
+	private static final Map<String, String> DEFAULT_TASKMAP_PRIVATE = new HashMap<>();
 	static
 	{
 		DEFAULT_TASKMAP_PRIVATE.put("jar", "META-INF");
@@ -78,7 +78,7 @@ public class BuildInfoTask
 	//
 	// This map represents custom information should be placed in the file written
 	//
-	private Map<String, Object> custominfo = new HashMap<String, Object>();
+	private Map<String, Object> custominfo = new HashMap<>();
 
 	//
 	// These boolean values represent information to be enabled in output
@@ -155,7 +155,7 @@ public class BuildInfoTask
 					{
 						execute();
 
-						final Map<String, Task> tasknameMap = new HashMap<String, Task>();
+						final Map<String, Task> tasknameMap = new HashMap<>();
 
 						for (final Task task : graph.getAllTasks())
 						{

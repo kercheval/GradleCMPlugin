@@ -385,7 +385,7 @@ public class VCSGitImpl
 	public List<VCSTag> getTags(final String regexFilter)
 		throws VCSException
 	{
-		final List<VCSTag> rVal = new ArrayList<VCSTag>();
+		final List<VCSTag> rVal = new ArrayList<>();
 		Repository repository = null;
 
 		try

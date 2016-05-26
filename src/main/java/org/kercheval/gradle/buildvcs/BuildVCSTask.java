@@ -110,7 +110,7 @@ public class BuildVCSTask
 		}
 		if (!foundType)
 		{
-			final Set<VCSAccess.Type> typeSet = new HashSet<VCSAccess.Type>();
+			final Set<VCSAccess.Type> typeSet = new HashSet<>();
 			Collections.addAll(typeSet, VCSAccess.Type.values());
 
 			throw new IllegalArgumentException("The type '" + type + "' is invalid for task "

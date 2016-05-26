@@ -21,7 +21,7 @@ public class BuildInfoPluginTest {
             }
         });
 
-        final Map<String, Task> tasknameMap = new HashMap<String, Task>();
+        final Map<String, Task> tasknameMap = new HashMap<>();
 
         for (final Task task : project.getAllTasks(false).get(project)) {
             tasknameMap.put(task.getName(), task);
@@ -47,7 +47,7 @@ public class BuildInfoPluginTest {
                 ProjectBuilder.builder().withProjectDir(new File(JUNIT_FILE_LOCATION)).build();
         final BuildInfoTask task = getTask(project);
 
-        final HashMap<String, Object> customMap = new HashMap<String, Object>();
+        final HashMap<String, Object> customMap = new HashMap<>();
         customMap.put("CustomKey1", "CustomValue1");
         customMap.put("CustomKey2", "CustomValue2");
         customMap.put("CustomKey3", "CustomValue3");
@@ -168,7 +168,7 @@ public class BuildInfoPluginTest {
         Assert.assertSame(task.getTaskmap(), BuildInfoTask.DEFAULT_TASKMAP);
         Assert.assertEquals("bar", task.getFiledir());
 
-        final HashMap<String, String> taskmap = new HashMap<String, String>();
+        final HashMap<String, String> taskmap = new HashMap<>();
 
         taskmap.put("zip", "META-INF");
         resetDefaultTaskValues(project, task);
