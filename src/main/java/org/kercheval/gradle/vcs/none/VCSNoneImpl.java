@@ -76,7 +76,7 @@ public class VCSNoneImpl
 	public List<VCSTag> getTags(final String regexFilter)
 		throws VCSException
 	{
-		return new ArrayList<VCSTag>();
+		return new ArrayList<>();
 	}
 
 	@Override

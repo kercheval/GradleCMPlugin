@@ -43,7 +43,7 @@ public class VCSGitImplCredentialsProviderTest
 		final VCSGitImplCredentialsProvider inputCredentialsProvider = new VCSGitImplCredentialsProvider(
 			userIO);
 
-		final Map<String, String> environmentMap = new HashMap<String, String>();
+		final Map<String, String> environmentMap = new HashMap<>();
 		environmentMap.put("GIT_ORIGIN_USERNAME", "gituser");
 		environmentMap.put("GIT_ORIGIN_PASSWORD", "gitpass");
 		VCSGitImplCredentialsProvider.setEnvironmentMap(environmentMap);

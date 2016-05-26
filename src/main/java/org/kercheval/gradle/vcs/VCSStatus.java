@@ -15,43 +15,43 @@ public class VCSStatus
 	// This variable includes all files added to revision control
 	// (staged) but not committed.
 	//
-	private Set<String> added = new HashSet<String>();
+	private Set<String> added = new HashSet<>();
 
 	//
 	// This represents the set of files that have been modified
 	// and staged but no committed.
 	//
-	private Set<String> changed = new HashSet<String>();
+	private Set<String> changed = new HashSet<>();
 
 	//
 	// This represents the set of files that are in conflict (they are
 	// modified and staged but need resolution).
 	//
-	private Set<String> conflicting = new HashSet<String>();
+	private Set<String> conflicting = new HashSet<>();
 
 	//
 	// This represents files that are no longer on the local
 	// workspace, but have been removed in VCS (or staged).
 	//
-	private Set<String> missing = new HashSet<String>();
+	private Set<String> missing = new HashSet<>();
 
 	//
 	// This represents files that have been modified on the local
 	// work space but have not been staged.
 	//
-	private Set<String> modified = new HashSet<String>();
+	private Set<String> modified = new HashSet<>();
 
 	//
 	// This represents files that have been removed from the workspace
 	// and have also been staged (the VCS system knows they are to be deleted).
 	//
-	private Set<String> removed = new HashSet<String>();
+	private Set<String> removed = new HashSet<>();
 
 	//
 	// This represents new files in the workspace that have not been
 	// staged for commit.
 	//
-	private Set<String> untracked = new HashSet<String>();
+	private Set<String> untracked = new HashSet<>();
 
 	public Set<String> getAdded()
 	{

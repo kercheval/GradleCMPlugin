@@ -15,8 +15,8 @@ public class VCSStatusTest
 
 		Assert.assertTrue(status.isClean());
 
-		final Set<String> emptySet = new HashSet<String>();
-		final Set<String> notEmptySet = new HashSet<String>();
+		final Set<String> emptySet = new HashSet<>();
+		final Set<String> notEmptySet = new HashSet<>();
 
 		notEmptySet.add("not empty");
 		status.setAdded(notEmptySet);

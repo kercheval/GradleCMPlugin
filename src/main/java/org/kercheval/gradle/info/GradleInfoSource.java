@@ -51,7 +51,7 @@ public class GradleInfoSource
 
 	public Task getTask(final String taskname)
 	{
-		final Map<String, Task> tasknameMap = new HashMap<String, Task>();
+		final Map<String, Task> tasknameMap = new HashMap<>();
 
 		for (final Task task : project.getAllTasks(false).get(project))
 		{
