@@ -18,85 +18,6 @@ public class BuildVersion
 	//
 	public static final String DEFAULT_PATTERN = "%M%.%m%-%d%.%t%";
 
-	private static String generateValidatePattern(String buildPattern)
-	{
-		final StringBuilder validatePatternStr = new StringBuilder();
-
-		//
-		// Escape all regex meta characters while adding in the pattern variables
-		//
-		buildPattern = buildPattern.replaceAll("([\\\\*+\\[\\](){}\\$.?\\^|])", "\\\\$1");
-
-		//
-		// The pattern is known valid, just fill in the blanks
-		//
-		int index = 0;
-		int lastIndex = index;
-
-		while (index >= 0)
-		{
-
-			//
-			// Find the next pattern block to validate
-			//
-			index = buildPattern.indexOf("%", index);
-
-			int nextIndex = index + 3;
-
-			if (index >= 0)
-			{
-
-				//
-				// Place the block from the last match to the current into the string
-				//
-				validatePatternStr.append(buildPattern.substring(lastIndex, index));
-
-				final char nextChar = buildPattern.charAt(index + 1);
-
-				switch (nextChar)
-				{
-				case '%':
-					validatePatternStr.append("%");
-
-					//
-					// Backup the index one since this is only 2 characters consumed
-					//
-					nextIndex -= 1;
-
-					break;
-
-				case 'M':
-				case 'm':
-				case 'b':
-				case 'd':
-				case 't':
-					validatePatternStr.append("\\d+");
-
-					break;
-
-				default:
-
-					//
-					// This state is not possible if the validate method works. Not testable
-					// without breaking private contract
-					//
-					throw new IllegalStateException("Invalid pattern detected '" + buildPattern
-						+ "' at index: " + index);
-				}
-
-				index = nextIndex;
-				lastIndex = index;
-			}
-		}
-
-		//
-		// Tack on the postfix (if any)
-		//
-		validatePatternStr.append(buildPattern.substring(lastIndex));
-
-		return validatePatternStr.toString();
-	}
-
 	//
 	// The actual version info pulled from the candidate based on the
 	// pattern or passed into the constructor
@@ -178,6 +99,85 @@ public class BuildVersion
 		setPattern(pattern, validatePattern);
 		parseCandidate(candidate);
 	}
+	
+	private static String generateValidatePattern(String buildPattern)
+    {
+        final StringBuilder validatePatternStr = new StringBuilder();
+
+        //
+        // Escape all regex meta characters while adding in the pattern variables
+        //
+        buildPattern = buildPattern.replaceAll("([\\\\*+\\[\\](){}\\$.?\\^|])", "\\\\$1");
+
+        //
+        // The pattern is known valid, just fill in the blanks
+        //
+        int index = 0;
+        int lastIndex = index;
+
+        while (index >= 0)
+        {
+
+            //
+            // Find the next pattern block to validate
+            //
+            index = buildPattern.indexOf("%", index);
+
+            int nextIndex = index + 3;
+
+            if (index >= 0)
+            {
+
+                //
+                // Place the block from the last match to the current into the string
+                //
+                validatePatternStr.append(buildPattern.substring(lastIndex, index));
+
+                final char nextChar = buildPattern.charAt(index + 1);
+
+                switch (nextChar)
+                {
+                case '%':
+                    validatePatternStr.append("%");
+
+                    //
+                    // Backup the index one since this is only 2 characters consumed
+                    //
+                    nextIndex -= 1;
+
+                    break;
+
+                case 'M':
+                case 'm':
+                case 'b':
+                case 'd':
+                case 't':
+                    validatePatternStr.append("\\d+");
+
+                    break;
+
+                default:
+
+                    //
+                    // This state is not possible if the validate method works. Not testable
+                    // without breaking private contract
+                    //
+                    throw new IllegalStateException("Invalid pattern detected '" + buildPattern
+                        + "' at index: " + index);
+                }
+
+                index = nextIndex;
+                lastIndex = index;
+            }
+        }
+
+        //
+        // Tack on the postfix (if any)
+        //
+        validatePatternStr.append(buildPattern.substring(lastIndex));
+
+        return validatePatternStr.toString();
+    }
 
 	private String checkPattern(final String checkPattern)
 	{
