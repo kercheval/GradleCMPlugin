@@ -16,8 +16,7 @@ buildversion {
 		// values.  Release gets the default pattern of the maven default
 		//
 		def branchName = buildvcs.getBranchName()
-        if (branchName != 'release' &&
-            !project.hasProperty('noSnapshot')) {
+		if (branchName != 'release' && !project.hasProperty('noSnapshot')) {
 			version.setPattern("%M%.%m%-SNAPSHOT")
 		}
 		version.updateMajor(new Integer(buildMajorVersion))
@@ -41,18 +40,18 @@ clean {
 // Manifest specific properties.
 //
 tasks.withType(Jar) {
-    manifest {
+	manifest {
 		doFirst {
 			attributes 'Implementation-Title': description, 'Implementation-Version': version
 		}
-    }
+	}
 }
 
 //
 // Enable lint compilation
 //
 tasks.withType(JavaCompile) {
-    options.compilerArgs << "-Xlint:unchecked"
+	options.compilerArgs << "-Xlint:unchecked"
 }
 
 //
@@ -64,7 +63,7 @@ repositories {
 
 dependencies {
 	compile gradleApi()
-    compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '2.3.1.201302201838-r'
+	compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '4.10.0.201712302008-r'
 	testCompile group: 'junit', name: 'junit', version: '4.+'
 }
 
